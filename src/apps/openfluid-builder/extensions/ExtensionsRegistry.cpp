@@ -63,7 +63,6 @@ ExtensionsRegistry::~ExtensionsRegistry()
   {
     if (ExtCont.second)
     {
-      delete ExtCont.second;
       ExtCont.second = nullptr;
     }
   }
@@ -72,7 +71,6 @@ ExtensionsRegistry::~ExtensionsRegistry()
   {
     if (ExtCont.second)
     {
-      delete ExtCont.second;
       ExtCont.second = nullptr;
     }
   }
@@ -88,7 +86,7 @@ void ExtensionsRegistry::registerExtensions()
   if (m_IsRegistered)
     return;
 
-  std::vector<ExtensionContainer*> ExtVector =
+  std::vector<std::shared_ptr<ExtensionContainer>> ExtVector =
       ExtensionPluginsManager::instance()->getAvailableWaresSignatures().AvailablePlugins;
 
   for (unsigned int i=0; i<ExtVector.size(); i++)
@@ -116,7 +114,7 @@ openfluid::builderext::PluggableBuilderExtension*
 {
   if (isFeatureExtensionRegistered(ID) && !m_FeatureExtensions[ID]->Active)
   {
-    ExtensionPluginsManager::instance()->completeSignatureWithWareBody(m_FeatureExtensions[ID]);
+    ExtensionPluginsManager::instance()->completeSignatureWithWareBody(m_FeatureExtensions[ID].get());
     m_FeatureExtensions[ID]->Body
       ->linkToRunEnvironment(&openfluid::base::RunContextManager::instance()->getWaresEnvironment());
     m_FeatureExtensions[ID]->Body->initializeWare(ID);
@@ -196,7 +194,7 @@ openfluid::builderext::PluggableBuilderExtension*
 {
   if (isParameterizationExtensionRegistered(UUID))
   {
-    ExtensionPluginsManager::instance()->completeSignatureWithWareBody(m_ParameterizationExtensions[UUID]);
+    ExtensionPluginsManager::instance()->completeSignatureWithWareBody(m_ParameterizationExtensions[UUID].get());
 
     m_ParameterizationExtensions[UUID]->Body
       ->linkToRunEnvironment(&openfluid::base::RunContextManager::instance()->getWaresEnvironment());

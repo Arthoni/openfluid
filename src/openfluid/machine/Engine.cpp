@@ -322,7 +322,7 @@ void Engine::checkSimulationVarsProduction(int ExpectedVarsCount)
 
 void Engine::checkParametersConsistency()
 {
-  for (ModelItemInstance* IInstance : m_ModelInstance.items())
+  for (auto&& IInstance : m_ModelInstance.items())
   {
     for (openfluid::ware::SignatureDataItem Param : IInstance->Signature->HandledData.RequiredParams)
     {
@@ -371,7 +371,7 @@ void Engine::checkParametersConsistency()
 
 void Engine::checkModelConsistency()
 {
-  std::list<ModelItemInstance*>::const_iterator SimIter;
+  std::list<std::shared_ptr<ModelItemInstance>>::const_iterator SimIter;
   openfluid::ware::SignatureHandledData HData;
   ModelItemInstance* CurrentSimulator;
   unsigned int i;
@@ -389,7 +389,7 @@ void Engine::checkModelConsistency()
 
   while (SimIter != m_ModelInstance.items().end())
   {
-    CurrentSimulator = (*SimIter);
+    CurrentSimulator = (*SimIter).get();
     HData = CurrentSimulator->Signature->HandledData;
 
     // checking variables to create (produced)
@@ -413,7 +413,7 @@ void Engine::checkModelConsistency()
 
   while (SimIter != m_ModelInstance.items().end())
   {
-    CurrentSimulator = (*SimIter);
+    CurrentSimulator = (*SimIter).get();
     HData = CurrentSimulator->Signature->HandledData;
 
     // checking required variables
@@ -435,7 +435,7 @@ void Engine::checkModelConsistency()
 
 void Engine::checkAttributesConsistency()
 {
-  std::list<ModelItemInstance*>::const_iterator SimIter;
+  std::list<std::shared_ptr<ModelItemInstance>>::const_iterator SimIter;
   openfluid::ware::SignatureHandledData HData;
   ModelItemInstance* CurrentSimulator;
   unsigned int i;
@@ -445,7 +445,7 @@ void Engine::checkAttributesConsistency()
 
   while (SimIter != m_ModelInstance.items().end())
   {
-    CurrentSimulator = (*SimIter);
+    CurrentSimulator = (*SimIter).get();
     HData = CurrentSimulator->Signature->HandledData;
 
     // checking required attribute
@@ -474,7 +474,7 @@ void Engine::checkAttributesConsistency()
 
 void Engine::checkExtraFilesConsistency()
 {
-  std::list<ModelItemInstance*>::const_iterator SimIter;
+  std::list<std::shared_ptr<ModelItemInstance>>::const_iterator SimIter;
   openfluid::ware::SignatureHandledData HData;
   ModelItemInstance* CurrentSimulator;
 
@@ -482,7 +482,7 @@ void Engine::checkExtraFilesConsistency()
   // on each simulator
   for (SimIter = m_ModelInstance.items().begin(); SimIter != m_ModelInstance.items().end(); ++SimIter)
   {
-    CurrentSimulator = *SimIter;
+    CurrentSimulator = (*SimIter).get();
 
     HData = CurrentSimulator->Signature->HandledData;
 

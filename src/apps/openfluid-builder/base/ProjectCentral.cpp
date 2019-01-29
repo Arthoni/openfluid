@@ -447,7 +447,7 @@ void ProjectCentral::checkModel()
     {
       AtLeastOneEnabled = true;
 
-      const openfluid::machine::ModelItemSignatureInstance* SignII = Reg->signature(*itModelItem);
+      const openfluid::machine::ModelItemSignatureInstance* SignII = Reg->signature(*itModelItem).get();
 
 
       if (SignII != nullptr)
@@ -690,7 +690,7 @@ void ProjectCentral::checkModel()
   {
     if ((*itModelItem)->isEnabled())
     {
-      const openfluid::machine::ModelItemSignatureInstance* SignII = Reg->signature(*itModelItem);
+      const openfluid::machine::ModelItemSignatureInstance* SignII = Reg->signature(*itModelItem).get();
 
       if (SignII != nullptr)
       {
@@ -804,7 +804,7 @@ void ProjectCentral::checkModel()
   {
     if ((*itModelItem)->isEnabled())
     {
-      const openfluid::machine::ModelItemSignatureInstance* SignII = Reg->signature(*itModelItem);
+      const openfluid::machine::ModelItemSignatureInstance* SignII = Reg->signature(*itModelItem).get();
       std::string ID = Model.getID(*itModelItem);
 
       if (SignII != nullptr)
@@ -950,7 +950,7 @@ void ProjectCentral::checkMonitoring()
     {
       AtLeastOneEnabled = true;
 
-      const openfluid::machine::ObserverSignatureInstance* SignII = Reg->signature((*itMonitoring)->getID());
+      const openfluid::machine::ObserverSignatureInstance* SignII = Reg->signature((*itMonitoring)->getID()).get();
 
       if (SignII == nullptr)
       {

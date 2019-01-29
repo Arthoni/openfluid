@@ -66,7 +66,7 @@ class OPENFLUID_API ModelInstance
 {
   private:
 
-    std::list<ModelItemInstance*> m_ModelItems;
+    std::list<std::shared_ptr<ModelItemInstance>> m_ModelItems;
 
     openfluid::machine::MachineListener* mp_Listener;
 
@@ -99,14 +99,14 @@ class OPENFLUID_API ModelInstance
 
     ~ModelInstance();
 
-    void appendItem(ModelItemInstance* ItemInstance);
+    void appendItem(std::shared_ptr<ModelItemInstance> ItemInstance);
 
     /**
       Insert a ModelItemInstance before the given postion (positions starts at index 0)
       @param[in] ItemInstance the ModelItemInstance to insert
       @param[in] Position the position
     */
-    void insertItem(ModelItemInstance* ItemInstance, unsigned int Position);
+    void insertItem(std::shared_ptr<ModelItemInstance> ItemInstance, unsigned int Position);
 
     /**
       Delete the ModelItemInstance located at the given postion (positions starts at index 0),
@@ -134,7 +134,7 @@ class OPENFLUID_API ModelInstance
       m_GlobalParams = Params;
     }
 
-    const std::list<ModelItemInstance*>& items() const
+    const std::list<std::shared_ptr<ModelItemInstance>>& items() const
     {
       return m_ModelItems;
     }

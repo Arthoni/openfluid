@@ -44,6 +44,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <openfluid/dllexport.hpp>
 #include <openfluid/machine/WareSignatureRegistry.hpp>
@@ -64,7 +65,7 @@ class OPENFLUID_API ObserverSignatureRegistry : public WareSignatureRegistry<Obs
 
   private:
 
-    std::vector<ObserverSignatureInstance*> m_AvailableSignatures;
+    std::vector<std::shared_ptr<ObserverSignatureInstance>> m_AvailableSignatures;
 
     ObserverSignatureRegistry();
 
@@ -77,14 +78,14 @@ class OPENFLUID_API ObserverSignatureRegistry : public WareSignatureRegistry<Obs
       @brief Returns the Signature of the Observer with ObserverID if available
       @throw openfluid::base::FrameworkException if this Observer plugin is not available
     */
-    const openfluid::machine::ObserverSignatureInstance* signature(const openfluid::ware::WareID_t& ID) const;
+    const std::shared_ptr<openfluid::machine::ObserverSignatureInstance> signature(const openfluid::ware::WareID_t& ID) const;
 
     /**
       @brief Updates the list of available signatures, according to Runtime environment paths
     */
     void update();
 
-    const std::vector<openfluid::machine::ObserverSignatureInstance*>& getAvailableSignatures() const;
+    const std::vector<std::shared_ptr<openfluid::machine::ObserverSignatureInstance>>& getAvailableSignatures() const;
 
     void unloadAll();
 

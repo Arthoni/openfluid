@@ -71,7 +71,7 @@ MonitoringInstance::~MonitoringInstance()
 // =====================================================================
 
 
-void MonitoringInstance::appendObserver(ObserverInstance* ObsInstance)
+void MonitoringInstance::appendObserver(std::shared_ptr<ObserverInstance> ObsInstance)
 {
   if (m_Initialized)
   {
@@ -79,7 +79,7 @@ void MonitoringInstance::appendObserver(ObserverInstance* ObsInstance)
                                               "Trying to append observer after observers list initialization");
   }
 
-  m_Observers.push_back(ObsInstance);
+  m_Observers.push_back(std::move(ObsInstance));
 }
 
 
@@ -91,13 +91,13 @@ void MonitoringInstance::initialize(openfluid::base::SimulationLogger* SimLogger
 {
   openfluid::machine::ObserverPluginsManager* OPlugsMgr = openfluid::machine::ObserverPluginsManager::instance();
 
-  std::list<ObserverInstance*>::const_iterator ObsIter;
+  std::list<std::shared_ptr<ObserverInstance>>::const_iterator ObsIter; 
   ObserverInstance* CurrentObserver;
 
   ObsIter = m_Observers.begin();
   while (ObsIter != m_Observers.end())
   {
-    CurrentObserver = (*ObsIter);
+    CurrentObserver = (*ObsIter).get();
     OPlugsMgr->completeSignatureWithWareBody(CurrentObserver);
 
     CurrentObserver->Body->linkToSimulationLogger(SimLogger);
@@ -126,24 +126,19 @@ void MonitoringInstance::finalize()
                                               "Trying to finalize an uninitialized observers list");
   }
 
-  std::list<ObserverInstance*>::const_iterator ObsIter;
 
   // call of finalizeWare method on each observer
-  ObsIter = m_Observers.begin();
-  while (ObsIter != m_Observers.end())
+  for (auto&& CurrentObserver : m_Observers)
   {
-    (*ObsIter)->Body->finalizeWare();
-    ++ObsIter;
+    CurrentObserver->Body->finalizeWare();
   }
 
 
   // destroy of each observer
-  ObsIter = m_Observers.begin();
-  while (ObsIter != m_Observers.end())
+  for (auto&& CurrentObserver : m_Observers)
   {
-    (*ObsIter)->Body.reset();
+    CurrentObserver->Body.reset();
     // TODO reset Signature?
-    ++ObsIter;
   }
 
   m_Initialized = false;
@@ -156,14 +151,10 @@ void MonitoringInstance::finalize()
 
 void MonitoringInstance::call_initParams() const
 {
-  std::list<ObserverInstance*>::const_iterator ObsIter;
-
   // call of initParams method on each observer
-  ObsIter = m_Observers.begin();
-  while (ObsIter != m_Observers.end())
+  for (auto&& CurrentObserver : m_Observers)
   {
-    (*ObsIter)->Body->initParams((*ObsIter)->Params);
-    ++ObsIter;
+      CurrentObserver->Body->initParams(CurrentObserver->Params);
   }
 }
 
@@ -174,14 +165,10 @@ void MonitoringInstance::call_initParams() const
 
 void MonitoringInstance::call_onPrepared() const
 {
-  std::list<ObserverInstance*>::const_iterator ObsIter;
-
-  // call of initParams method on each observer
-  ObsIter = m_Observers.begin();
-  while (ObsIter != m_Observers.end())
+  // call of onPrepared method on each observer
+  for (auto&& CurrentObserver : m_Observers)
   {
-    (*ObsIter)->Body->onPrepared();
-    ++ObsIter;
+    CurrentObserver->Body->onPrepared();
   }
 }
 
@@ -192,14 +179,10 @@ void MonitoringInstance::call_onPrepared() const
 
 void MonitoringInstance::call_onInitializedRun() const
 {
-  std::list<ObserverInstance*>::const_iterator ObsIter;
-
-  // call of initParams method on each observer
-  ObsIter = m_Observers.begin();
-  while (ObsIter != m_Observers.end())
+  // call of onInitializedRun method on each observer
+  for (auto&& CurrentObserver : m_Observers)
   {
-    (*ObsIter)->Body->onInitializedRun();
-    ++ObsIter;
+    CurrentObserver->Body->onInitializedRun();
   }
 }
 
@@ -210,15 +193,11 @@ void MonitoringInstance::call_onInitializedRun() const
 
 void MonitoringInstance::call_onStepCompleted(const openfluid::core::TimeIndex_t& TimeIndex) const
 {
-  std::list<ObserverInstance*>::const_iterator ObsIter;
-
-  // call of initParams method on each observer
-  ObsIter = m_Observers.begin();
-  while (ObsIter != m_Observers.end())
+  // call of onStepCompleted and setPreviousTimeIndex method on each observer
+  for (auto&& CurrentObserver : m_Observers)
   {
-    (*ObsIter)->Body->onStepCompleted();
-    (*ObsIter)->Body->setPreviousTimeIndex(TimeIndex);
-    ++ObsIter;
+    CurrentObserver->Body->onStepCompleted();
+    CurrentObserver->Body->setPreviousTimeIndex(TimeIndex);
   }
 }
 
@@ -229,14 +208,10 @@ void MonitoringInstance::call_onStepCompleted(const openfluid::core::TimeIndex_t
 
 void MonitoringInstance::call_onFinalizedRun() const
 {
-  std::list<ObserverInstance*>::const_iterator ObsIter;
-
-  // call of initParams method on each observer
-  ObsIter = m_Observers.begin();
-  while (ObsIter != m_Observers.end())
+  // call of onFinalizedRun method on each observer
+  for (auto&& CurrentObserver : m_Observers)
   {
-    (*ObsIter)->Body->onFinalizedRun();
-    ++ObsIter;
+    CurrentObserver->Body->onFinalizedRun();
   }
 }
 

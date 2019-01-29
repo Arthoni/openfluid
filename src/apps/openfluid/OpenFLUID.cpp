@@ -398,7 +398,7 @@ void OpenFLUIDApp::printSimulatorsHandledDataReport(openfluid::ware::SignatureHa
 
 void OpenFLUIDApp::printSimulatorsReport(const std::string& Pattern)
 {
-  std::vector<openfluid::machine::ModelItemSignatureInstance*> PlugContainers =
+  std::vector<std::shared_ptr<openfluid::machine::ModelItemSignatureInstance>> PlugContainers =
       openfluid::machine::SimulatorPluginsManager::instance()->getAvailableWaresSignatures(Pattern).AvailablePlugins;
   std::string StatusStr;
 
@@ -480,7 +480,7 @@ void OpenFLUIDApp::printSimulatorsReport(const std::string& Pattern)
 
 void OpenFLUIDApp::printObserversReport(const std::string& Pattern)
 {
-  std::vector<openfluid::machine::ObserverSignatureInstance*> PlugContainers =
+  std::vector<std::shared_ptr<openfluid::machine::ObserverSignatureInstance>> PlugContainers =
       openfluid::machine::ObserverPluginsManager::instance()->getAvailableWaresSignatures(Pattern).AvailablePlugins;
 
   if (PlugContainers.size() > 0)

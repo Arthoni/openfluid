@@ -35,6 +35,8 @@
 
   @author Jean-Christophe FABRE <jean-christophe.fabre@inra.fr>
  */
+ 
+ #include <memory>
 
 
 #include <openfluid/base/RunContextManager.hpp>
@@ -54,7 +56,7 @@ namespace openfluid { namespace machine {
 
 
 #define DECLARE_SIMULATOR_PARSER \
-    std::list<ModelItemInstance*>::const_iterator _M_SimIter; \
+    std::list<std::shared_ptr<ModelItemInstance>>::const_iterator _M_SimIter; \
 
 /**
   Macro for parsing the simulators list and calling the given method of each simulator of the list
@@ -65,7 +67,7 @@ namespace openfluid { namespace machine {
     _M_SimIter = m_ModelItems.begin(); \
     while (_M_SimIter != m_ModelItems.end()) \
     { \
-      ModelItemInstance* _M_CurrentSimulator = *_M_SimIter; \
+      ModelItemInstance* _M_CurrentSimulator = (*_M_SimIter).get(); \
       if (_M_CurrentSimulator != nullptr) \
       { \
         mp_Listener->onSimulator##listenermethod(_M_CurrentSimulator->Signature->ID); \
@@ -233,7 +235,7 @@ void ModelInstance::setGlobalParameter(const openfluid::ware::WareParamKey_t& Ke
 // =====================================================================
 
 
-void ModelInstance::appendItem(ModelItemInstance* ItemInstance)
+void ModelInstance::appendItem(std::shared_ptr<ModelItemInstance> ItemInstance)
 {
   if (m_Initialized)
   {
@@ -249,7 +251,7 @@ void ModelInstance::appendItem(ModelItemInstance* ItemInstance)
 // =====================================================================
 
 
-void ModelInstance::insertItem(ModelItemInstance* ItemInstance, unsigned int Position)
+void ModelInstance::insertItem(std::shared_ptr<ModelItemInstance> ItemInstance, unsigned int Position)
 {
   if (m_Initialized)
   {
@@ -265,7 +267,7 @@ void ModelInstance::insertItem(ModelItemInstance* ItemInstance, unsigned int Pos
   {
     if (Position < m_ModelItems.size())
     {
-      std::list<ModelItemInstance*>::iterator it = m_ModelItems.begin();
+      std::list<std::shared_ptr<ModelItemInstance>>::iterator it = m_ModelItems.begin();
       for (unsigned int i = 0; i< Position; i++) ++it;
       m_ModelItems.insert(it,ItemInstance);
     }
@@ -288,7 +290,7 @@ void ModelInstance::deleteItem(unsigned int Position)
 
   if (Position < m_ModelItems.size())
   {
-    std::list<ModelItemInstance*>::iterator it = m_ModelItems.begin();
+    std::list<std::shared_ptr<ModelItemInstance>>::iterator it = m_ModelItems.begin();
     for (unsigned int i = 0; i< Position; i++) ++it;
     m_ModelItems.erase(it);
   }
@@ -312,7 +314,7 @@ void ModelInstance::clear()
                                               "Trying to clear model after while the model is initialized");
   }
 
-  std::list<ModelItemInstance*>::iterator it;
+  std::list<std::shared_ptr<ModelItemInstance>>::iterator it;
 
   for (it=m_ModelItems.begin();it!=m_ModelItems.end();++it)
   {
@@ -335,13 +337,13 @@ void ModelInstance::initialize(openfluid::base::SimulationLogger* SimLogger)
 
   openfluid::machine::SimulatorPluginsManager* FPlugsMgr = openfluid::machine::SimulatorPluginsManager::instance();
 
-  std::list<ModelItemInstance*>::const_iterator SimIter;
   ModelItemInstance* CurrentSimulator;
+  std::list<std::shared_ptr<ModelItemInstance>>::const_iterator SimIter;
 
   SimIter = m_ModelItems.begin();
   while (SimIter != m_ModelItems.end())
   {
-    CurrentSimulator = (*SimIter);
+    CurrentSimulator = (*SimIter).get();
 
     if(CurrentSimulator->ItemType == openfluid::ware::WareType::SIMULATOR)
     {
@@ -411,14 +413,14 @@ void ModelInstance::finalize()
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,"Trying to finalize an uninitialized model");
   }
 
-  std::list<ModelItemInstance*>::const_iterator SimIter;
+  std::list<std::shared_ptr<ModelItemInstance>>::const_iterator SimIter;
 
 
   // call of finalizeWare method on each simulator
   SimIter = m_ModelItems.begin();
   while (SimIter != m_ModelItems.end())
   {
-    (*SimIter)->Body->finalizeWare();
+    (*SimIter).get()->Body->finalizeWare();
     ++SimIter;
   }
 
@@ -527,13 +529,13 @@ void ModelInstance::call_initializeRun()
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,"Model not initialized");
   }
 
-  std::list<ModelItemInstance*>::const_iterator SimIter;
+  std::list<std::shared_ptr<ModelItemInstance>>::const_iterator SimIter;
 
 
   SimIter = m_ModelItems.begin();
   while (SimIter != m_ModelItems.end())
   {
-    ModelItemInstance* CurrentSimulator = *SimIter;
+    ModelItemInstance* CurrentSimulator = (*SimIter).get();
     if (CurrentSimulator != nullptr)
     {
       mp_Listener->onSimulatorInitializeRun(CurrentSimulator->Signature->ID);

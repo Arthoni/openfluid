@@ -104,18 +104,18 @@ class OPENFLUID_API WarePluginsManager
     // =====================================================================
 
 
-    ItemType* buildWareContainerWithSignatureOnly(const std::string& ID)
+    std::shared_ptr<ItemType> buildWareContainerWithSignatureOnly(const std::string& ID)
     {
       std::string PluginFilename = ID+getPluginFilenameSuffix()+openfluid::config::PLUGINS_EXT;
       std::string PluginFullPath = getPluginFullPath(PluginFilename);
-      ItemType* WareItem = nullptr;
+      std::shared_ptr<ItemType> WareItem = nullptr;
 
       QLibrary* PlugLib = loadPluginLibrary(PluginFullPath);
 
       // library loading
       if (PlugLib && PlugLib->load())
       {
-        WareItem = new ItemType();
+        WareItem = std::make_shared<ItemType>();
         WareItem->FileFullPath = PluginFullPath;
 
         GetWareABIVersionProc ABIVersionProc = (GetWareABIVersionProc)PlugLib->resolve(WAREABIVERSION_PROC_NAME);
@@ -181,10 +181,10 @@ class OPENFLUID_API WarePluginsManager
     // =====================================================================
 
 
-    SignatureType* getWareSignature(const std::string& PluginFilename)
+    std::shared_ptr<SignatureType> getWareSignature(const std::string& PluginFilename)
     {
       std::string PluginFullPath = getPluginFullPath(PluginFilename);
-      SignatureType* Sign = nullptr;
+      std::shared_ptr<SignatureType> Sign = nullptr;
 
       openfluid::base::ExceptionContext ECtxt =
           openfluid::base::FrameworkException::computeContext(OPENFLUID_CODE_LOCATION)
@@ -198,7 +198,7 @@ class OPENFLUID_API WarePluginsManager
       {
         if (PlugLib->load())
         {
-          Sign = new SignatureType();
+          Sign = std::make_shared<SignatureType>();
           Sign->FileFullPath = PluginFullPath;
 
           GetWareABIVersionProc ABIVersionProc = (GetWareABIVersionProc)PlugLib->resolve(WAREABIVERSION_PROC_NAME);
@@ -290,7 +290,7 @@ class OPENFLUID_API WarePluginsManager
     {
       public:
 
-        std::vector<SignatureType*> AvailablePlugins;
+        std::vector<std::shared_ptr<SignatureType>> AvailablePlugins;
 
         std::map<std::string,std::string> ErroredFiles;
     };
@@ -368,23 +368,21 @@ class OPENFLUID_API WarePluginsManager
       }
 
 
-      SignatureType* CurrentPlug = nullptr;
-
       for (i=0;i<PluginFiles.size();i++)
       {
+        std::shared_ptr<SignatureType> CurrentPlug = nullptr;
         try
         {
-          CurrentPlug = getWareSignature(PluginFiles[i]);
-
+          CurrentPlug = std::move(getWareSignature(PluginFiles[i]));
           if (CurrentPlug && CurrentPlug->Verified)
           {
             if (Pattern.empty())
             {
-              SearchResults.AvailablePlugins.push_back(CurrentPlug);
+              SearchResults.AvailablePlugins.push_back(std::move(CurrentPlug));
             }
             else if (openfluid::tools::matchWithWildcard(Pattern,CurrentPlug->Signature->ID))
             {
-              SearchResults.AvailablePlugins.push_back(CurrentPlug);
+              SearchResults.AvailablePlugins.push_back(std::move(CurrentPlug));
             }
           }
         }
@@ -407,13 +405,13 @@ class OPENFLUID_API WarePluginsManager
       @param[in] ID The ID of the ware to load
       @return The ware container including the signature
     */
-    ItemType* loadWareSignatureOnly(const std::string& ID)
+    std::shared_ptr<ItemType> loadWareSignatureOnly(const std::string& ID)
     {
-      ItemType* WareItem = buildWareContainerWithSignatureOnly(ID);
+      std::shared_ptr<ItemType> WareItem = std::move(buildWareContainerWithSignatureOnly(ID));
 
       if (WareItem != nullptr && WareItem->Verified)
       {
-        return WareItem;
+        return std::move(WareItem);
       }
 
       return nullptr;

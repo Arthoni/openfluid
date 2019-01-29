@@ -67,7 +67,7 @@ class WareSignatureRegistry
       @param[in] ID The ID of the ware
       @return The signature of the ware, nullptr if not found
     */
-    virtual  const S* signature(const openfluid::ware::WareID_t& ID) const = 0;
+    virtual  const std::shared_ptr<S> signature(const openfluid::ware::WareID_t& ID) const = 0;
 
 };
 

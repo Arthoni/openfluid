@@ -182,7 +182,7 @@ void SimulatorWidget::updateParametersListWithSignature(const openfluid::machine
 void SimulatorWidget::updateParametersList()
 {
   const openfluid::machine::ModelItemSignatureInstance* Signature =
-    openfluid::machine::SimulatorSignatureRegistry::instance()->signature(m_ID);
+    openfluid::machine::SimulatorSignatureRegistry::instance()->signature(m_ID).get();
 
   updateParametersListWithSignature(Signature);
 }
@@ -215,7 +215,7 @@ void SimulatorWidget::findDocFile(const openfluid::machine::ModelItemSignatureIn
 void SimulatorWidget::refresh()
 {
   const openfluid::machine::ModelItemSignatureInstance* Signature =
-    openfluid::machine::SimulatorSignatureRegistry::instance()->signature(m_ID);
+    openfluid::machine::SimulatorSignatureRegistry::instance()->signature(m_ID).get();
 
   m_Ghost = false;
 

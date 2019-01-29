@@ -42,6 +42,8 @@
 #define __OPENFLUID_MACHINE_SIMULATORSIGNATUREREGISTRY_HPP__
 
 
+#include <memory>
+
 #include <openfluid/fluidx/ModelItemDescriptor.hpp>
 #include <openfluid/fluidx/GeneratorDescriptor.hpp>
 #include <openfluid/machine/WareSignatureRegistry.hpp>
@@ -66,11 +68,11 @@ class OPENFLUID_API SimulatorSignatureRegistry : public WareSignatureRegistry<Mo
 
   public:
 
-    typedef std::map<std::string, openfluid::machine::ModelItemSignatureInstance*> SimSignaturesByName_t;
+    typedef std::map<std::string, std::shared_ptr<openfluid::machine::ModelItemSignatureInstance>> SimSignaturesByName_t;
 
     typedef
       std::map<openfluid::fluidx::GeneratorDescriptor::GeneratorMethod,
-               openfluid::machine::ModelItemSignatureInstance*> GenSignaturesByMethod_t;
+               std::shared_ptr<openfluid::machine::ModelItemSignatureInstance>> GenSignaturesByMethod_t;
 
     typedef std::map<openfluid::ware::WareType,
                      SimSignaturesByName_t> SimSignaturesByTypeByName_t;
@@ -86,9 +88,9 @@ class OPENFLUID_API SimulatorSignatureRegistry : public WareSignatureRegistry<Mo
 
     virtual ~SimulatorSignatureRegistry();
 
-    void addSimulatorSignature(openfluid::machine::ModelItemSignatureInstance* Signature);
+    void addSimulatorSignature(std::shared_ptr<openfluid::machine::ModelItemSignatureInstance> Signature);
 
-    void addGeneratorSignature(openfluid::machine::ModelItemSignatureInstance* Signature);
+    void addGeneratorSignature(std::shared_ptr<openfluid::machine::ModelItemSignatureInstance> Signature);
 
 
   public:
@@ -103,11 +105,11 @@ class OPENFLUID_API SimulatorSignatureRegistry : public WareSignatureRegistry<Mo
 
     bool isSimulatorAvailable(const openfluid::ware::WareID_t& ID) const;
 
-    const ModelItemSignatureInstance* signature(const openfluid::ware::WareID_t& ID) const;
+    const std::shared_ptr<ModelItemSignatureInstance> signature(const openfluid::ware::WareID_t& ID) const;
 
-    const ModelItemSignatureInstance* signature(openfluid::fluidx::ModelItemDescriptor* Item) const;
+    const std::shared_ptr<ModelItemSignatureInstance> signature(openfluid::fluidx::ModelItemDescriptor* Item) const;
 
-    const ModelItemSignatureInstance* signature(openfluid::fluidx::GeneratorDescriptor::GeneratorMethod Method) const;
+    const std::shared_ptr<ModelItemSignatureInstance> signature(openfluid::fluidx::GeneratorDescriptor::GeneratorMethod Method) const;
 
     void unloadAll();
 };

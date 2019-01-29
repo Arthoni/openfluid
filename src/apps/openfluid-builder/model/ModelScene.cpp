@@ -141,7 +141,7 @@ void ModelScene::refresh()
             new SimulatorGraphics(QPoint(0,0),
                                   ID, SimCount+GenCount,
                                   openfluid::machine::SimulatorSignatureRegistry::instance()
-                                  ->signature(ID.toStdString()));
+                                  ->signature(ID.toStdString()).get());
 
         addItem(SimG);
         SimG->moveBy(Position.x(),Position.y());

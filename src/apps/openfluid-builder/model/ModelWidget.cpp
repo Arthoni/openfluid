@@ -161,7 +161,7 @@ void ModelWidget::addGlobalParam()
   for (std::list<openfluid::fluidx::ModelItemDescriptor*>::const_iterator it =
       Items.begin(); it != Items.end(); ++it)
   {
-    const openfluid::machine::ModelItemSignatureInstance* Sign = Reg->signature(*it);
+    const openfluid::machine::ModelItemSignatureInstance* Sign = Reg->signature(*it).get();
 
     if (Sign)
     {
@@ -327,7 +327,7 @@ void ModelWidget::addGenerator()
                             ID,
                             0,
                             openfluid::machine::SimulatorSignatureRegistry::instance()
-                            ->signature(AddGenDlg.getMethod()));
+                            ->signature(AddGenDlg.getMethod()).get());
 
     connect(GenWidget,SIGNAL(changed()),this,SLOT(dispatchChangesFromChildren()));
     connect(GenWidget,SIGNAL(upClicked(const QString&,int)),this,SLOT(moveModelItemUp(const QString&,int)));
@@ -473,7 +473,7 @@ void ModelWidget::updateCoupledModel()
           new GeneratorWidget(this,*it,
                               m_Model.getID(*it),
                               0,
-                              openfluid::machine::SimulatorSignatureRegistry::instance()->signature(*it));
+                              openfluid::machine::SimulatorSignatureRegistry::instance()->signature(*it).get());
 
       mp_WaresManWidget->ui->WaresListAreaContents->layout()->addWidget(GenWidget);
       if (it == itb) GenWidget->setUpButtonEnabled(false);

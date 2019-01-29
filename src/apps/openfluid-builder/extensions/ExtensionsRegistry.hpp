@@ -56,9 +56,9 @@ class ExtensionsRegistry
 
   public:
 
-    typedef std::map<openfluid::ware::WareID_t, ExtensionContainer*> ExtensionsByName_t;
+    typedef std::map<openfluid::ware::WareID_t, std::shared_ptr<ExtensionContainer>> ExtensionsByName_t;
 
-    typedef std::map<openfluid::machine::UUID_t, ExtensionContainer*> ExtensionsByLinkUID_t;
+    typedef std::map<openfluid::machine::UUID_t, std::shared_ptr<ExtensionContainer>> ExtensionsByLinkUID_t;
 
 
   private:

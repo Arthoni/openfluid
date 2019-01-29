@@ -69,9 +69,9 @@ ObserverSignatureRegistry::~ObserverSignatureRegistry()
 // =====================================================================
 
 
-const ObserverSignatureInstance* ObserverSignatureRegistry::signature(const std::string& ObserverID) const
+const std::shared_ptr<openfluid::machine::ObserverSignatureInstance> ObserverSignatureRegistry::signature(const std::string& ObserverID) const
 {
-  for (std::vector<openfluid::machine::ObserverSignatureInstance*>::const_iterator it =
+  for (std::vector<std::shared_ptr<openfluid::machine::ObserverSignatureInstance>>::const_iterator it = 
       m_AvailableSignatures.begin(); it != m_AvailableSignatures.end(); ++it)
   {
     if ((*it)->Signature->ID == ObserverID)
@@ -102,7 +102,7 @@ void ObserverSignatureRegistry::update()
 // =====================================================================
 
 
-const std::vector<ObserverSignatureInstance*>& ObserverSignatureRegistry::getAvailableSignatures() const
+const std::vector<std::shared_ptr<openfluid::machine::ObserverSignatureInstance>>& ObserverSignatureRegistry::getAvailableSignatures() const 
 {
   return m_AvailableSignatures;
 }

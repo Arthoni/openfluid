@@ -194,28 +194,28 @@ BOOST_AUTO_TEST_CASE(check_operations)
 
   openfluid::machine::ModelInstance MI(SB,Listener.get());
 
-  openfluid::machine::ModelItemInstance* MII;
+  std::shared_ptr<openfluid::machine::ModelItemInstance> MII;
 
-  MII = new openfluid::machine::ModelItemInstance();
+  MII = std::make_shared<openfluid::machine::ModelItemInstance>();
   MII->Body.reset((openfluid::ware::PluggableSimulator*)(new SimA()));
   MII->Signature = new openfluid::ware::SimulatorSignature();
   MII->Signature->ID = "sim.a";
   MII->OriginalPosition = 1;
-  MI.appendItem(MII);
+  MI.appendItem(std::move(MII));
 
-  MII = new openfluid::machine::ModelItemInstance();
+  MII = std::make_shared<openfluid::machine::ModelItemInstance>();
   MII->Body.reset((openfluid::ware::PluggableSimulator*)(new SimB()));
   MII->Signature = new openfluid::ware::SimulatorSignature();
   MII->Signature->ID = "sim.b";
   MII->OriginalPosition = 2;
-  MI.appendItem(MII);
+  MI.appendItem(std::move(MII));
 
-  MII = new openfluid::machine::ModelItemInstance();
+  MII = std::make_shared<openfluid::machine::ModelItemInstance>();
   MII->Body.reset((openfluid::ware::PluggableSimulator*)(new SimC()));
   MII->Signature = new openfluid::ware::SimulatorSignature();
   MII->Signature->ID = "sim.c";
   MII->OriginalPosition = 3;
-  MI.appendItem(MII);
+  MI.appendItem(std::move(MII));
 
   openfluid::base::SimulationLogger* SimLog =
       new openfluid::base::SimulationLogger(CONFIGTESTS_OUTPUT_DATA_DIR+"/checksimlog2.log");
@@ -291,14 +291,14 @@ BOOST_AUTO_TEST_CASE(check_mergeParamsWithGlobalParams)
     std::make_unique<openfluid::machine::MachineListener>();
   ModelInstanceSub MI(SB,Listener.get());
 
-  openfluid::machine::ModelItemInstance* MII = new openfluid::machine::ModelItemInstance();
+  std::shared_ptr<openfluid::machine::ModelItemInstance> MII = std::make_shared<openfluid::machine::ModelItemInstance>();
   MII->Body.reset((openfluid::ware::PluggableSimulator*) (new SimA()));
   MII->Signature = new openfluid::ware::SimulatorSignature();
   MII->Signature->HandledData.UsedParams.push_back(*new openfluid::ware::SignatureDataItem("A1","",""));
   MII->Signature->HandledData.UsedParams.push_back(*new openfluid::ware::SignatureDataItem("B1.C1","",""));
   MII->Signature->HandledData.UsedParams.push_back(*new openfluid::ware::SignatureDataItem("D1.E1.F1","",""));
 
-  MI.appendItem(MII);
+  MI.appendItem(std::move(MII));
 
   openfluid::ware::WareParams_t InParams;
 

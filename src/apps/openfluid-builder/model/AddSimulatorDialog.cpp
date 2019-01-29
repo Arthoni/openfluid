@@ -113,7 +113,7 @@ void AddSimulatorDialog::updateSignature()
     openfluid::machine::SimulatorSignatureRegistry::instance();
 
   const openfluid::machine::ModelItemSignatureInstance* Sign =
-      Reg->signature(ui->WaresListWidget->currentItem()->data(Qt::UserRole).toStringList().at(0).toStdString());
+      Reg->signature(ui->WaresListWidget->currentItem()->data(Qt::UserRole).toStringList().at(0).toStdString()).get();
 
   ui->WareSignatureWidget->update(Sign);
 

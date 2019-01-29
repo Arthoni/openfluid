@@ -82,7 +82,7 @@ ObserverWidget::~ObserverWidget()
 void ObserverWidget::refresh()
 {
   const openfluid::machine::ObserverSignatureInstance* Signature =
-    openfluid::machine::ObserverSignatureRegistry::instance()->signature(m_ID);
+    openfluid::machine::ObserverSignatureRegistry::instance()->signature(m_ID).get();
 
   if (Signature != nullptr)
   {

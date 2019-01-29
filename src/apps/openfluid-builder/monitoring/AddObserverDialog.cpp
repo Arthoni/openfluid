@@ -56,18 +56,16 @@ AddObserverDialog::AddObserverDialog(QWidget* Parent) :
   openfluid::machine::ObserverSignatureRegistry* Reg =
     openfluid::machine::ObserverSignatureRegistry::instance();
 
-  std::vector<openfluid::machine::ObserverSignatureInstance*> ObsSigns =
-    Reg->getAvailableSignatures();
 
-
-  for (std::vector<openfluid::machine::ObserverSignatureInstance*>::iterator it =
-      ObsSigns.begin(); it != ObsSigns.end(); ++it)
+  for (std::vector<std::shared_ptr<openfluid::machine::ObserverSignatureInstance>>::const_iterator it =
+      Reg->getAvailableSignatures().begin(); it != Reg->getAvailableSignatures().end(); ++it)
   {
+    openfluid::machine::ObserverSignatureInstance* Obs = (*it).get();
     QListWidgetItem* Item = new QListWidgetItem();
 
     QStringList WareInfos = {
-      QString::fromStdString((*it)->Signature->ID),
-      QString::fromStdString((*it)->Signature->Name)
+      QString::fromStdString(Obs->Signature->ID),
+      QString::fromStdString(Obs->Signature->Name)
     };
 
     Item->setData(Qt::UserRole,WareInfos);
@@ -106,7 +104,7 @@ void AddObserverDialog::updateSignature()
     openfluid::machine::ObserverSignatureRegistry::instance();
 
   const openfluid::machine::ObserverSignatureInstance* Sign =
-      Reg->signature(ui->WaresListWidget->currentItem()->data(Qt::UserRole).toStringList().at(0).toStdString());
+      Reg->signature(ui->WaresListWidget->currentItem()->data(Qt::UserRole).toStringList().at(0).toStdString()).get();
 
   ui->WareSignatureWidget->update(Sign);
 

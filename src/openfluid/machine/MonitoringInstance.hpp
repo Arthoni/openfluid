@@ -59,7 +59,7 @@ class OPENFLUID_API MonitoringInstance
 {
   private:
 
-    std::list<ObserverInstance*> m_Observers;
+    std::list<std::shared_ptr<ObserverInstance>> m_Observers;
 
     openfluid::machine::SimulationBlob& m_SimulationBlob;
 
@@ -72,9 +72,9 @@ class OPENFLUID_API MonitoringInstance
 
     ~MonitoringInstance();
 
-    void appendObserver(ObserverInstance* ObsInstance);
+    void appendObserver(std::shared_ptr<ObserverInstance> ObsInstance);
 
-    const std::list<ObserverInstance*>& observers() const { return m_Observers; };
+    const std::list<std::shared_ptr<ObserverInstance>>& observers() const { return m_Observers; };
 
     void initialize(openfluid::base::SimulationLogger* mp_SimLogger);
 

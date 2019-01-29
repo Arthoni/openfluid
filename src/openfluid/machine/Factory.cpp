@@ -197,7 +197,6 @@ void Factory::buildModelInstanceFromDescriptor(const openfluid::fluidx::CoupledM
                                                ModelInstance& MInstance)
 {
   openfluid::fluidx::CoupledModelDescriptor::SetDescription_t::const_iterator it;
-  ModelItemInstance* IInstance = nullptr;
 
 
   if (ModelDesc.items().empty())
@@ -208,6 +207,7 @@ void Factory::buildModelInstanceFromDescriptor(const openfluid::fluidx::CoupledM
 
   for (it=ModelDesc.items().begin();it!=ModelDesc.items().end();++it)
   {
+    std::shared_ptr<ModelItemInstance> IInstance = nullptr;
     if ((*it)->isEnabled())
     {
 
@@ -228,7 +228,7 @@ void Factory::buildModelInstanceFromDescriptor(const openfluid::fluidx::CoupledM
         }
 
         // instanciation of a plugged simulator using the plugin manager
-        IInstance = SimulatorPluginsManager::instance()->loadWareSignatureOnly(ID);
+        IInstance = std::move(SimulatorPluginsManager::instance()->loadWareSignatureOnly(ID));
 
         IInstance->Params = (*it)->getParameters();
         IInstance->ItemType = openfluid::ware::WareType::SIMULATOR;
@@ -238,8 +238,7 @@ void Factory::buildModelInstanceFromDescriptor(const openfluid::fluidx::CoupledM
       {
         // instanciation of a data generator
         openfluid::fluidx::GeneratorDescriptor* GenDesc = (openfluid::fluidx::GeneratorDescriptor*)(*it);
-
-        IInstance = new ModelItemInstance();
+        IInstance = std::make_unique<ModelItemInstance>();
         IInstance->Verified = true;
         IInstance->Params = (*it)->getParameters();
         IInstance->ItemType = openfluid::ware::WareType::GENERATOR;
@@ -296,7 +295,7 @@ void Factory::buildModelInstanceFromDescriptor(const openfluid::fluidx::CoupledM
       openfluid::base::RunContextManager::instance()->processWareParams(IInstance->Params);
 
       IInstance->OriginalPosition = MInstance.getItemsCount()+1;
-      MInstance.appendItem(IInstance);
+      MInstance.appendItem(std::move(IInstance));
     }
   }
 
@@ -327,11 +326,11 @@ void Factory::buildMonitoringInstanceFromDescriptor(const openfluid::fluidx::Mon
       }
 
       // instanciation of a plugged observer using the plugin manager
-      OInstance = ObserverPluginsManager::instance()->loadWareSignatureOnly(ID);
+      std::shared_ptr<ObserverInstance> OInstance = std::move(ObserverPluginsManager::instance()->loadWareSignatureOnly(ID));
       OInstance->Params = (*it)->getParameters();
       openfluid::base::RunContextManager::instance()->processWareParams(OInstance->Params);
 
-      MonInstance.appendObserver(OInstance);
+      MonInstance.appendObserver(std::move(OInstance));
     }
   }
 }

@@ -88,7 +88,7 @@ class EmptySimulator : public openfluid::ware::PluggableSimulator
 void displayModel(openfluid::machine::ModelInstance& MI)
 {
   std::cout << " ---- " << std::endl;
-  for (openfluid::machine::ModelItemInstance* MII : MI.items())
+  for (auto&& MII : MI.items())
   {
     std::cout << MII->Signature->ID << std::endl;
   }
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(check_pretests)
 {
   openfluid::base::RunContextManager::instance()->setOutputDir(CONFIGTESTS_OUTPUT_DATA_DIR+"/OPENFLUID.OUT.Engine");
 
-  openfluid::machine::ModelItemInstance* MIInstance;
+  std::shared_ptr<openfluid::machine::ModelItemInstance> MIInstance;
 
   openfluid::machine::SimulationBlob SBlob;
   openfluid::machine::MachineListener* MachineListen = new openfluid::machine::MachineListener();
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(check_pretests)
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(check_pretests)
   // ---------------------------------------------------------------------
 
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(check_pretests)
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(check_pretests)
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(check_pretests)
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(check_pretests)
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(check_typed_pretests)
 {
   openfluid::base::RunContextManager::instance()->setOutputDir(CONFIGTESTS_OUTPUT_DATA_DIR+"/OPENFLUID.OUT.Engine");
 
-  openfluid::machine::ModelItemInstance* MIInstance;
+  std::shared_ptr<openfluid::machine::ModelItemInstance> MIInstance;
 
   openfluid::machine::SimulationBlob SBlob;
   openfluid::machine::MachineListener* MachineListen = new openfluid::machine::MachineListener();
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(check_typed_pretests)
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -291,14 +291,14 @@ BOOST_AUTO_TEST_CASE(check_typed_pretests)
       openfluid::ware::SignatureTypedSpatialDataItem("var5[vector]","UB","",""));
 
   Model.resetInitialized();
-  Model.appendItem(MIInstance);
+  Model.appendItem(std::move(MIInstance));
 
   displayModel(Model);
 
   // ---------------------------------------------------------------------
 
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -307,13 +307,13 @@ BOOST_AUTO_TEST_CASE(check_typed_pretests)
       openfluid::ware::SignatureTypedSpatialDataItem("var1[double]","UA","",""));
 
   Model.resetInitialized();
-  Model.insertItem(MIInstance,0);
+  Model.insertItem(std::move(MIInstance),0);
 
   displayModel(Model);
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -322,14 +322,14 @@ BOOST_AUTO_TEST_CASE(check_typed_pretests)
       openfluid::ware::SignatureTypedSpatialDataItem("var5[vector]","UB","",""));
 
   Model.resetInitialized();
-  Model.appendItem(MIInstance);
+  Model.appendItem(std::move(MIInstance));
 
   displayModel(Model);
 
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -338,27 +338,27 @@ BOOST_AUTO_TEST_CASE(check_typed_pretests)
       openfluid::ware::SignatureTypedSpatialDataItem("var1","UA","",""));
 
   Model.resetInitialized();
-  Model.insertItem(MIInstance,1);
+  Model.insertItem(std::move(MIInstance),1);
 
   displayModel(Model);
 
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
   MIInstance->Signature->ID = "MySim3";
 
   Model.resetInitialized();
-  Model.appendItem(MIInstance);
+  Model.appendItem(std::move(MIInstance));
 
   displayModel(Model);
 
   // ---------------------------------------------------------------------
 
-  MIInstance = new openfluid::machine::ModelItemInstance();
+  MIInstance = std::make_shared<openfluid::machine::ModelItemInstance>();
   MIInstance->Body.reset(new EmptySimulator());
   MIInstance->Verified = true;
   MIInstance->Signature = new openfluid::ware::SimulatorSignature();
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE(check_typed_pretests)
 
 
   Model.resetInitialized();
-  Model.appendItem(MIInstance);
+  Model.appendItem(std::move(MIInstance));
 
   displayModel(Model);
 

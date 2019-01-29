@@ -113,7 +113,7 @@ class OPENFLUID_API SimulatorPluginsManager : public WarePluginsManager<ModelIte
     // =====================================================================
 
 
-    std::vector<ModelItemSignatureInstance*> getAvailableGhostsSignatures(const std::string& Pattern = "") const;
+    std::vector<std::shared_ptr<ModelItemSignatureInstance>> getAvailableGhostsSignatures(const std::string& Pattern = "") const;
 
 };
 

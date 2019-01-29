@@ -634,7 +634,7 @@ void ProjectModuleWidget::whenExtensionAsked(const QString& ID)
 
         if (ExtWork->initialize())
         {
-          ExtensionContainer* ExtCon = ExtReg->registeredFeatureExtensions()->at(WareID);
+          ExtensionContainer* ExtCon = ExtReg->registeredFeatureExtensions()->at(WareID).get();
 
           QString TabText = WaresTranslationsRegistry::instance()
             ->tryTranslate(QString::fromStdString(ExtCon->FileFullPath),
@@ -718,7 +718,7 @@ bool ProjectModuleWidget::whenOpenExampleAsked()
 bool ProjectModuleWidget::findGhostSignature(const QString& ID,
                                        openfluid::ware::SimulatorSignature& Signature, std::string& FileFullPath)
 {
-  std::vector<openfluid::machine::ModelItemSignatureInstance*> Signatures =
+  std::vector<std::shared_ptr<openfluid::machine::ModelItemSignatureInstance>> Signatures =
     openfluid::machine::SimulatorPluginsManager::instance()->getAvailableGhostsSignatures();
 
   openfluid::machine::ModelItemSignatureInstance* GhostSignatureInstance = nullptr;
@@ -728,7 +728,7 @@ bool ProjectModuleWidget::findGhostSignature(const QString& ID,
   {
     if (Signatures[i]->Signature->ID == ID.toStdString())
     {
-      GhostSignatureInstance = Signatures[i];
+      GhostSignatureInstance = Signatures[i].get();
       Signature = *(GhostSignatureInstance->Signature);
       FileFullPath = GhostSignatureInstance->FileFullPath;
     }
@@ -825,8 +825,8 @@ void ProjectModuleWidget::whenNewSimulatorSrcAsked()
 void ProjectModuleWidget::whenNewGhostSimulatorAsked()
 {
   QStringList ExistingIDs;
-
-  for (auto Sign : openfluid::machine::SimulatorPluginsManager::instance()->getAvailableGhostsSignatures())
+  
+  for (auto&& Sign : openfluid::machine::SimulatorPluginsManager::instance()->getAvailableGhostsSignatures())
     ExistingIDs.append(QString::fromStdString(Sign->Signature->ID));
 
   openfluid::ui::common::EditSignatureDialog Dlg(this);
