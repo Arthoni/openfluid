@@ -14,6 +14,8 @@
     <file>images/openfluid_icon_about@2x.png</file>
     <file>images/corner_upleft.png</file>
     <file>images/corner_downleft.png</file>
+    <file>images/woodbackground.png</file>
+    <file>images/woodbutton.png</file>
     
     <!-- icons for toolbars -->
     <file>icons/project-new_light.png</file>

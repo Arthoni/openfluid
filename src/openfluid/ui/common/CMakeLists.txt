@@ -12,6 +12,7 @@ SET(OPENFLUID_UI_COMMON_CPP OpenFLUIDDialog.cpp MessageDialog.cpp MessageFrame.c
                             EditMarketplaceDialog.cpp
                             PreferencesDialog.cpp DetectQtDevToolsDialog.cpp
                             TimePeriodWidget.cpp
+                            DarkProxyStyle.cpp
                             )
 
 SET(OPENFLUID_UI_COMMON_HPP OpenFLUIDDialog.hpp MessageDialog.hpp MessageFrame.hpp
@@ -27,6 +28,7 @@ SET(OPENFLUID_UI_COMMON_HPP OpenFLUIDDialog.hpp MessageDialog.hpp MessageFrame.h
                             PreferencesDialog.hpp DetectQtDevToolsDialog.hpp
                             TimePeriodWidget.hpp
                             UIHelpers.hpp
+                            DarkProxyStyle.hpp
                             )
 
 

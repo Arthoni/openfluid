@@ -154,7 +154,7 @@ void WareWidget::setEnabledWare(bool Enabled)
 
 void WareWidget::updateWidgetBackground()
 {
-  QString BGColor = m_EnabledBGColor;
+  /*QString BGColor = m_EnabledBGColor;
   QString BGPattern = "";
 
   if (m_Ghost)
@@ -168,6 +168,7 @@ void WareWidget::updateWidgetBackground()
 
   setStyleSheet(QString("#WareFrame { background-color: %1; %2border: 1px solid %3}")
                 .arg(BGColor).arg(BGPattern).arg(BUILDER_WARE_BORDERCOLOR));
+                */
 }
 
 

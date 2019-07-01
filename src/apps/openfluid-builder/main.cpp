@@ -51,6 +51,7 @@
 #include <openfluid/ui/common/UIHelpers.hpp>
 #include <openfluid/ui/common/OpenFLUIDSplashScreen.hpp>
 #include <openfluid/tools/MiscHelpers.hpp>
+#include <openfluid/ui/common/DarkProxyStyle.hpp>
 
 #include "BuilderApp.hpp"
 #include "builderconfig.hpp"
@@ -66,6 +67,9 @@ int main(int argc, char** argv)
 
     INIT_OPENFLUID_APPLICATION_WITH_GUI(argc,argv);
 
+
+    OPENFLUID_APPLICATION.setStyle(new DarkProxyStyle);
+    
     do
     {
       openfluid::ui::common::OpenFLUIDSplashScreen Splash(
