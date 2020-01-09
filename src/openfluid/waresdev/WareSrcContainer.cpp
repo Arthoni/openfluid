@@ -64,6 +64,7 @@ WareSrcContainer::WareSrcContainer(const QString& AbsolutePath, openfluid::ware:
     mp_Stream(new openfluid::waresdev::OStreamMsgStream()), mp_Process(new WareSrcProcess()),
     mp_CurrentParser(new openfluid::waresdev::WareSrcMsgParserGcc())
 {
+  std::cout << "WareID: " << WareID.toStdString() << std::endl;
   update();
 
   m_OFVersion = QString::fromStdString(openfluid::base::Environment::getVersionMajorMinor());
@@ -641,6 +642,7 @@ void WareSrcContainer::generateDoc()
 
 
   QString Target = getGenerateDocTarget();
+  std::cout << "TARGET:" << Target.toStdString() << std::endl;
 
 
   delete mp_CurrentParser;

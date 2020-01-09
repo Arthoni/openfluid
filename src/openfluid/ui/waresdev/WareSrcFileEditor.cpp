@@ -191,6 +191,9 @@ WareSrcFileEditor::WareSrcFileEditor(const QString& FilePath, QWidget* Parent) :
 
 
   updateContent();
+  
+  
+  getWareID();
 
   connect(document(), SIGNAL(modificationChanged(bool)), this, SLOT(onChanged(bool)));
 }
@@ -670,6 +673,25 @@ void WareSrcFileEditor::saveContentToPath(const QString& Path)
 
 // =====================================================================
 // =====================================================================
+
+QString WareSrcFileEditor::getWareID()
+{
+  QFile File(m_FilePath);
+
+  if (!File.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,
+                                              QString("Cannot open file %1").arg(m_FilePath).toStdString());
+  }
+  QString Content = QTextStream(&File).readAll();
+  //std::cout << Content.toStdString() << std::endl;
+  QRegExp rx("\nBEGIN_SIMULATOR_SIGNATURE[(]\"([^\"]+)\"");//BEGIN_SIMULATOR_SIGNATURE
+  //rx.setPatternSyntax(QRegExp::RegExp2);
+  rx.indexIn(Content, 0);
+  //std::cout << "T: " << rx.cap(1).toStdString() << " # END" << std::endl;
+  //TODO GESTION CAS OU PAS TROUVE
+  return rx.cap(1);
+}
 
 
 void WareSrcFileEditor::updateContent()

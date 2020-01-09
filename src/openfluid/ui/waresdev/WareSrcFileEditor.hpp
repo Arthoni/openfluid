@@ -121,6 +121,7 @@ class OPENFLUID_API WareSrcFileEditor: public QPlainTextEdit, public WareFileEdi
         }
 
 
+
         // =====================================================================
         // =====================================================================
 
@@ -156,6 +157,8 @@ class OPENFLUID_API WareSrcFileEditor: public QPlainTextEdit, public WareFileEdi
         }
     };
 
+    QString getWareID();
+    
     WareSrcSyntaxHighlighter* mp_SyntaxHighlighter = nullptr;
 
     QRegExp m_SelectionTagsRegExp;
