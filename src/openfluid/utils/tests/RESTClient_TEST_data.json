@@ -1,0 +1,39 @@
+[
+    {
+      "prefix" : null,
+      "endpoints" : [
+        {
+          "path" : "/users",
+          "get" : {
+            "returned": {
+              "body" : "[{\"id\":1,\"name\":\"LeanneGraham\",\"username\": \"Bret\",\"email\":\"Sincere@april.biz\",\"address\":{\"street\":\"KulasLight\",\"suite\":\"Apt.556\",\"city\":\"Gwenborough\",\"zipcode\":\"92998-3874\",\"geo\":{\"lat\":\"-37.3159\",\"lng\":\"81.1496\"}},\"phone\":\"1-770-736-8031x56442\",\"website\":\"hildegard.org\",\"company\":{\"name\":\"Romaguera-Crona\",\"catchPhrase\":\"Multi-layeredclient-serverneural-net\",\"bs\":\"harnessreal-timee-markets\"}},{\"id\":2,\"name\":\"ErvinHowell\",\"username\":\"Antonette\",\"email\":\"Shanna@melissa.tv\",\"address\":{\"street\":\"VictorPlains\",\"suite\":\"Suite879\",\"city\":\"Wisokyburgh\",\"zipcode\":\"90566-7771\",\"geo\":{\"lat\":\"-43.9509\",\"lng\":\"-34.4618\"}},\"phone\":\"010-692-6593x09125\",\"website\":\"anastasia.net\",\"company\":{\"name\":\"Deckow-Crist\",\"catchPhrase\":\"Proactivedidacticcontingency\",\"bs\":\"synergizescalablesupply-chains\"}]"
+            }
+          }
+        }, 
+        {
+            "path" : "/users/2",
+            "get" : {
+              "returned": {
+                "body" : "{\"id\":2,\"name\":\"ErvinHowell\",\"username\": \"Antonette\",\"email\":\"Shanna@melissa.tv\",\"address\":{\"street\":\"VictorPlains\",\"suite\":\"Suite879\",\"city\":\"Wisokyburgh\",\"zipcode\":\"90566-7771\",\"geo\":{\"lat\":\"-43.9509\",\"lng\":\"-34.4618\"}},\"phone\":\"010-692-6593x09125\",\"website\":\"anastasia.net\",\"company\":{\"name\":\"Deckow-Crist\",\"catchPhrase\":\"Proactivedidacticcontingency\",\"bs\":\"synergizescalablesupply-chains\"}"
+              }
+            }
+          },
+          {
+            "path" : "/auth",
+            "post" : {
+              "expected" : {
+              "body" : {
+                "username" : "Antonette",
+                "password" : "an70_n3773"
+              }
+            },
+            "returned" : {
+              "body" : {
+                "token" : "2b01d9d592da55cca64dd7804bc295e6e03b5df4"
+              }
+            } 
+          }
+        }
+    ]    
+  }
+]

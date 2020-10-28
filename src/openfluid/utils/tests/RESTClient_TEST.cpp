@@ -90,7 +90,23 @@ void checkGet(const openfluid::utils::RESTClient& Client)
 
 void checkPost(const openfluid::utils::RESTClient& Client)
 {
-  BOOST_REQUIRE_THROW(Client.postResource("",""), openfluid::base::FrameworkException);
+  openfluid::utils::RESTClient::Reply Reply;
+
+  Reply = Client.postResource("/auth/", "");
+  std::cout << "POST /auth/ (no body): " << Reply.getStatusCode() << std::endl;
+  BOOST_REQUIRE(!Reply.isOK());
+  //BOOST_REQUIRE_EQUAL(Reply.getStatusCode(),401?);
+
+  Reply = Client.postResource("/auth/", "{\"username\":\"Antonette\",\"password\":\"\"}");//TODO : pourquoi 400 et pas 401? 
+  std::cout << "POST /auth/ (bad body): " << Reply.getStatusCode() << std::endl;
+  BOOST_REQUIRE(!Reply.isOK());
+  //BOOST_REQUIRE_EQUAL(Reply.getStatusCode(),401);  // Expected is 401, but not implemented
+
+  Reply = Client.postResource("/auth/", "{\"username\":\"Antonette\",\"password\":\"an70_n3773\"}");
+  std::cout << "POST /auth/ (correct body): " << Reply.getStatusCode() << std::endl;
+  BOOST_REQUIRE(Reply.isOK());
+  BOOST_REQUIRE_EQUAL(Reply.getStatusCode(),200);
+  BOOST_REQUIRE_NE(Reply.getContent().indexOf("\"token\": \"2b01d9d5"),-1);
 }
 
 

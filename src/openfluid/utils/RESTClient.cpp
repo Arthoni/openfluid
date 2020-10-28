@@ -193,12 +193,9 @@ RESTClient::Reply RESTClient::getResource(const QString& Path) const
 // =====================================================================
 
 
-RESTClient::Reply RESTClient::postResource(const QString& /*Path*/, const QString& /*Data*/) const
+RESTClient::Reply RESTClient::postResource(const QString& Path, const QString& Data) const
 {
-  throw openfluid::base::FrameworkException(
-        openfluid::base::FrameworkException::computeContext(OPENFLUID_CODE_LOCATION),"not implemented");
-
-  return RESTClient::Reply();
+  return performRequest(Path, "POST", Data);
 }
 
 
