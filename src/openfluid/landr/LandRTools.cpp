@@ -55,6 +55,7 @@
 #include <geos/planargraph/Node.h>
 #include <geos/planargraph/DirectedEdge.h>
 #include <geos/geom/PrecisionModel.h>
+#include <geos/operation/valid/RepeatedPointRemover.h>
 #include <geos/precision/SimpleGeometryPrecisionReducer.h>
 
 #include <openfluid/base/FrameworkException.hpp>
@@ -105,7 +106,7 @@ std::vector<geos::geom::LineString*>* LandRTools::computeMergedLineStringsFromGe
   {
     case geos::geom::GEOS_LINESTRING:
       LS = new std::vector<geos::geom::LineString*>();
-      LS->push_back(dynamic_cast<geos::geom::LineString*>(Geom->clone()));
+      LS->push_back(dynamic_cast<geos::geom::LineString*>(Geom->clone().get()));
       break;
     case geos::geom::GEOS_MULTILINESTRING:
     case geos::geom::GEOS_LINEARRING:
@@ -139,8 +140,8 @@ std::vector<geos::geom::LineString*> LandRTools::computeVectorOfExteriorRings(op
 
   for (unsigned int i = 0; i < iEnd; i++)
   {
-    Lines.push_back(const_cast<geos::geom::LineString*>
-    (dynamic_cast<geos::geom::Polygon*>(const_cast<geos::geom::Geometry*>(Geom->getGeometryN(i)))->getExteriorRing()));
+    //Lines.push_back(const_cast<geos::geom::LineString*>
+    //(dynamic_cast<geos::geom::Polygon*>(const_cast<geos::geom::Geometry*>(Geom->getGeometryN(i)))->getExteriorRing()));
   }
 
   return Lines;
@@ -294,7 +295,7 @@ void LandRTools::polygonizeGeometry(std::vector<geos::geom::Geometry*>& Lines,
   // ! ask for Dangles BEFORE asking for polys (cf. Polygonizer code...)
   GET_DANGLES(P, Dangles);
 
-  std::vector<geos::geom::Polygon*>* ThePolygons = P->getPolygons();
+  std::vector<geos::geom::Polygon*>* ThePolygons;// = P->getPolygons();//.get() not working, container of objects
   if (ThePolygons)
   {
     Polygons = *ThePolygons;
@@ -374,7 +375,7 @@ std::vector<geos::geom::Polygon*> LandRTools::computeIntersectPolygons(geos::geo
         if ((Geom1->getGeometryN(i))->intersects(const_cast<geos::geom::Geometry*>(Geom2->getGeometryN(j))))
         {
           geos::geom::Geometry *Intersect =
-              (Geom1->getGeometryN(i))->intersection(const_cast<geos::geom::Geometry*>(Geom2->getGeometryN(j)));
+              (Geom1->getGeometryN(i))->intersection(const_cast<geos::geom::Geometry*>(Geom2->getGeometryN(j))).get();
 
           if (Intersect->getGeometryTypeId() == geos::geom::GEOS_POLYGON)
           {
@@ -419,8 +420,8 @@ std::vector<geos::geom::LineString*> LandRTools::splitLineStringByPoint(geos::ge
   }
 
   std::vector<geos::geom::LineString*> vEntities;
-  geos::geom::Point * StartPoint=Entity.getStartPoint();
-  geos::geom::Point * EndPoint=Entity.getEndPoint();
+  geos::geom::Point * StartPoint=Entity.getStartPoint().get();
+  geos::geom::Point * EndPoint=Entity.getEndPoint().get();
 
   double endDistance=Point.getCoordinate()->distance(*(EndPoint->getCoordinate()));
   double startDistance=Point.getCoordinate()->distance(*(StartPoint->getCoordinate()));
@@ -458,7 +459,7 @@ std::vector<geos::geom::LineString*> LandRTools::splitLineStringByPoint(geos::ge
     vCoor.push_back(FirstCoord);
     vCoor.push_back(SecondCoord);
 
-    geos::geom::CoordinateSequence* CoordSeq=CoordSeqFactory->create(&vCoor);
+    geos::geom::CoordinateSequence* CoordSeq=CoordSeqFactory->create(&vCoor).get();
     geos::geom::LineString * NewLine=geos::geom::GeometryFactory::getDefaultInstance()->createLineString(CoordSeq);
 
 
@@ -493,9 +494,10 @@ std::vector<geos::geom::LineString*> LandRTools::splitLineStringByPoint(geos::ge
 
   vFirstCoorLine->push_back(newCoorPoint);
 
-  geos::geom::CoordinateSequence* FirstCoordSeq = CoordSeqFactory->create(vFirstCoorLine);
+  geos::geom::CoordinateSequence* FirstCoordSeq = CoordSeqFactory->create(vFirstCoorLine).get();
 
-  FirstCoordSeq->removeRepeatedPoints();
+  //FirstCoordSeq->removeRepeatedPoints();
+  FirstCoordSeq = geos::operation::valid::RepeatedPointRemover::removeRepeatedPoints(FirstCoordSeq).get();
   geos::geom::LineString * NewFirstLine=
       geos::geom::GeometryFactory::getDefaultInstance()->createLineString(FirstCoordSeq);
 
@@ -509,9 +511,10 @@ std::vector<geos::geom::LineString*> LandRTools::splitLineStringByPoint(geos::ge
     vSecondCoorLine->push_back(Entity.getCoordinateN(j));
   }
 
-  geos::geom::CoordinateSequence* SecondCoordSeq = CoordSeqFactory->create(vSecondCoorLine);
+  geos::geom::CoordinateSequence* SecondCoordSeq = CoordSeqFactory->create(vSecondCoorLine).get();
 
-  SecondCoordSeq->removeRepeatedPoints();
+  //SecondCoordSeq->removeRepeatedPoints();
+  SecondCoordSeq = geos::operation::valid::RepeatedPointRemover::removeRepeatedPoints(SecondCoordSeq).get();
 
   geos::geom::LineString* NewSecondLine=
       geos::geom::GeometryFactory::getDefaultInstance()->createLineString(SecondCoordSeq);
@@ -593,7 +596,7 @@ std::vector<geos::geom::LineString*>* LandRTools::cleanLineStrings(std::vector<g
         vCoor->push_back(FirstCoord);
         vCoor->push_back(SecondCoord);
 
-        geos::geom::CoordinateSequence* CoordSeq = CoordSeqFactory->create(vCoor);
+        geos::geom::CoordinateSequence* CoordSeq = CoordSeqFactory->create(vCoor).get();
         geos::geom::LineString * NewLine =
           geos::geom::GeometryFactory::getDefaultInstance()->createLineString(CoordSeq);
         NewLine->normalize();
@@ -634,8 +637,8 @@ std::vector<geos::geom::Point*> LandRTools::computeNodesFromVectorOfLines(
 
   for (;it!=ite;++it)
   {
-    geos::geom::Point* StartPoint = (*it)->getStartPoint();
-    geos::geom::Point* EndPoint = (*it)->getEndPoint();
+    geos::geom::Point* StartPoint = (*it)->getStartPoint().get();
+    geos::geom::Point* EndPoint = (*it)->getEndPoint().get();
     std::vector<geos::geom::Point*>::iterator jt = vPoints.begin();
     std::vector<geos::geom::Point*>::iterator jte = vPoints.end();
 

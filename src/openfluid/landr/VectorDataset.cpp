@@ -666,7 +666,7 @@ void VectorDataset::parse(unsigned int LayerIndex)
                                                 GeosGeom->toString());
     }
 
-    geos::geom::Geometry* GeomClone = GeosGeom->clone();
+    geos::geom::Geometry* GeomClone = GeosGeom->clone().get();
     OGRFeature* FeatClone = Feat->Clone();
 
     Geoms.push_back(GeomClone);
@@ -683,7 +683,7 @@ void VectorDataset::parse(unsigned int LayerIndex)
   //*but only at a finite number of points*)
   m_Geometries.insert(std::make_pair(
                         LayerIndex,
-                        geos::geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(Geoms)));
+                        geos::geom::GeometryFactory::getDefaultInstance()->createGeometryCollection(&Geoms)));
 
   geos::operation::valid::IsValidOp ValidOpColl(m_Geometries.at(LayerIndex));
 
@@ -805,13 +805,13 @@ void VectorDataset::snapLineNodes(double Threshold,unsigned int LayerIndex)
       {
         geos::geom::LineString *Line =
             dynamic_cast<geos::geom::LineString*>(const_cast<geos::geom::Geometry*>(Geom->getGeometryN(i)));
-        vPoints.push_back(Line->getStartPoint());
-        vPoints.push_back(Line->getEndPoint());
+        vPoints.push_back(Line->getStartPoint().get());
+        vPoints.push_back(Line->getEndPoint().get());
       }
     }
 
-    geos::geom::Point* PStart = CurrentLine->getStartPoint();
-    geos::geom::Point* PEnd = CurrentLine->getEndPoint();
+    geos::geom::Point* PStart = CurrentLine->getStartPoint().get();
+    geos::geom::Point* PEnd = CurrentLine->getEndPoint().get();
     geos::geom::Point* NewPStart = nullptr;
     geos::geom::Point* NewPEnd = nullptr;
 
@@ -832,7 +832,7 @@ void VectorDataset::snapLineNodes(double Threshold,unsigned int LayerIndex)
       continue;  // TODO to be replaced!
     }
 
-    geos::geom::CoordinateSequence* CoordSeq=CurrentLine->getCoordinates();
+    geos::geom::CoordinateSequence* CoordSeq=CurrentLine->getCoordinates().get();
     if (NewPStart)
     {
       CoordSeq->setAt(*NewPStart->getCoordinate(),0);
@@ -848,7 +848,7 @@ void VectorDataset::snapLineNodes(double Threshold,unsigned int LayerIndex)
       openfluid::landr::convertGEOSGeometryToOGR((GEOSGeom) dynamic_cast<geos::geom::Geometry*>(NewLine));
     OGRFeature* OGRFeat = (*it).first;
     OGRFeat->SetGeometry(OGRGeom);
-    geos::geom::Geometry* NewLineClone = NewLine->clone();
+    geos::geom::Geometry* NewLineClone = NewLine->clone().get();
     OGRFeature* OGRFeatClone = OGRFeat->Clone();
     (*it) = std::make_pair<OGRFeature*, geos::geom::Geometry*>
     (dynamic_cast<OGRFeature *>(OGRFeat), dynamic_cast<geos::geom::Geometry*>(NewLineClone));
@@ -905,23 +905,27 @@ void VectorDataset::snapPolygonVertices(double Threshold,unsigned int LayerIndex
 
         if (Polygon)
         {
-          const std::vector<geos::geom::Coordinate> *vCoorPoly = Polygon->getCoordinates()->toVector();
-          vCoor.insert( vCoor.end(), vCoorPoly->begin(), vCoorPoly->end() );
-          delete vCoorPoly;
+          //const std::vector<geos::geom::Coordinate> *vCoorPoly = Polygon->getCoordinates()->toVector().get();
+          std::vector<geos::geom::Coordinate> vCoorPoly;
+          Polygon->getCoordinates()->toVector(vCoorPoly);
+          vCoor.insert( vCoor.end(), vCoorPoly.begin(), vCoorPoly.end() );
+          //delete vCoorPoly;
         }
         delete Polygon;
       }
     }
 
-    const std::vector<geos::geom::Coordinate> *vCoorCurrentGeom = CurrentPolygon->getCoordinates()->toVector();
-    geos::geom::CoordinateSequence* CoordSeq = CurrentPolygon->getCoordinates();
-    for (unsigned int j = 0; j < vCoorCurrentGeom->size(); j++)
+    //const std::vector<geos::geom::Coordinate> *vCoorCurrentGeom = CurrentPolygon->getCoordinates()->toVector().get();
+    std::vector<geos::geom::Coordinate> vCoorCurrentGeom;
+    CurrentPolygon->getCoordinates()->toVector(vCoorCurrentGeom);
+    geos::geom::CoordinateSequence* CoordSeq = CurrentPolygon->getCoordinates().get();
+    for (unsigned int j = 0; j < vCoorCurrentGeom.size(); j++)
     {
       for (unsigned int h = 0; h < vCoor.size(); h++)
       {
-        if (!vCoorCurrentGeom->at(j).equals(vCoor.at(h)) &&
-            vCoorCurrentGeom->at(j).distance(vCoor.at(h)) > 0 &&
-            vCoorCurrentGeom->at(j).distance(vCoor.at(h)) < Threshold)
+        if (!vCoorCurrentGeom.at(j).equals(vCoor.at(h)) &&
+            vCoorCurrentGeom.at(j).distance(vCoor.at(h)) > 0 &&
+            vCoorCurrentGeom.at(j).distance(vCoor.at(h)) < Threshold)
         {
           CoordSeq->setAt(vCoor.at(h),j);
         }
@@ -937,7 +941,7 @@ void VectorDataset::snapPolygonVertices(double Threshold,unsigned int LayerIndex
 
     OGRFeat->SetGeometry(OGRGeom);
     OGRFeature* OGRFeatClone = OGRFeat->Clone();
-    geos::geom::Geometry* NewPolygonClone = NewPolygon->clone();
+    geos::geom::Geometry* NewPolygonClone = NewPolygon->clone().get();
     (*it) = std::make_pair<OGRFeature*, geos::geom::Geometry*>
     (dynamic_cast<OGRFeature *>(OGRFeatClone), dynamic_cast<geos::geom::Geometry*>(NewPolygonClone));
 
@@ -946,7 +950,7 @@ void VectorDataset::snapPolygonVertices(double Threshold,unsigned int LayerIndex
     OGRFeature::DestroyFeature(OGRFeatClone);
     delete NewPolygonClone;
     delete CoordSeq;
-    delete vCoorCurrentGeom;
+    //delete vCoorCurrentGeom;
     delete CurrentPolygon;
 
     m_Geometries.clear();
@@ -1153,7 +1157,7 @@ void VectorDataset::cleanOverlap(double Threshold, unsigned int LayerIndex)
     geos::geom::Geometry* Geom2 =
         (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(Feat2->GetGeometryRef());
 
-    geos::geom::Geometry * Diff= Geom1->difference(Geom2);
+    geos::geom::Geometry * Diff= Geom1->difference(Geom2).get();
 
     // snap Diff with Geom2
     geos::operation::overlay::snap::GeometrySnapper geomSnapper(*const_cast<geos::geom::Geometry*>(Geom2));

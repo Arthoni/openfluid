@@ -97,7 +97,7 @@ LineStringEntity::~LineStringEntity()
 
 LineStringEntity* LineStringEntity::clone()
 {
-  return new LineStringEntity(mp_Geom->clone(), m_OfldId);
+  return new LineStringEntity(mp_Geom->clone().get(), m_OfldId);
 }
 
 

@@ -52,7 +52,7 @@ namespace openfluid { namespace landr {
 LandREntity::LandREntity(const geos::geom::Geometry* Geom, unsigned int OfldId) :
     mp_Geom(Geom), m_OfldId(OfldId), mp_Neighbours(0)
 {
-  mp_Centroid = mp_Geom->getCentroid();
+  mp_Centroid = mp_Geom->getCentroid().get();
   m_Area = mp_Geom->getArea();
   m_Length = mp_Geom->getLength();
 }

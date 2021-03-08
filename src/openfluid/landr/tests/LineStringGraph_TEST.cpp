@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(check_construction_fromEntityVector)
     geos::geom::Geometry* GeosGeom = (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(OGRGeom);
 
     openfluid::landr::LandREntity* Entity =
-        new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone()),
+        new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone().get()),
                                                Feat->GetFieldAsInteger("OFLD_ID"));
 
     Entities.push_back(Entity);
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(check_cloneFromEntityVector)
     geos::geom::Geometry* GeosGeom = (geos::geom::Geometry*) openfluid::landr::convertOGRGeometryToGEOS(OGRGeom);
 
     openfluid::landr::LandREntity* Entity =
-        new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone()),
+        new openfluid::landr::LineStringEntity(dynamic_cast<geos::geom::LineString*>(GeosGeom->clone().get()),
                                                Feat->GetFieldAsInteger("OFLD_ID"));
 
     Entities.push_back(Entity);

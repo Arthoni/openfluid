@@ -47,6 +47,7 @@
  #include <geos/geom/GeometryFactory.h>
  #include <geos/geom/LineSegment.h>
  #include <geos/geom/Point.h>
+ #include <geos/operation/valid/RepeatedPointRemover.h>
 
 #include <openfluid/landr/LineStringGraph.hpp>
 #include <openfluid/landr/LineStringEntity.hpp>
@@ -169,8 +170,9 @@ void LineStringGraph::addEntity(LandREntity* Entity)
 
   const geos::geom::LineString* LineString = Edge->line();
 
-  geos::geom::CoordinateSequence* Coordinates =
-      geos::geom::CoordinateSequence::removeRepeatedPoints(LineString->getCoordinatesRO());
+  /*geos::geom::CoordinateSequence* Coordinates =
+      geos::geom::CoordinateSequence::removeRepeatedPoints(LineString->getCoordinatesRO());*/
+  geos::geom::CoordinateSequence* Coordinates; // = geos::operation::valid::RepeatedPointRemover::removeRepeatedPoints(LineString->getCoordinates()->get());
 
   const geos::geom::Coordinate& StartCoordinate = Coordinates->getAt(0);
   const geos::geom::Coordinate& EndCoordinate = Coordinates->getAt(Coordinates->getSize() - 1);
@@ -408,7 +410,7 @@ void LineStringGraph::setAttributeFromRasterValueAtEndNode(const std::string& At
 void LineStringGraph::reverseLineStringEntity(LineStringEntity& Entity)
 {
   const geos::geom::LineString* Ent=Entity.line();
-  geos::geom::Geometry* ReverseEnt=Ent->reverse();
+  geos::geom::Geometry* ReverseEnt=Ent->reverse().get();
 
   LandREntity* LandEnt = dynamic_cast<LandREntity*>(&Entity);
   int OfldId = LandEnt->getOfldId();
@@ -576,29 +578,29 @@ void LineStringGraph::mergeLineStringEntities(LineStringEntity& Entity,
 
   if ((EndNode->getCoordinate()).equals(StartNode2->getCoordinate()))
   {
-    CoordsOne = (Entity.line())->getCoordinates();
-    CoordsTwo = (EntityToMerge.line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,true);
+    CoordsOne = (Entity.line())->getCoordinates().get();
+    CoordsTwo = (EntityToMerge.line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,true);
   }
   else if ((StartNode->getCoordinate()).equals(EndNode2->getCoordinate()))
   {
-    CoordsOne = (EntityToMerge.line())->getCoordinates();
-    CoordsTwo = (Entity.line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,true);
+    CoordsOne = (EntityToMerge.line())->getCoordinates().get();
+    CoordsTwo = (Entity.line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,true);
   }
   else if ((EndNode->getCoordinate()).equals(EndNode2->getCoordinate()))
   {
-    CoordsOne = (Entity.line())->getCoordinates();
-    CoordsTwo = (EntityToMerge.line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,false);
+    CoordsOne = (Entity.line())->getCoordinates().get();
+    CoordsTwo = (EntityToMerge.line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,false);
   }
   else if ((StartNode->getCoordinate()).equals(StartNode2->getCoordinate()))
   {
     reverseLineStringEntity(EntityToMerge);
 
-    CoordsOne = (EntityToMerge.line())->getCoordinates();
-    CoordsTwo = (Entity.line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,true);
+    CoordsOne = (EntityToMerge.line())->getCoordinates().get();
+    CoordsTwo = (Entity.line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,true);
   }
 
   geos::geom::LineString* NewLine=mp_Factory->createLineString(CoordsOne);

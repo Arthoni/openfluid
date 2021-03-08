@@ -46,6 +46,7 @@
  #include <geos/geom/MultiLineString.h>
  #include <geos/geom/GeometryFactory.h>
  #include <geos/geom/Geometry.h>
+ #include <geos/operation/valid/RepeatedPointRemover.h>
  #include <geos/planargraph/DirectedEdge.h>
 
 #include <openfluid/landr/PolygonGraph.hpp>
@@ -220,9 +221,9 @@ void PolygonGraph::addEntity(LandREntity* Entity)
       }
     }
 
-    geos::geom::MultiLineString* NewMultiShared = mp_Factory->createMultiLineString(SharedGeoms);
+    geos::geom::MultiLineString* NewMultiShared = mp_Factory->createMultiLineString(&SharedGeoms);
 
-    geos::geom::Geometry* DiffGeom = Polygon->getExteriorRing()->difference(NewMultiShared);
+    geos::geom::Geometry* DiffGeom = Polygon->getExteriorRing()->difference(NewMultiShared).get();
 
     if (!DiffGeom->isEmpty())
     {
@@ -276,8 +277,10 @@ PolygonEdge* PolygonGraph::createEdge(geos::geom::LineString& LineString)
     return nullptr;
   }
 
-  geos::geom::CoordinateSequence* Coordinates =
-    geos::geom::CoordinateSequence::removeRepeatedPoints(LineString.getCoordinatesRO());
+  /*geos::geom::CoordinateSequence* Coordinates =
+    geos::geom::CoordinateSequence::removeRepeatedPoints(LineString.getCoordinatesRO());*/
+  geos::geom::CoordinateSequence* Coordinates;// = geos::operation::valid::RepeatedPointRemover::removeRepeatedPoints(LineString.getCoordinates().get()); 
+  // error: cannot convert ‘std::unique_ptr<geos::geom::CoordinateArraySequence>’ to ‘geos::geom::CoordinateSequence*’ in initialization
 
   const geos::geom::Coordinate& StartCoordinate = Coordinates->getAt(0);
   const geos::geom::Coordinate& EndCoordinate = Coordinates->getAt(Coordinates->getSize() - 1);
@@ -324,7 +327,7 @@ void PolygonGraph::removeSegment(PolygonEntity* Entity,
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION, s.str());
   }
 
-  geos::geom::Geometry* DiffGeom = OldEdge->line()->difference(Segment);
+  geos::geom::Geometry* DiffGeom = OldEdge->line()->difference(Segment).get();
 
   if (!DiffGeom->isEmpty())
   {
@@ -462,7 +465,7 @@ PolygonGraph::RastValByRastPoly_t PolygonGraph::computeRasterPolyOverlapping(Pol
   {
     if (RefPoly->relate(*it, "21*******"))
     {
-      geos::geom::Geometry* Inter = RefPoly->intersection(*it);
+      geos::geom::Geometry* Inter = RefPoly->intersection(*it).get();
       unsigned int iEnd=Inter->getNumGeometries();
 
       for (unsigned int i = 0; i < iEnd; i++)
@@ -903,7 +906,7 @@ void PolygonGraph::mergePolygonEntities(PolygonEntity& Entity,
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,"The PolygonEntities are not neighbours");
   }
 
-  geos::geom::Geometry *  NewPoly=Entity.geometry()->Union(EntityToMerge.geometry());
+  geos::geom::Geometry *  NewPoly=Entity.geometry()->Union(EntityToMerge.geometry()).get();
 
   int OfldId = Entity.getOfldId();
   int OfldIdToMerge = EntityToMerge.getOfldId();

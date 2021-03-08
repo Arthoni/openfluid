@@ -228,11 +228,11 @@ void PolygonEdge::removeAttribute(const std::string& AttributeName)
 bool PolygonEdge::isCoincident(PolygonEdge *Edge)
 {
 
-  geos::geom::Point *StartPoint=line()->getStartPoint();
-  geos::geom::Point *EndPoint=line()->getEndPoint();
+  geos::geom::Point *StartPoint=line()->getStartPoint().get();
+  geos::geom::Point *EndPoint=line()->getEndPoint().get();
 
-  geos::geom::Point *StartPoint2=Edge->line()->getStartPoint();
-  geos::geom::Point *EndPoint2=Edge->line()->getEndPoint();
+  geos::geom::Point *StartPoint2=Edge->line()->getStartPoint().get();
+  geos::geom::Point *EndPoint2=Edge->line()->getEndPoint().get();
 
   bool Coincident = false;
 

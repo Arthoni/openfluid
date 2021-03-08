@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(check_isLineInFace)
   std::vector<geos::geom::Coordinate>* CoosLS = new std::vector<geos::geom::Coordinate>();
   CoosLS->push_back(geos::geom::Coordinate(2, 0));
   CoosLS->push_back(geos::geom::Coordinate(2, 1));
-  geos::geom::LineString* LS = Factory->createLineString(SeqFactory.create(CoosLS));
+  geos::geom::LineString* LS = Factory->createLineString(SeqFactory.create(CoosLS)).get();
   openfluid::landr::PolygonEdge Edge(*LS);
 
   std::vector<geos::geom::Coordinate>* CoosPoly = new std::vector<geos::geom::Coordinate>();
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(check_isLineInFace)
   CoosPoly->push_back(geos::geom::Coordinate(2, 0));
   CoosPoly->push_back(geos::geom::Coordinate(0, 0));
   geos::geom::LinearRing* LR = Factory->createLinearRing(
-      SeqFactory.create(CoosPoly));
+      SeqFactory.create(CoosPoly)).get();
   geos::geom::Polygon* P = Factory->createPolygon(LR, nullptr);
   openfluid::landr::PolygonEntity Entity(P, 0);
 
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(check_isLineInFace)
   CoosWrongPoly->push_back(geos::geom::Coordinate(1, 2));
   CoosWrongPoly->push_back(geos::geom::Coordinate(1, 0));
   CoosWrongPoly->push_back(geos::geom::Coordinate(0, 0));
-  geos::geom::LinearRing* WrongLR = Factory->createLinearRing(SeqFactory.create(CoosWrongPoly));
+  geos::geom::LinearRing* WrongLR = Factory->createLinearRing(SeqFactory.create(CoosWrongPoly)).get();
   geos::geom::Polygon* WrongP = Factory->createPolygon(WrongLR, nullptr);
   openfluid::landr::PolygonEntity WrongEntity(WrongP, 0);
 
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(check_addRemoveAttribute)
   std::vector<geos::geom::Coordinate>* CoosLS = new std::vector<geos::geom::Coordinate>();
   CoosLS->push_back(geos::geom::Coordinate(2, 0));
   CoosLS->push_back(geos::geom::Coordinate(2, 1));
-  geos::geom::LineString* LS = Factory->createLineString(SeqFactory.create(CoosLS));
+  geos::geom::LineString* LS = Factory->createLineString(SeqFactory.create(CoosLS)).get();
   openfluid::landr::PolygonEdge Edge(*LS);
 
   std::vector<geos::geom::Coordinate>* CoosPoly = new std::vector<geos::geom::Coordinate>();
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(check_addRemoveAttribute)
   CoosPoly->push_back(geos::geom::Coordinate(2, 2));
   CoosPoly->push_back(geos::geom::Coordinate(2, 0));
   CoosPoly->push_back(geos::geom::Coordinate(0, 0));
-  geos::geom::LinearRing* LR = Factory->createLinearRing(SeqFactory.create(CoosPoly));
+  geos::geom::LinearRing* LR = Factory->createLinearRing(SeqFactory.create(CoosPoly)).get();
   geos::geom::Polygon* P = Factory->createPolygon(LR, nullptr);
   openfluid::landr::PolygonEntity Entity(P, 0);
 

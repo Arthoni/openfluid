@@ -96,7 +96,7 @@ PolygonEntity::~PolygonEntity()
 
 PolygonEntity* PolygonEntity::clone()
 {
-  PolygonEntity* Clone = new PolygonEntity(mp_Geom->clone(), m_OfldId);
+  PolygonEntity* Clone = new PolygonEntity(mp_Geom->clone().get(), m_OfldId);
 
   Clone->m_PolyEdges = m_PolyEdges;
 
@@ -164,7 +164,7 @@ std::vector<geos::geom::LineString*> PolygonEntity::computeLineIntersectionsWith
 
   if (mp_Polygon->relate(Other.mp_Polygon, "FFT" "F1*" "***"))
   {
-    geos::geom::Geometry* SharedGeom = mp_Polygon->intersection(Other.mp_Polygon);
+    geos::geom::Geometry* SharedGeom = mp_Polygon->intersection(Other.mp_Polygon).get();
 
     Lines = *LandRTools::computeMergedLineStringsFromGeometry(SharedGeom);
 
@@ -286,7 +286,7 @@ bool PolygonEntity::isComplete()
     Geoms.push_back(m_PolyEdges.at(i)->line());
   }
 
-  geos::geom::MultiLineString* MLS = geos::geom::GeometryFactory::getDefaultInstance()->createMultiLineString(Geoms);
+  geos::geom::MultiLineString* MLS = geos::geom::GeometryFactory::getDefaultInstance()->createMultiLineString(&Geoms);
   geos::geom::LineString* LS =
     LandRTools::computeMergedLineStringFromGeometry(dynamic_cast<geos::geom::Geometry*>(MLS));
 
@@ -327,7 +327,7 @@ std::vector<PolygonEdge*> PolygonEntity::getCommonEdgesWith(PolygonEntity& Other
 
 geos::geom::Geometry* PolygonEntity::getBufferedBoundary(double BufferDistance)
 {
-  return mp_Polygon->getBoundary()->buffer(BufferDistance);
+  return mp_Polygon->getBoundary()->buffer(BufferDistance).get();
 }
 
 
@@ -373,7 +373,7 @@ void PolygonEntity::computeLineStringNeighbours(LineStringGraph& Graph,
 
       for (unsigned int j = 0; j < jEnd; j++)
       {
-        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance);
+        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance).get();
         if (LS->line()->within(EdgeBuff))
         {
           mp_LineStringNeighboursMap->insert(
@@ -395,9 +395,9 @@ void PolygonEntity::computeLineStringNeighbours(LineStringGraph& Graph,
 
       for (unsigned int j = 0; j < jEnd; j++)
       {
-        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance);
+        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance).get();
 
-        geos::geom::Geometry * Inter = LS->line()->intersection(EdgeBuff);
+        geos::geom::Geometry * Inter = LS->line()->intersection(EdgeBuff).get();
         double lengthInter = 0.0;
         unsigned int iEnd = Inter->getNumGeometries();
 
@@ -445,40 +445,40 @@ geos::geom::LineString* PolygonEntity::mergeEdges(PolygonEdge* Edge,
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,"The PolygonEdges are not coincident");
   }
 
-  geos::geom::Point *StartPoint=Edge->line()->getStartPoint();
-  geos::geom::Point *EndPoint=Edge->line()->getEndPoint();
+  geos::geom::Point *StartPoint=Edge->line()->getStartPoint().get();
+  geos::geom::Point *EndPoint=Edge->line()->getEndPoint().get();
 
-  geos::geom::Point *StartPoint2=EdgeToMerge->line()->getStartPoint();
-  geos::geom::Point *EndPoint2=EdgeToMerge->line()->getEndPoint();
+  geos::geom::Point *StartPoint2=EdgeToMerge->line()->getStartPoint().get();
+  geos::geom::Point *EndPoint2=EdgeToMerge->line()->getEndPoint().get();
 
   geos::geom::CoordinateSequence *CoordsOne = nullptr;
-  geos::geom::CoordinateSequence *CoordsTwo = nullptr;
+  geos::geom::CoordinateSequence *CoordsTwo = nullptr;// TODO REPLACE BY CoordinateArraySequence which knows "add"?
 
   if (EndPoint->getCoordinate()->equals(*(StartPoint2->getCoordinate())))
   {
-    CoordsOne=(Edge->line())->getCoordinates();
-    CoordsTwo=(EdgeToMerge->line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,true);
+    CoordsOne=(Edge->line())->getCoordinates().get();
+    CoordsTwo=(EdgeToMerge->line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,true);
   }
   else if (StartPoint->getCoordinate()->equals(*(EndPoint2->getCoordinate())))
   {
-    CoordsOne=(EdgeToMerge->line())->getCoordinates();
-    CoordsTwo=(Edge->line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,true);
+    CoordsOne=(EdgeToMerge->line())->getCoordinates().get();
+    CoordsTwo=(Edge->line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,true);
   }
   else if (EndPoint->getCoordinate()->equals(*(EndPoint2->getCoordinate())))
   {
-    CoordsOne=(Edge->line())->getCoordinates();
-    CoordsTwo=(EdgeToMerge->line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,false);
+    CoordsOne=(Edge->line())->getCoordinates().get();
+    CoordsTwo=(EdgeToMerge->line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,false);
   }
   else if (StartPoint->getCoordinate()->equals(*(StartPoint2->getCoordinate())))
   {
-    geos::geom::Geometry * reverseLine=EdgeToMerge->line()->reverse();
+    geos::geom::Geometry * reverseLine=EdgeToMerge->line()->reverse().get();
 
-    CoordsOne=reverseLine->getCoordinates();
-    CoordsTwo=(Edge->line())->getCoordinates();
-    CoordsOne->add(CoordsTwo,false,true);
+    CoordsOne=reverseLine->getCoordinates().get();
+    CoordsTwo=(Edge->line())->getCoordinates().get();
+    //CoordsOne->add(CoordsTwo,false,true);
     delete reverseLine;
   }
 
@@ -537,7 +537,7 @@ void PolygonEntity::computeNeighboursWithBarriers(LineStringGraph& Graph,
 
       for (unsigned int j = 0; j < jEnd; j++)
       {
-        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance);
+        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance).get();
         if (LS->line()->within(EdgeBuff))
         {
           // remove from mp_Neighbours and mp_NeighboursMap the polygon which share this Edge
@@ -553,8 +553,8 @@ void PolygonEntity::computeNeighboursWithBarriers(LineStringGraph& Graph,
       unsigned int jEnd=m_PolyEdges.size();
       for (unsigned int j = 0; j < jEnd; j++)
       {
-        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance);
-        geos::geom::Geometry * Inter = LS->line()->intersection(EdgeBuff);
+        EdgeBuff = m_PolyEdges[j]->line()->buffer(BufferDistance).get();
+        geos::geom::Geometry * Inter = LS->line()->intersection(EdgeBuff).get();
         double lengthInter = 0.0;
         unsigned int iEnd=Inter->getNumGeometries();
 
@@ -680,7 +680,7 @@ std::pair<LandREntity *, double> PolygonEntity::computeNeighbourByLineTopology(V
   {
     const geos::geom::Geometry* GeomL = PtIntersect->getGeometryN(i);
     Line = dynamic_cast<geos::geom::LineString*>(const_cast<geos::geom::Geometry*>(GeomL));
-    geos::geom::Point* Point = Line->getStartPoint();
+    geos::geom::Point* Point = Line->getStartPoint().get();
 
     if (geometry()->covers(Point))
     {
@@ -701,7 +701,7 @@ std::pair<LandREntity *, double> PolygonEntity::computeNeighbourByLineTopology(V
     return pairNeighLength;
   }
 
-  geos::geom::Point* EndPoint = Line->getEndPoint();
+  geos::geom::Point* EndPoint = Line->getEndPoint().get();
   bool downUnit = false;
 
   NeighboursMap_t::iterator jt = mp_NeighboursMap->begin();
@@ -735,7 +735,7 @@ std::pair<LandREntity *, double> PolygonEntity::computeNeighbourByLineTopology(V
       {
         Down = (*ht).first;
         downUnit = true;
-        geos::geom::Geometry *Intersect = Line->difference((*ht).first->line());
+        geos::geom::Geometry *Intersect = Line->difference((*ht).first->line()).get();
         unsigned int hEnd=Intersect->getNumGeometries();
 
         for (unsigned int h = 0; h < hEnd; h++)
@@ -745,7 +745,7 @@ std::pair<LandREntity *, double> PolygonEntity::computeNeighbourByLineTopology(V
 
           // FLowLength is the length of the line which EndPoint touches the LineString Neighbour
           if (LinePart->getEndPoint()->isWithinDistance((*ht).first->line(),0.0001) &&
-              geometry()->covers(LinePart->getStartPoint()))
+              geometry()->covers(LinePart->getStartPoint().get()))
           {
             FlowLength=LinePart->getLength();
           }
