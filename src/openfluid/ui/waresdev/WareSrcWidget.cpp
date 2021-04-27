@@ -77,30 +77,6 @@ WareSrcWidget::WareSrcWidget(const openfluid::waresdev::WareSrcManager::PathInfo
   {
     mp_StandaloneToolBar = new WareSrcToolbar(true, this);
 
-    ui->Toolbar_Layout->addWidget(mp_StandaloneToolBar);
-
-    connect(mp_StandaloneToolBar->action("NewFile"), SIGNAL(triggered()), this, SLOT(newFile()));
-    connect(mp_StandaloneToolBar->action("OpenFile"), SIGNAL(triggered()), this, SLOT(openFile()));
-    connect(mp_StandaloneToolBar->action("SaveFile"), SIGNAL(triggered()), this, SLOT(saveCurrentEditor()));
-    connect(mp_StandaloneToolBar->action("SaveAsFile"), SIGNAL(triggered()), this, SLOT(saveAs()));
-    connect(mp_StandaloneToolBar->action("SaveAllFiles"), SIGNAL(triggered()), this, SLOT(saveAllFileTabs()));
-    connect(mp_StandaloneToolBar->action("CloseFile"), SIGNAL(triggered()), this, SLOT(closeCurrentEditor()));
-    connect(mp_StandaloneToolBar->action("DeleteFile"), SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
-
-    connect(mp_StandaloneToolBar->action("Copy"), SIGNAL(triggered()), this, SLOT(copyText()));
-    connect(mp_StandaloneToolBar->action("Cut"), SIGNAL(triggered()), this, SLOT(cutText()));
-    connect(mp_StandaloneToolBar->action("Paste"), SIGNAL(triggered()), this, SLOT(pasteText()));
-    connect(mp_StandaloneToolBar->action("FindReplace"), SIGNAL(triggered()), this, SIGNAL(findReplaceRequested()));
-    connect(mp_StandaloneToolBar->action("GoToLine"), SIGNAL(triggered()), this, SLOT(goToLine()));
-
-    connect(mp_StandaloneToolBar->action("WareOptionsRelease"), SIGNAL(triggered()), this, SLOT(updateWareOptions()));
-    connect(mp_StandaloneToolBar->action("WareOptionsDebug"), SIGNAL(triggered()), this, SLOT(updateWareOptions()));
-    connect(mp_StandaloneToolBar->action("WareOptionsInstall"), SIGNAL(triggered()), this, SLOT(updateWareOptions()));
-    connect(mp_StandaloneToolBar->action("ConfigureWare"), SIGNAL(triggered()), this, SLOT(configure()));
-    connect(mp_StandaloneToolBar->action("BuildWare"), SIGNAL(triggered()), this, SLOT(build()));
-#if OPENFLUID_SIM2DOC_ENABLED
-    connect(mp_StandaloneToolBar->action("GenerateDoc"), SIGNAL(triggered()), this, SLOT(generateDoc()));
-#endif
 
     connect(mp_StandaloneToolBar->action("OpenTerminal"), SIGNAL(triggered()), this, SIGNAL(openTerminalRequested()));
     connect(mp_StandaloneToolBar->action("OpenExplorer"), SIGNAL(triggered()), this, SIGNAL(openExplorerRequested()));
@@ -113,6 +89,87 @@ WareSrcWidget::WareSrcWidget(const openfluid::waresdev::WareSrcManager::PathInfo
       connect(ExternalToolsActions[Alias], SIGNAL(triggered()), this, SLOT(onOpenExternalToolRequested()));
     }
   }
+  else
+  {
+    mp_StandaloneToolBar = new WareSrcToolbar(false, this);
+    mp_StandaloneToolBar->setObjectName("WareToolbar");
+    mp_StandaloneToolBar->setIconSize(QSize(24,24));
+    mp_StandaloneToolBar->setStyleSheet(
+      QString(R"(
+QToolButton {
+  color: #555555;
+  padding-left : 10px;
+  padding-right : 10px;
+}
+
+#WareToolbar {
+  background-color: %1;
+  border: 1px solid %1;
+}
+
+#WareToolbar QToolButton, QLabel {
+  background-color: %1;
+  color: white;
+}
+
+#WareToolbar QToolButton[popupMode=1] {
+  background-color: %1;
+  border: 1px solid %1;
+  padding-left : 10px;
+  padding-right : 20px;
+}
+
+#WareToolbar QToolButton::hover {
+  background-color: %2;
+  border : 1px solid %3;
+  border-radius: 4px;
+}
+
+#WareToolbar QToolButton::menu-button {
+  background-color: %1;
+  border: 1px solid %1;
+  border-radius: 4px;
+}
+
+#WareToolbar QToolButton::menu-button:pressed, QToolButton::menu-button:hover {
+  background-color: %2;
+  border : 1px solid %3;
+  border-radius: 4px;
+}
+             )").arg(
+          "#595e43", "black",
+          "dark gray"));
+          //BUILDER_OBSERVER_BGCOLOR, BUILDER_SIMULATOR_BGCOLOR
+    QPushButton* myB = new QPushButton("+");
+    myB->setFixedSize(20,20);
+    ui->WareSrcFileCollection->setCornerWidget(myB, Qt::TopRightCorner);
+  }
+  
+  ui->Toolbar_Layout->addWidget(mp_StandaloneToolBar); // TODO use setMenuBar instead (requires real layout management)
+
+  connect(mp_StandaloneToolBar->action("NewFile"), SIGNAL(triggered()), this, SLOT(newFile()));
+  connect(mp_StandaloneToolBar->action("OpenFile"), SIGNAL(triggered()), this, SLOT(openFile()));
+  connect(mp_StandaloneToolBar->action("SaveFile"), SIGNAL(triggered()), this, SLOT(saveCurrentEditor()));
+  connect(mp_StandaloneToolBar->action("SaveAsFile"), SIGNAL(triggered()), this, SLOT(saveAs()));
+  connect(mp_StandaloneToolBar->action("SaveAllFiles"), SIGNAL(triggered()), this, SLOT(saveAllFileTabs()));
+  connect(mp_StandaloneToolBar->action("CloseFile"), SIGNAL(triggered()), this, SLOT(closeCurrentEditor()));
+  connect(mp_StandaloneToolBar->action("DeleteFile"), SIGNAL(triggered()), this, SLOT(deleteCurrentFile()));
+
+  connect(mp_StandaloneToolBar->action("Copy"), SIGNAL(triggered()), this, SLOT(copyText()));
+  connect(mp_StandaloneToolBar->action("Cut"), SIGNAL(triggered()), this, SLOT(cutText()));
+  connect(mp_StandaloneToolBar->action("Paste"), SIGNAL(triggered()), this, SLOT(pasteText()));
+  connect(mp_StandaloneToolBar->action("FindReplace"), SIGNAL(triggered()), this, SIGNAL(findReplaceRequested()));
+  connect(mp_StandaloneToolBar->action("GoToLine"), SIGNAL(triggered()), this, SLOT(goToLine()));
+
+  connect(mp_StandaloneToolBar->action("WareOptionsRelease"), SIGNAL(triggered()), this, SLOT(updateWareOptions()));
+  connect(mp_StandaloneToolBar->action("WareOptionsDebug"), SIGNAL(triggered()), this, SLOT(updateWareOptions()));
+  connect(mp_StandaloneToolBar->action("WareOptionsInstall"), SIGNAL(triggered()), this, SLOT(updateWareOptions()));
+  connect(mp_StandaloneToolBar->action("ConfigureWare"), SIGNAL(triggered()), this, SLOT(configure()));
+  connect(mp_StandaloneToolBar->action("BuildWare"), SIGNAL(triggered()), this, SLOT(build()));
+#if OPENFLUID_SIM2DOC_ENABLED
+  connect(mp_StandaloneToolBar->action("GenerateDoc"), SIGNAL(triggered()), this, SLOT(generateDoc()));
+#endif
+
 
   connect(ui->WareSrcFileCollection, SIGNAL(tabCloseRequested(int)), this, SLOT(onCloseFileTabRequested(int)));
   connect(ui->WareSrcFileCollection, SIGNAL(currentChanged(int)), this, SLOT(onCurrentTabChanged(int)));

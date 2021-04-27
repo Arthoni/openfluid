@@ -45,6 +45,7 @@
 #include <QApplication>
 #include <QProcess>
 #include <QMessageBox>
+#include <QPushButton>
 
 #include <openfluid/base/Environment.hpp>
 #include <openfluid/base/PreferencesManager.hpp>
@@ -72,6 +73,9 @@ WareSrcWidgetCollection::WareSrcWidgetCollection(QTabWidget* TabWidget, bool IsS
 {
   connect(mp_TabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(onCloseWareTabRequested(int)));
   connect(mp_TabWidget, SIGNAL(currentChanged(int)), this, SLOT(onCurrentTabChanged(int)));
+  QPushButton* myB = new QPushButton("+");
+  myB->setFixedSize(20,20);
+  TabWidget->setCornerWidget(myB, Qt::TopRightCorner);
 }
 
 

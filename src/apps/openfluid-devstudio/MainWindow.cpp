@@ -49,6 +49,7 @@
 
 #include <openfluid/config.hpp>
 #include <openfluid/global.hpp>
+#include <openfluid/ui/waresdev/DevstudioToolbar.hpp>
 #include <openfluid/ui/waresdev/WareSrcToolbar.hpp>
 #include <openfluid/ui/waresdev/WareSrcWidget.hpp>
 #include <openfluid/ui/common/AboutDialog.hpp>
@@ -80,7 +81,61 @@ MainWindow::MainWindow(openfluid::ui::common::OpenFLUIDSplashScreen* Splash) :
   Sizes << 220 << 1000;
   ui->splitter->setSizes(Sizes);
 
-  mp_Toolbar = new openfluid::ui::waresdev::WareSrcToolbar(false, this);
+  /*
+  mp_MainToolbar = new openfluid::ui::waresdev::WareSrcToolbar(false, this);
+  mp_MainToolbar->setObjectName("DevstudioToolbar");
+  mp_MainToolbar->setIconSize(QSize(32,32));
+  mp_MainToolbar->setStyleSheet(
+      QString(R"(
+QToolButton {
+  color: #f0f0f0;
+  padding-left : 10px;
+  padding-right : 10px;
+}
+
+#DevstudioToolbar {
+  background-color: %1;
+  border: 1px solid %1;
+}
+
+QToolButton, QLabel {
+  background-color: %1;
+  color: white;
+}
+
+QToolButton[popupMode=1] {
+  background-color: %1;
+  border: 1px solid %1;
+  padding-left : 10px;
+  padding-right : 20px;
+}
+
+QToolButton::hover {
+  background-color: %2;
+  border : 1px solid %3;
+  border-radius: 4px;
+}
+
+QToolButton::menu-button {
+  background-color: %1;
+  border: 1px solid %1;
+  border-radius: 4px;
+}
+
+QToolButton::menu-button:pressed, QToolButton::menu-button:hover {
+  background-color: %2;
+  border : 1px solid %3;
+  border-radius: 4px;
+}
+             )").arg(
+          openfluid::ui::config::TOOLBAR_BGCOLOR, openfluid::ui::config::TOOLBARBUTTON_BGCOLOR,
+          openfluid::ui::config::TOOLBARBUTTON_BORDERCOLOR));
+
+
+  addToolBar(mp_MainToolbar);
+  addToolBarBreak();*/
+
+  mp_Toolbar = new openfluid::ui::waresdev::DevstudioToolbar(false, this);
 
   mp_Toolbar->setObjectName("SrcToolbar");
   mp_Toolbar->setIconSize(QSize(32,32));
@@ -132,6 +187,15 @@ QToolButton::menu-button:pressed, QToolButton::menu-button:hover {
 
 
   addToolBar(mp_Toolbar);
+  //ui->WareSrcCollection->addToolBar(mp_Toolbar);
+  
+
+  /*auto dockLayout = new QVBoxLayout(); //or any other layout type you want
+  dockLayout->setMenuBar(mp_Toolbar); // <-- the interesting part
+  dockLayout->addWidget(ui->WareSrcCollection);
+
+  ui->WareSrcSubwindow->setLayout(dockLayout);
+  yourDockWidget->setWidget(ui->WareSrcSubwindow);*/
 
   Splash->setMessage(tr("Initializing sources codes management"));
 

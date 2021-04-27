@@ -46,7 +46,7 @@
 
 #include <openfluid/ui/common/OpenFLUIDSplashScreen.hpp>
 #include <openfluid/ui/waresdev/WareSrcWidgetCollection.hpp>
-#include <openfluid/ui/waresdev/WareSrcToolbar.hpp>
+#include <openfluid/ui/waresdev/DevstudioToolbar.hpp>
 #include <openfluid/dllexport.hpp>
 
 
@@ -70,7 +70,8 @@ class OPENFLUID_API MainWindow: public QMainWindow
 
     Ui::MainWindow* ui;
 
-    openfluid::ui::waresdev::WareSrcToolbar* mp_Toolbar;
+    //openfluid::ui::waresdev::WareSrcToolbar* mp_MainToolbar;
+    openfluid::ui::waresdev::DevstudioToolbar* mp_Toolbar;
 
     openfluid::ui::waresdev::WareSrcWidgetCollection* mp_WidgetsCollection;
 

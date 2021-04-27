@@ -1,6 +1,6 @@
 
 SET(OPENFLUID_UI_WARESDEV_CPP WareSrcWidget.cpp WareSrcFileEditor.cpp WareSrcWidgetCollection.cpp
-                              WareSrcToolbar.cpp WareBuildOptionsWidget.cpp                               
+                              DevstudioToolbar.cpp WareSrcToolbar.cpp WareBuildOptionsWidget.cpp                               
                               WareSrcSyntaxHighlighter.cpp WareSrcFiletypeManager.cpp TextEditMsgStream.cpp
                               WareSrcExplorer.cpp WareSrcExplorerModel.cpp WareExplorerDialog.cpp
                               NewSrcFileAssistant.cpp NewWareDialog.cpp FindReplaceDialog.cpp WareSrcMsgViewer.cpp
@@ -13,7 +13,7 @@ SET(OPENFLUID_UI_WARESDEV_CPP WareSrcWidget.cpp WareSrcFileEditor.cpp WareSrcWid
                               WorkspaceDevProcessDialog.cpp)
 
 SET(OPENFLUID_UI_WARESDEV_HPP WareSrcWidget.hpp WareSrcFileEditor.hpp WareSrcWidgetCollection.hpp
-                              WareSrcToolbar.hpp WareBuildOptionsWidget.hpp
+                              DevstudioToolbar.hpp WareSrcToolbar.hpp WareBuildOptionsWidget.hpp
                               WareSrcSyntaxHighlighter.hpp WareSrcFiletypeManager.hpp TextEditMsgStream.hpp
                               WareSrcExplorer.hpp WareSrcExplorerModel.hpp WareExplorerDialog.hpp
                               NewSrcFileAssistant.hpp NewWareDialog.hpp FindReplaceDialog.hpp WareSrcMsgViewer.hpp

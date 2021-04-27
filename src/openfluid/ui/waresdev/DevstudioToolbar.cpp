@@ -31,7 +31,7 @@
 
 
 /**
- @file WareSrcToolbar.cpp
+ @file DevstudioToolbar.cpp
 
  @author Aline LIBRES <aline.libres@gmail.com>
  @author Jean-Christophe Fabre <jean-christophe.fabre@inra.fr>
@@ -48,7 +48,7 @@
 #include <QHBoxLayout>
 
 #include <openfluid/config.hpp>
-#include <openfluid/ui/waresdev/WareSrcToolbar.hpp>
+#include <openfluid/ui/waresdev/DevstudioToolbar.hpp>
 #include <openfluid/ui/waresdev/WareBuildOptionsWidget.hpp>
 #include <openfluid/base/FrameworkException.hpp>
 #include <openfluid/ui/common/UIHelpers.hpp>
@@ -57,7 +57,7 @@
 namespace openfluid { namespace ui { namespace waresdev {
 
 
-WareSrcToolbar::WareSrcToolbar(bool IsIncluded, QWidget* Parent) :
+DevstudioToolbar::DevstudioToolbar(bool IsIncluded, QWidget* Parent) :
     QToolBar(Parent), mp_OptionsWidget(nullptr), m_IsIncluded(IsIncluded)
 {
   if (!m_IsIncluded)
@@ -75,7 +75,7 @@ WareSrcToolbar::WareSrcToolbar(bool IsIncluded, QWidget* Parent) :
   addAction(m_Actions["NewFile"]);
   addAction(m_Actions["OpenFile"]);
   addAction(m_Actions["SaveFile"]);
-  addAction(m_Actions["SaveAsFile"]);
+  //addAction(m_Actions["SaveAsFile"]);
   addSeparator();
   addAction(m_Actions["ConfigureWare"]);
   addAction(m_Actions["BuildWare"]);
@@ -83,7 +83,7 @@ WareSrcToolbar::WareSrcToolbar(bool IsIncluded, QWidget* Parent) :
   addAction(m_Actions["GenerateDoc"]);
 #endif
 
-  if (m_IsIncluded)
+if (m_IsIncluded)
   {
     QWidget* Spacer = new QWidget();
     Spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -122,9 +122,9 @@ WareSrcToolbar::WareSrcToolbar(bool IsIncluded, QWidget* Parent) :
 
     // TODO add doc generation?
 
-    SubMenu = Menu->addMenu(tr("Ware"));
-    SubMenu->addAction(m_Actions["OpenTerminal"]);
-    SubMenu->addAction(m_Actions["OpenExplorer"]);
+    //SubMenu = Menu->addMenu(tr("Ware"));
+    //SubMenu->addAction(m_Actions["OpenTerminal"]);
+    //SubMenu->addAction(m_Actions["OpenExplorer"]);
 
     QMenu* ExtToolSubSubMenu = SubMenu->addMenu(tr("Open in external tool"));
     ExtToolSubSubMenu->setEnabled(false);
@@ -147,7 +147,7 @@ WareSrcToolbar::WareSrcToolbar(bool IsIncluded, QWidget* Parent) :
     MenuButton->setIcon(openfluid::ui::common::getIcon("menu","/ui/common"));
     MenuButton->setPopupMode(QToolButton::InstantPopup);
     MenuButton->setMenu(Menu);
-    addWidget(MenuButton);
+    //addWidget(MenuButton);
   }
   else
   {
@@ -164,7 +164,7 @@ WareSrcToolbar::WareSrcToolbar(bool IsIncluded, QWidget* Parent) :
 // =====================================================================
 
 
-WareSrcToolbar::~WareSrcToolbar()
+DevstudioToolbar::~DevstudioToolbar()
 {
 
 }
@@ -174,20 +174,20 @@ WareSrcToolbar::~WareSrcToolbar()
 // =====================================================================
 
 
-void WareSrcToolbar::createActions()
+void DevstudioToolbar::createActions()
 {
 
   // ====== File ======
 
   m_Actions["NewFile"] = new QAction(openfluid::ui::common::getIcon("file-new","/ui/common",!m_IsIncluded),
-                                     tr("New file..."), this);
+                                     tr("New ware..."), this);
   m_Actions["NewFile"]->setToolTip(tr("Create a new file"));
   m_Actions["OpenFile"] = new QAction(openfluid::ui::common::getIcon("file-open","/ui/common",!m_IsIncluded),
-                                      tr("Open file..."), this);
+                                      tr("Open ware..."), this);
   m_Actions["OpenFile"]->setToolTip(tr("Open a file"));
 
-  m_Actions["SaveFile"] = new QAction(openfluid::ui::common::getIcon("file-save","/ui/common",!m_IsIncluded),
-                                      tr("Save file"), this);
+  m_Actions["SaveFile"] = new QAction(openfluid::ui::common::getIcon("file-open","/ui/common",!m_IsIncluded),
+                                      tr("Import wares from Hub..."), this);
   m_Actions["SaveFile"]->setShortcut(QKeySequence::Save);
   m_Actions["SaveFile"]->setToolTip(tr("Save the current file"));
   m_Actions["SaveFile"]->setEnabled(false);
@@ -233,14 +233,14 @@ void WareSrcToolbar::createActions()
   // Configure ware
 
   m_Actions["ConfigureWare"] = new QAction(openfluid::ui::common::getIcon("configure","/ui/common",!m_IsIncluded),
-                                           tr("Configure"), this);
+                                           tr("Open dashboard"), this);
   m_Actions["ConfigureWare"]->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B));
 
 
   // Build ware
 
   m_Actions["BuildWare"] = new QAction(openfluid::ui::common::getIcon("build","/ui/common",!m_IsIncluded),
-                                       tr("Build"), this);
+                                       tr("Build all wares"), this);
   m_Actions["BuildWare"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
 
 
@@ -248,7 +248,7 @@ void WareSrcToolbar::createActions()
 
 #if OPENFLUID_SIM2DOC_ENABLED
   m_Actions["GenerateDoc"] = new QAction(openfluid::ui::common::getIcon("generate-doc","/ui/common",!m_IsIncluded),
-                                         tr("Generate doc"), this);
+                                         tr("Open API doc"), this);
   m_Actions["GenerateDoc"]->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
 #endif
 
@@ -297,7 +297,7 @@ void WareSrcToolbar::createActions()
 // =====================================================================
 
 
-const QMap<QString, QAction*> WareSrcToolbar::externalToolsActions()
+const QMap<QString, QAction*> DevstudioToolbar::externalToolsActions()
 {
   return m_ExternalToolsActions;
 }
@@ -307,7 +307,7 @@ const QMap<QString, QAction*> WareSrcToolbar::externalToolsActions()
 // =====================================================================
 
 
-QAction* WareSrcToolbar::action(const QString& ActionName)
+QAction* DevstudioToolbar::action(const QString& ActionName)
 {
   if (m_Actions.contains(ActionName))
   {
