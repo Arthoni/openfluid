@@ -157,30 +157,36 @@ void SignatureEditorWidget::initializeParametersUIFromSignature(const openfluid:
 {
   QMap<int,QVariant> DataMap;
 
-  ui->ParametersDataWidget->initialize({SignatureDataEditorWidget::DATACOL_DATAID,
-                                        SignatureDataEditorWidget::DATACOL_ROCONDITION,
-                                        SignatureDataEditorWidget::DATACOL_DESCRIPTION,
-                                        SignatureDataEditorWidget::DATACOL_SIUNIT});
+  ui->ParametersDataWidget->initialize({SignatureDataEditorWidget::DataColumns::DATACOL_DATAID,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_ROCONDITION,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT});
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_ROCONDITION,
-                 SignatureDataEditorWidget::DATACOND_REQUIRED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_ROCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_REQUIRED));
 
   for (auto& Item : Signature.HandledData.RequiredParams)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->ParametersDataWidget->addDataLine(DataMap);
   }
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_ROCONDITION,
-                 SignatureDataEditorWidget::DATACOND_USED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_ROCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED));
 
   for (auto& Item : Signature.HandledData.UsedParams)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->ParametersDataWidget->addDataLine(DataMap);
   }
 
@@ -195,24 +201,26 @@ void SignatureEditorWidget::initializeExtrafilesUIFromSignature(const openfluid:
 {
   QMap<int,QVariant> DataMap;
 
-  ui->ExtraFilesDataWidget->initialize({SignatureDataEditorWidget::DATACOL_DATAID,
-                                        SignatureDataEditorWidget::DATACOL_ROCONDITION});
+  ui->ExtraFilesDataWidget->initialize({SignatureDataEditorWidget::DataColumns::DATACOL_DATAID,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_ROCONDITION});
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_ROCONDITION,
-                 SignatureDataEditorWidget::DATACOND_REQUIRED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_ROCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_REQUIRED));
 
   for (auto& Item : Signature.HandledData.RequiredExtraFiles)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item));
     ui->ExtraFilesDataWidget->addDataLine(DataMap);
   }
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_ROCONDITION,
-                 SignatureDataEditorWidget::DATACOND_USED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_ROCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED));
 
   for (auto& Item : Signature.HandledData.UsedExtraFiles)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item));
     ui->ExtraFilesDataWidget->addDataLine(DataMap);
   }
 
@@ -227,45 +235,57 @@ void SignatureEditorWidget::initializeAttributesUIFromSignature(const openfluid:
 {
   QMap<int,QVariant> DataMap;
 
-  ui->AttributesDataWidget->initialize({SignatureDataEditorWidget::DATACOL_DATAID,
-                                        SignatureDataEditorWidget::DATACOL_UNITSCLASS,
-                                        SignatureDataEditorWidget::DATACOL_RWCONDITION,
-                                        SignatureDataEditorWidget::DATACOL_DESCRIPTION,
-                                        SignatureDataEditorWidget::DATACOL_SIUNIT});
+  ui->AttributesDataWidget->initialize({SignatureDataEditorWidget::DataColumns::DATACOL_DATAID,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_RWCONDITION,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT});
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_RWCONDITION,
-                 SignatureDataEditorWidget::DATACOND_REQUIRED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_RWCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_REQUIRED));
 
   for (auto& Item : Signature.HandledData.RequiredAttribute)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->AttributesDataWidget->addDataLine(DataMap);
   }
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_RWCONDITION,
-                 SignatureDataEditorWidget::DATACOND_USED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_RWCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED));
 
   for (auto& Item : Signature.HandledData.UsedAttribute)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->AttributesDataWidget->addDataLine(DataMap);
   }
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_RWCONDITION,
-                 SignatureDataEditorWidget::DATACOND_PRODUCED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_RWCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_PRODUCED));
 
   for (auto& Item : Signature.HandledData.ProducedAttribute)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->AttributesDataWidget->addDataLine(DataMap);
   }
 
@@ -280,11 +300,12 @@ void SignatureEditorWidget::initializeEventsUIFromSignature(const openfluid::war
 {
   QMap<int,QVariant> DataMap;
 
-  ui->EventsDataWidget->initialize({SignatureDataEditorWidget::DATACOL_UNITSCLASS});
+  ui->EventsDataWidget->initialize({SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS});
 
   for (auto& Item : Signature.HandledData.UsedEventsOnUnits)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item));
     ui->EventsDataWidget->addDataLine(DataMap);
   }
 }
@@ -298,62 +319,82 @@ void SignatureEditorWidget::initializeVariablesUIFromSignature(const openfluid::
 {
   QMap<int,QVariant> DataMap;
 
-  ui->VariablesDataWidget->initialize({SignatureDataEditorWidget::DATACOL_DATAID,
-                                       SignatureDataEditorWidget::DATACOL_UNITSCLASS,
-                                       SignatureDataEditorWidget::DATACOL_RWUCONDITION,
-                                       SignatureDataEditorWidget::DATACOL_DATATYPE,
-                                       SignatureDataEditorWidget::DATACOL_DESCRIPTION,
-                                       SignatureDataEditorWidget::DATACOL_SIUNIT});
+  ui->VariablesDataWidget->initialize({SignatureDataEditorWidget::DataColumns::DATACOL_DATAID,
+                                       SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS,
+                                       SignatureDataEditorWidget::DataColumns::DATACOL_RWUCONDITION,
+                                       SignatureDataEditorWidget::DataColumns::DATACOL_DATATYPE,
+                                       SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION,
+                                       SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT});
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_RWUCONDITION,
-                 SignatureDataEditorWidget::DATACOND_REQUIRED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_RWUCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_REQUIRED));
 
   for (auto& Item : Signature.HandledData.RequiredVars)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATATYPE,Item.DataType);
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATATYPE),
+                   static_cast<int>(Item.DataType));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->VariablesDataWidget->addDataLine(DataMap);
   }
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_RWUCONDITION,
-                 SignatureDataEditorWidget::DATACOND_USED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_RWUCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED));
 
   for (auto& Item : Signature.HandledData.UsedVars)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATATYPE,Item.DataType);
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATATYPE),
+                   static_cast<int>(Item.DataType));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->VariablesDataWidget->addDataLine(DataMap);
   }
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_RWUCONDITION,
-                 SignatureDataEditorWidget::DATACOND_PRODUCED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_RWUCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_PRODUCED));
 
   for (auto& Item : Signature.HandledData.ProducedVars)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATATYPE,Item.DataType);
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATATYPE),
+                   static_cast<int>(Item.DataType));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->VariablesDataWidget->addDataLine(DataMap);
   }
 
-  DataMap.insert(SignatureDataEditorWidget::DATACOL_RWUCONDITION,
-                 SignatureDataEditorWidget::DATACOND_UPDATED);
+  DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_RWUCONDITION),
+                 static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::DATACOND_UPDATED));
 
   for (auto& Item : Signature.HandledData.UpdatedVars)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATAID,QString::fromStdString(Item.DataName));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DATATYPE,Item.DataType);
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_SIUNIT,QString::fromStdString(Item.DataUnit));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATAID),
+                   QString::fromStdString(Item.DataName));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DATATYPE),
+                   static_cast<int>(Item.DataType));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_SIUNIT),
+                   QString::fromStdString(Item.DataUnit));
     ui->VariablesDataWidget->addDataLine(DataMap);
   }
 }
@@ -369,20 +410,20 @@ void SignatureEditorWidget::initializeDynamicsUIFromSignature(const openfluid::w
 
   ui->UndefSchedRadioButton->setChecked(true);
 
-  ui->SpatialDynDataWidget->initialize({SignatureDataEditorWidget::DATACOL_UNITSCLASS,
-                                        SignatureDataEditorWidget::DATACOL_DESCRIPTION});
+  ui->SpatialDynDataWidget->initialize({SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS,
+                                        SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION});
 
 
-  if (Signature.TimeScheduling.Type == openfluid::ware::SignatureTimeScheduling::DEFAULT)
+  if (Signature.TimeScheduling.Type == openfluid::ware::SignatureTimeScheduling::SchedulingType::DEFAULT)
   {
     ui->DefaultSchedRadioButton->setChecked(true);
   }
-  else if (Signature.TimeScheduling.Type == openfluid::ware::SignatureTimeScheduling::FIXED)
+  else if (Signature.TimeScheduling.Type == openfluid::ware::SignatureTimeScheduling::SchedulingType::FIXED)
   {
     ui->FixedSchedRadioButton->setChecked(true);
     ui->FixedSchedValueEdit->setText(QString("%1").arg(Signature.TimeScheduling.Min));
   }
-  else if (Signature.TimeScheduling.Type == openfluid::ware::SignatureTimeScheduling::RANGE)
+  else if (Signature.TimeScheduling.Type == openfluid::ware::SignatureTimeScheduling::SchedulingType::RANGE)
   {
     ui->RangeSchedRadioButton->setChecked(true);
     ui->RangeSchedMinValueEdit->setText(QString("%1").arg(Signature.TimeScheduling.Min));
@@ -394,8 +435,10 @@ void SignatureEditorWidget::initializeDynamicsUIFromSignature(const openfluid::w
 
   for (auto& Item : Signature.HandledUnitsGraph.UpdatedUnitsClass)
   {
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_UNITSCLASS,QString::fromStdString(Item.UnitsClass));
-    DataMap.insert(SignatureDataEditorWidget::DATACOL_DESCRIPTION,QString::fromStdString(Item.Description));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_UNITSCLASS),
+                   QString::fromStdString(Item.UnitsClass));
+    DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATACOL_DESCRIPTION),
+                   QString::fromStdString(Item.Description));
     ui->SpatialDynDataWidget->addDataLine(DataMap);
   }
 }
@@ -463,7 +506,7 @@ SignatureDataEditorWidget::DataConditionsIndices extractTableComboToCondition(co
       (CondCombo->itemData(CondCombo->currentIndex()).toInt());
   }
 
-  return SignatureDataEditorWidget::DATACOND_UNKNOWN;
+  return SignatureDataEditorWidget::DataConditionsIndices::DATACOND_UNKNOWN;
 }
 
 
@@ -504,9 +547,9 @@ void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::Sim
 
     SignatureDataEditorWidget::DataConditionsIndices CondIndex = extractTableComboToCondition(DataTableW,i,1);
 
-    if (CondIndex >= 0)
+    if (static_cast<int>(CondIndex) >= 0)
     {
-      if (CondIndex == SignatureDataEditorWidget::DATACOND_USED)
+      if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED)
       {
         Signature.HandledData.UsedParams.push_back(Item);
       }
@@ -535,9 +578,9 @@ void SignatureEditorWidget::updateSignatureFromExtrafilesUI(openfluid::ware::Sim
 
     SignatureDataEditorWidget::DataConditionsIndices CondIndex = extractTableComboToCondition(DataTableW,i,1);
 
-    if (CondIndex >= 0)
+    if (static_cast<int>(CondIndex) >= 0)
     {
-      if (CondIndex == SignatureDataEditorWidget::DATACOND_USED)
+      if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED)
       {
         Signature.HandledData.UsedExtraFiles.push_back(Filename);
       }
@@ -570,13 +613,13 @@ void SignatureEditorWidget::updateSignatureFromAttributesUI(openfluid::ware::Sim
 
     SignatureDataEditorWidget::DataConditionsIndices CondIndex = extractTableComboToCondition(DataTableW,i,2);
 
-    if (CondIndex >= 0)
+    if (static_cast<int>(CondIndex) >= 0)
     {
-      if (CondIndex == SignatureDataEditorWidget::DATACOND_USED)
+      if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED)
       {
         Signature.HandledData.UsedAttribute.push_back(Item);
       }
-      else if (CondIndex == SignatureDataEditorWidget::DATACOND_REQUIRED)
+      else if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::DATACOND_REQUIRED)
       {
         Signature.HandledData.RequiredAttribute.push_back(Item);
       }
@@ -626,17 +669,17 @@ void SignatureEditorWidget::updateSignatureFromVariablesUI(openfluid::ware::Simu
 
     SignatureDataEditorWidget::DataConditionsIndices CondIndex = extractTableComboToCondition(DataTableW,i,2);
 
-    if (CondIndex >= 0)
+    if (static_cast<int>(CondIndex) >= 0)
     {
-      if (CondIndex == SignatureDataEditorWidget::DATACOND_USED)
+      if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::DATACOND_USED)
       {
         Signature.HandledData.UsedVars.push_back(Item);
       }
-      else if (CondIndex == SignatureDataEditorWidget::DATACOND_REQUIRED)
+      else if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::DATACOND_REQUIRED)
       {
         Signature.HandledData.RequiredVars.push_back(Item);
       }
-      else if (CondIndex == SignatureDataEditorWidget::DATACOND_PRODUCED)
+      else if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::DATACOND_PRODUCED)
       {
         Signature.HandledData.ProducedVars.push_back(Item);
       }
@@ -655,22 +698,22 @@ void SignatureEditorWidget::updateSignatureFromVariablesUI(openfluid::ware::Simu
 
 void SignatureEditorWidget::updateSignatureFromDynamicsUI(openfluid::ware::SimulatorSignature& Signature) const
 {
-  Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::UNDEFINED;
+  Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::SchedulingType::UNDEFINED;
 
   if (ui->DefaultSchedRadioButton->isChecked())
   {
-    Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::DEFAULT;
+    Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::SchedulingType::DEFAULT;
   }
   else if (ui->FixedSchedRadioButton->isChecked())
   {
-    Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::FIXED;
+    Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::SchedulingType::FIXED;
     openfluid::core::Duration_t Dt = ui->FixedSchedValueEdit->text().toLongLong();
     Signature.TimeScheduling.Min = Dt;
     Signature.TimeScheduling.Max = Dt;
   }
   else if (ui->RangeSchedRadioButton->isChecked())
   {
-    Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::RANGE;
+    Signature.TimeScheduling.Type = openfluid::ware::SignatureTimeScheduling::SchedulingType::RANGE;
     openfluid::core::Duration_t DtMin = ui->RangeSchedMinValueEdit->text().toLongLong();
     openfluid::core::Duration_t DtMax = ui->RangeSchedMaxValueEdit->text().toLongLong();
     Signature.TimeScheduling.Min = DtMin;

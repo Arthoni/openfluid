@@ -62,13 +62,13 @@ class OPENFLUID_API SignatureDataEditorWidget : public QWidget
 
   public:
 
-     enum DataColumns { DATACOL_DATAID, DATACOL_DATATYPE,
+     enum class DataColumns { DATACOL_DATAID, DATACOL_DATATYPE,
                         DATACOL_UNITSCLASS, DATACOL_SIUNIT,
                         DATACOL_ROCONDITION, DATACOL_RWCONDITION, DATACOL_RWUCONDITION,
                         DATACOL_DESCRIPTION
                       };
 
-     enum DataConditionsIndices { DATACOND_USED = 0, DATACOND_REQUIRED = 1,
+     enum class DataConditionsIndices { DATACOND_USED = 0, DATACOND_REQUIRED = 1,
                                   DATACOND_PRODUCED = 2, DATACOND_UPDATED = 3,
                                   DATACOND_UNKNOWN = 99};
 

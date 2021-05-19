@@ -443,7 +443,7 @@ bool ProjectModuleWidget::whenPreferencesAsked()
   bool WaresWatchingUpdated = false;
 
   openfluid::ui::common::PreferencesDialog PrefsDlg(QApplication::activeWindow(),
-                                                    openfluid::ui::common::PreferencesDialog::MODE_BUILDER);
+    openfluid::ui::common::PreferencesDialog::DisplayMode::MODE_BUILDER);
 
   connect(&PrefsDlg, SIGNAL(applyTextEditorSettingsAsked()), this, SLOT(updateWareSrcEditorsSettings()));
 

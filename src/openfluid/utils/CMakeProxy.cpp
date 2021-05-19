@@ -70,7 +70,8 @@ void CMakeProxy::findCMakeProgram()
 {
   if (m_ExecutablePath.isEmpty())
   {
-    m_ExecutablePath = ExternalProgram::getRegisteredProgram(ExternalProgram::CMakeProgram).getFullProgramPath();
+    m_ExecutablePath = ExternalProgram::getRegisteredProgram(
+      ExternalProgram::RegisteredPrograms::CMakeProgram).getFullProgramPath();
 
     if (!m_ExecutablePath.isEmpty())
     {
