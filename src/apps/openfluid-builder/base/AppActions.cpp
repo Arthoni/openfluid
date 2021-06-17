@@ -372,15 +372,15 @@ void AppActions::updateExtensionsActionsAndMenus()
     m_ExtensionsActions[(*it).first]->setData(QString((*it).first.c_str()));
 
     // set extension in the correct menu, taking into account the extension category
-    if ((*it).second->Signature->Category == openfluid::builderext::CAT_SPATIAL)
+    if ((*it).second->Signature->Category == openfluid::builderext::ExtensionCategory::CAT_SPATIAL)
     {
       mp_SpatialExtensionsMenu->addAction(m_ExtensionsActions[(*it).first]);
     }
-    else if ((*it).second->Signature->Category == openfluid::builderext::CAT_MODEL)
+    else if ((*it).second->Signature->Category == openfluid::builderext::ExtensionCategory::CAT_MODEL)
     {
       mp_ModelExtensionsMenu->addAction(m_ExtensionsActions[(*it).first]);
     }
-    else if ((*it).second->Signature->Category == openfluid::builderext::CAT_RESULTS)
+    else if ((*it).second->Signature->Category == openfluid::builderext::ExtensionCategory::CAT_RESULTS)
     {
       mp_ResultsExtensionsMenu->addAction(m_ExtensionsActions[(*it).first]);
     }

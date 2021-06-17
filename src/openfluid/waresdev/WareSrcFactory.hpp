@@ -117,11 +117,14 @@ class OPENFLUID_API WareSrcFactory
             ParamsUiRootHppFilename("ParamsUiWidget.hpp"), ParamsUiComment("//"), Sim2docModeIndex(0),
             Sim2docInstall(false), BuilderExtModeIndex(-1), BuilderExtCategoryIndex(0)
         {
-          BextMode_Data << openfluid::builderext::MODE_MODAL << openfluid::builderext::MODE_MODELESS
-                        << openfluid::builderext::MODE_WORKSPACE;
+          BextMode_Data << openfluid::builderext::ExtensionMode::MODE_MODAL
+                        << openfluid::builderext::ExtensionMode::MODE_MODELESS
+                        << openfluid::builderext::ExtensionMode::MODE_WORKSPACE;
 
-          BextCategory_Data << "openfluid::builderext::CAT_SPATIAL" << "openfluid::builderext::CAT_MODEL"
-                            << "openfluid::builderext::CAT_RESULTS" << "openfluid::builderext::CAT_OTHER";
+          BextCategory_Data << "openfluid::builderext::ExtensionCategory::CAT_SPATIAL" 
+                            << "openfluid::builderext::ExtensionCategory::CAT_MODEL"
+                            << "openfluid::builderext::ExtensionCategory::CAT_RESULTS"
+                            << "openfluid::builderext::ExtensionCategory::CAT_OTHER";
 
           Sim2docMode_Data << "ON" << "AUTO" << "OFF";
         }
@@ -152,7 +155,7 @@ class OPENFLUID_API WareSrcFactory
 
         openfluid::builderext::ExtensionMode getBuilderExtType() const
         {
-          return BextMode_Data.value(BuilderExtModeIndex, openfluid::builderext::MODE_UNKNOWN);
+          return BextMode_Data.value(BuilderExtModeIndex, openfluid::builderext::ExtensionMode::MODE_UNKNOWN);
         }
 
         QString getBuilderExtCategory() const

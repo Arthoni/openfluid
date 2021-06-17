@@ -54,7 +54,7 @@ class OPENFLUID_API UnstructuredValue
 {
   public:
 
-    enum UnstructuredType
+    enum class UnstructuredType
     {
       GeoVectorValue, GeoRasterValue
     };

@@ -46,7 +46,7 @@ namespace openfluid { namespace fluidx {
 
 GeneratorDescriptor::GeneratorDescriptor() :
     ModelItemDescriptor(), m_VarName(""), m_UnitsClass(""), m_GenMethod(
-        NoGenMethod), m_VarSize(1), m_GeneratedID("")
+        GeneratorMethod::NoGenMethod), m_VarSize(1), m_GeneratedID("")
 {
   m_WareType = openfluid::ware::WareType::GENERATOR;
 }
@@ -117,13 +117,13 @@ std::string GeneratorDescriptor::getGeneratorName(GeneratorDescriptor::Generator
 {
   switch (GenMethod)
   {
-    case Fixed:
+    case GeneratorMethod::Fixed:
       return "Fixed values";
-    case Random:
+    case GeneratorMethod::Random:
       return "Random values";
-    case Interp:
+    case GeneratorMethod::Interp:
       return "Values from file interpolation";
-    case Inject:
+    case GeneratorMethod::Inject:
       return "Values from file injection";
     default:
       return "unknown";

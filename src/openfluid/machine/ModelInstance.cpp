@@ -361,22 +361,26 @@ void ModelInstance::initialize(openfluid::base::SimulationLogger* SimLogger)
     if (CurrentSimulator->ItemType == openfluid::ware::WareType::GENERATOR &&
         CurrentSimulator->GeneratorInfo != nullptr)
     {
-      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == openfluid::fluidx::GeneratorDescriptor::Fixed)
+      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == 
+            openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Fixed)
       {
         CurrentSimulator->Body.reset(new FixedGenerator());
       }
 
-      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == openfluid::fluidx::GeneratorDescriptor::Random)
+      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == 
+            openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Random)
       {
         CurrentSimulator->Body.reset(new RandomGenerator());
       }
 
-      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == openfluid::fluidx::GeneratorDescriptor::Inject)
+      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == 
+            openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Inject)
       {
         CurrentSimulator->Body.reset(new InjectGenerator());
       }
 
-      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == openfluid::fluidx::GeneratorDescriptor::Interp)
+      if (CurrentSimulator->GeneratorInfo->GeneratorMethod == 
+            openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Interp)
       {
         CurrentSimulator->Body.reset(new InterpGenerator());
       }

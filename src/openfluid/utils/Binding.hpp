@@ -839,22 +839,22 @@ class Binding
         {
           openfluid::fluidx::GeneratorDescriptor* pGenDesc = ((openfluid::fluidx::GeneratorDescriptor*)ModelInfos);
 
-          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::Fixed)
+          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Fixed)
           {
             mp_OutErr->printfOut("fixed");
           }
 
-          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::Random)
+          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Random)
           {
             mp_OutErr->printfOut("random");
           }
 
-          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::Interp)
+          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Interp)
           {
             mp_OutErr->printfOut("interp");
           }
 
-          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::Inject)
+          if (pGenDesc->getGeneratorMethod() == openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Inject)
           {
             mp_OutErr->printfOut("inject");
           }

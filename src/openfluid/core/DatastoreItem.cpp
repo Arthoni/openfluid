@@ -54,10 +54,10 @@ DatastoreItem::DatastoreItem(const std::string& ID,
 {
   switch (Type)
   {
-    case UnstructuredValue::GeoVectorValue:
+    case UnstructuredValue::UnstructuredType::GeoVectorValue:
       m_Value = new openfluid::core::GeoVectorValue(m_PrefixPath,m_RelativePath);
       break;
-    case UnstructuredValue::GeoRasterValue:
+    case UnstructuredValue::UnstructuredType::GeoRasterValue:
       m_Value = new openfluid::core::GeoRasterValue(m_PrefixPath,m_RelativePath);
       break;
     default:

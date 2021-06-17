@@ -67,7 +67,7 @@ class OPENFLUID_API FileLogger
 
   public:
 
-    enum LogType {LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_DEBUG };
+    enum class LogType {LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_DEBUG };
 
     FileLogger();
 

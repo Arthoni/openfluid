@@ -289,11 +289,11 @@ openfluid::core::UnstructuredValue::UnstructuredType AddDatastoreItemDialog::get
 {
   if (ui->GeovectorRadioButton->isChecked())
   {
-    return openfluid::core::UnstructuredValue::GeoVectorValue;
+    return openfluid::core::UnstructuredValue::UnstructuredType::GeoVectorValue;
   }
   else
   {
-    return openfluid::core::UnstructuredValue::GeoRasterValue;
+    return openfluid::core::UnstructuredValue::UnstructuredType::GeoRasterValue;
   }
 }
 

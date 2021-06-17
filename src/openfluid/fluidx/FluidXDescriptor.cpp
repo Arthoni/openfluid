@@ -223,25 +223,25 @@ void FluidXDescriptor::extractModelFromNode(QDomElement& Node)
       if (!xmlVarName.isNull() && !xmlUnitClass.isNull() && !xmlMethod.isNull())
       {
         openfluid::fluidx::GeneratorDescriptor::GeneratorMethod GenMethod =
-            openfluid::fluidx::GeneratorDescriptor::NoGenMethod;
+            openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::NoGenMethod;
         if (xmlMethod == QString("fixed"))
         {
-          GenMethod = openfluid::fluidx::GeneratorDescriptor::Fixed;
+          GenMethod = openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Fixed;
         }
         if (xmlMethod == QString("random"))
         {
-          GenMethod = openfluid::fluidx::GeneratorDescriptor::Random;
+          GenMethod = openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Random;
         }
         if (xmlMethod == QString("interp"))
         {
-          GenMethod = openfluid::fluidx::GeneratorDescriptor::Interp;
+          GenMethod = openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Interp;
         }
         if (xmlMethod == QString("inject"))
         {
-          GenMethod = openfluid::fluidx::GeneratorDescriptor::Inject;
+          GenMethod = openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Inject;
         }
 
-        if (GenMethod == openfluid::fluidx::GeneratorDescriptor::NoGenMethod)
+        if (GenMethod == openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::NoGenMethod)
         {
           throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,
                                                     "unknown or missing generator method (" + m_CurrentFile + ")");
@@ -1033,13 +1033,13 @@ std::string FluidXDescriptor::getGeneratorMethodAsStr(
 {
   switch (Method)
   {
-    case openfluid::fluidx::GeneratorDescriptor::Fixed:
+    case openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Fixed:
       return "fixed";
-    case openfluid::fluidx::GeneratorDescriptor::Random:
+    case openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Random:
       return "random";
-    case openfluid::fluidx::GeneratorDescriptor::Interp:
+    case openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Interp:
       return "interp";
-    case openfluid::fluidx::GeneratorDescriptor::Inject:
+    case openfluid::fluidx::GeneratorDescriptor::GeneratorMethod::Inject:
       return "inject";
       break;
     default:

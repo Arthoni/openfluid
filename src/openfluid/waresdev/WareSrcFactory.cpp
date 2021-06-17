@@ -136,13 +136,13 @@ bool WareSrcFactory::createCppFile(const Replacements& R, QString& NewFilePath, 
   QString TplFilename;
   switch (R.getBuilderExtType())
   {
-    case openfluid::builderext::MODE_MODAL:
+    case openfluid::builderext::ExtensionMode::MODE_MODAL:
       TplFilename = "source_modal.cpp.tpl";
       break;
-    case openfluid::builderext::MODE_MODELESS:
+    case openfluid::builderext::ExtensionMode::MODE_MODELESS:
       TplFilename = "source_modeless.cpp.tpl";
       break;
-    case openfluid::builderext::MODE_WORKSPACE:
+    case openfluid::builderext::ExtensionMode::MODE_WORKSPACE:
       TplFilename = "source_workspace.cpp.tpl";
       break;
     default:
@@ -164,13 +164,13 @@ bool WareSrcFactory::createHppFile(const Replacements& R, QString& NewFilePath, 
   QString TplFilename;
   switch (R.getBuilderExtType())
   {
-    case openfluid::builderext::MODE_MODAL:
+    case openfluid::builderext::ExtensionMode::MODE_MODAL:
       TplFilename = "source_modal.hpp.tpl";
       break;
-    case openfluid::builderext::MODE_MODELESS:
+    case openfluid::builderext::ExtensionMode::MODE_MODELESS:
       TplFilename = "source_modeless.hpp.tpl";
       break;
-    case openfluid::builderext::MODE_WORKSPACE:
+    case openfluid::builderext::ExtensionMode::MODE_WORKSPACE:
       TplFilename = "source_workspace.hpp.tpl";
       break;
     default:
