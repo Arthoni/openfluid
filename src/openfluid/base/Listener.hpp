@@ -51,7 +51,7 @@ class OPENFLUID_API Listener
 {
   public:
 
-    enum Status {LISTEN_OK, LISTEN_WARNING, LISTEN_ERROR};
+    enum class Status {LISTEN_OK, LISTEN_WARNING, LISTEN_ERROR};
 
     Listener() = default;
 

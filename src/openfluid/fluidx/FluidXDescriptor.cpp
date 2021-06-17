@@ -930,11 +930,11 @@ void FluidXDescriptor::loadFromDirectory(const std::string& DirPath)
     {
       mp_Listener->onFileLoad(openfluid::tools::Filesystem::filename(CurrentFile));
       parseFile(CurrentFile,TempData);
-      mp_Listener->onFileLoaded(openfluid::base::Listener::LISTEN_OK);
+      mp_Listener->onFileLoaded(openfluid::base::Listener::Status::LISTEN_OK);
     }
     catch (...)
     {
-      mp_Listener->onFileLoaded(openfluid::base::Listener::LISTEN_ERROR);
+      mp_Listener->onFileLoaded(openfluid::base::Listener::Status::LISTEN_ERROR);
       throw;
     }
   }
@@ -1342,7 +1342,7 @@ void FluidXDescriptor::writeToManyFiles(const std::string& DirPath)
 
   OutFile.close();
 
-  mp_Listener->onFileWritten(openfluid::base::Listener::LISTEN_OK);
+  mp_Listener->onFileWritten(openfluid::base::Listener::Status::LISTEN_OK);
 
 
   // domain
@@ -1361,7 +1361,7 @@ void FluidXDescriptor::writeToManyFiles(const std::string& DirPath)
 
   OutFile.close();
 
-  mp_Listener->onFileWritten(openfluid::base::Listener::LISTEN_OK);
+  mp_Listener->onFileWritten(openfluid::base::Listener::Status::LISTEN_OK);
 
 
   // datastore
@@ -1380,7 +1380,7 @@ void FluidXDescriptor::writeToManyFiles(const std::string& DirPath)
 
   OutFile.close();
 
-  mp_Listener->onFileWritten(openfluid::base::Listener::LISTEN_OK);
+  mp_Listener->onFileWritten(openfluid::base::Listener::Status::LISTEN_OK);
 
 
   // monitoring
@@ -1399,7 +1399,7 @@ void FluidXDescriptor::writeToManyFiles(const std::string& DirPath)
 
   OutFile.close();
 
-  mp_Listener->onFileWritten(openfluid::base::Listener::LISTEN_OK);
+  mp_Listener->onFileWritten(openfluid::base::Listener::Status::LISTEN_OK);
 
 
   // run
@@ -1418,9 +1418,9 @@ void FluidXDescriptor::writeToManyFiles(const std::string& DirPath)
 
   OutFile.close();
 
-  mp_Listener->onFileWritten(openfluid::base::Listener::LISTEN_OK);
+  mp_Listener->onFileWritten(openfluid::base::Listener::Status::LISTEN_OK);
 
-  mp_Listener->onWritten(openfluid::base::Listener::LISTEN_OK);
+  mp_Listener->onWritten(openfluid::base::Listener::Status::LISTEN_OK);
 }
 
 
@@ -1461,8 +1461,8 @@ void FluidXDescriptor::writeToSingleFile(const std::string& FilePath)
 
   OutFile.close();
 
-  mp_Listener->onFileWritten(openfluid::base::Listener::LISTEN_OK);
-  mp_Listener->onWritten(openfluid::base::Listener::LISTEN_OK);
+  mp_Listener->onFileWritten(openfluid::base::Listener::Status::LISTEN_OK);
+  mp_Listener->onWritten(openfluid::base::Listener::Status::LISTEN_OK);
 }
 
 

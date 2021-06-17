@@ -713,7 +713,7 @@ class Binding
         if (IsVerbose)
         {
           static_cast<BindingVerboseMachineListener*>(Listener.get())->
-              displayStatus(openfluid::base::Listener::LISTEN_OK);
+              displayStatus(openfluid::base::Listener::Status::LISTEN_OK);
         }
 
 
@@ -732,7 +732,7 @@ class Binding
         if (IsVerbose)
         {
           static_cast<BindingVerboseMachineListener*>(Listener.get())->
-              displayStatus(openfluid::base::Listener::LISTEN_OK);
+              displayStatus(openfluid::base::Listener::Status::LISTEN_OK);
         }
 
 
@@ -751,7 +751,7 @@ class Binding
         if (IsVerbose)
         {
           static_cast<BindingVerboseMachineListener*>(Listener.get())->
-                        displayStatus(openfluid::base::Listener::LISTEN_OK);
+                        displayStatus(openfluid::base::Listener::Status::LISTEN_OK);
         }
 
 

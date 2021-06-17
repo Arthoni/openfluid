@@ -80,10 +80,10 @@ namespace openfluid { namespace machine {
                                         std::chrono::high_resolution_clock::now() - _M_TimeProfileStart)); \
         } \
         if (mp_SimLogger->isCurrentWarningFlag()) \
-          mp_Listener->onSimulator##listenermethod##Done(openfluid::machine::MachineListener::LISTEN_WARNING,\
+          mp_Listener->onSimulator##listenermethod##Done(openfluid::machine::MachineListener::Status::LISTEN_WARNING,\
                                                          _M_CurrentSimulator->Signature->ID); \
         else \
-          mp_Listener->onSimulator##listenermethod##Done(openfluid::machine::MachineListener::LISTEN_OK,\
+          mp_Listener->onSimulator##listenermethod##Done(openfluid::machine::MachineListener::Status::LISTEN_OK,\
                                                          _M_CurrentSimulator->Signature->ID); \
         mp_SimLogger->resetCurrentWarningFlag(); \
       } \
@@ -563,12 +563,12 @@ void ModelInstance::call_initializeRun()
 
       if (mp_SimLogger->isCurrentWarningFlag())
       {
-        mp_Listener->onSimulatorInitializeRunDone(openfluid::machine::MachineListener::LISTEN_WARNING,
+        mp_Listener->onSimulatorInitializeRunDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING,
                                                   CurrentSimulator->Signature->ID);
       }
       else
       {
-        mp_Listener->onSimulatorInitializeRunDone(openfluid::machine::MachineListener::LISTEN_OK,
+        mp_Listener->onSimulatorInitializeRunDone(openfluid::machine::MachineListener::Status::LISTEN_OK,
                                                   CurrentSimulator->Signature->ID);
       }
       mp_SimLogger->resetCurrentWarningFlag();
@@ -642,11 +642,13 @@ void ModelInstance::processNextTimePoint()
     if (mp_SimLogger->isCurrentWarningFlag())
     {
       AtLeastOneWarningFlag = true;
-      mp_Listener->onSimulatorRunStepDone(openfluid::machine::MachineListener::LISTEN_WARNING,NextItem->Signature->ID);
+      mp_Listener->onSimulatorRunStepDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING,
+                                          NextItem->Signature->ID);
     }
     else
     {
-      mp_Listener->onSimulatorRunStepDone(openfluid::machine::MachineListener::LISTEN_OK,NextItem->Signature->ID);
+      mp_Listener->onSimulatorRunStepDone(openfluid::machine::MachineListener::Status::LISTEN_OK,
+                                          NextItem->Signature->ID);
     }
 
     mp_SimLogger->resetCurrentWarningFlag();
@@ -667,11 +669,11 @@ void ModelInstance::processNextTimePoint()
 
   if (AtLeastOneWarningFlag)
   {
-    mp_Listener->onRunStepDone(openfluid::machine::MachineListener::LISTEN_WARNING);
+    mp_Listener->onRunStepDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING);
   }
   else
   {
-    mp_Listener->onRunStepDone(openfluid::machine::MachineListener::LISTEN_OK);
+    mp_Listener->onRunStepDone(openfluid::machine::MachineListener::Status::LISTEN_OK);
   }
 
   m_TimePointList.pop_front();

@@ -564,17 +564,17 @@ void Engine::initParams()
   }
   catch (openfluid::base::FrameworkException& E)
   {
-    mp_MachineListener->onInitParamsDone(openfluid::machine::MachineListener::LISTEN_ERROR);
+    mp_MachineListener->onInitParamsDone(openfluid::machine::MachineListener::Status::LISTEN_ERROR);
     throw;
   }
 
   if (mp_SimLogger->isCurrentWarningFlag())
   {
-    mp_MachineListener->onInitParamsDone(openfluid::machine::MachineListener::LISTEN_WARNING);
+    mp_MachineListener->onInitParamsDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING);
   }
   else
   {
-    mp_MachineListener->onInitParamsDone(openfluid::machine::MachineListener::LISTEN_OK);
+    mp_MachineListener->onInitParamsDone(openfluid::machine::MachineListener::Status::LISTEN_OK);
   }
 
   mp_SimLogger->resetCurrentWarningFlag();
@@ -597,17 +597,17 @@ void Engine::prepareData()
   }
   catch (openfluid::base::FrameworkException& E)
   {
-    mp_MachineListener->onPrepareDataDone(openfluid::machine::MachineListener::LISTEN_ERROR);
+    mp_MachineListener->onPrepareDataDone(openfluid::machine::MachineListener::Status::LISTEN_ERROR);
     throw;
   }
 
   if (mp_SimLogger->isCurrentWarningFlag())
   {
-    mp_MachineListener->onPrepareDataDone(openfluid::machine::MachineListener::LISTEN_WARNING);
+    mp_MachineListener->onPrepareDataDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING);
   }
   else
   {
-    mp_MachineListener->onPrepareDataDone(openfluid::machine::MachineListener::LISTEN_OK);
+    mp_MachineListener->onPrepareDataDone(openfluid::machine::MachineListener::Status::LISTEN_OK);
   }
 
   mp_SimLogger->resetCurrentWarningFlag();
@@ -638,7 +638,7 @@ void Engine::checkConsistency()
   }
   catch (openfluid::base::FrameworkException& E)
   {
-    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::LISTEN_ERROR);
+    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::Status::LISTEN_ERROR);
     throw;
   }
 
@@ -651,18 +651,18 @@ void Engine::checkConsistency()
   }
   catch (openfluid::base::FrameworkException& E)
   {
-    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::LISTEN_ERROR);
+    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::Status::LISTEN_ERROR);
     throw;
   }
 
 
   if (mp_SimLogger->isCurrentWarningFlag())
   {
-    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::LISTEN_WARNING);
+    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING);
   }
   else
   {
-    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::LISTEN_OK);
+    mp_MachineListener->onCheckConsistencyDone(openfluid::machine::MachineListener::Status::LISTEN_OK);
   }
 
   mp_SimLogger->resetCurrentWarningFlag();
@@ -691,17 +691,17 @@ void Engine::run()
   }
   catch (openfluid::base::FrameworkException& E)
   {
-    mp_MachineListener->onInitializeRunDone(openfluid::machine::MachineListener::LISTEN_ERROR);
+    mp_MachineListener->onInitializeRunDone(openfluid::machine::MachineListener::Status::LISTEN_ERROR);
     throw;
   }
 
   if (mp_SimLogger->isCurrentWarningFlag())
   {
-    mp_MachineListener->onInitializeRunDone(openfluid::machine::MachineListener::LISTEN_WARNING);
+    mp_MachineListener->onInitializeRunDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING);
   }
   else
   {
-    mp_MachineListener->onInitializeRunDone(openfluid::machine::MachineListener::LISTEN_OK);
+    mp_MachineListener->onInitializeRunDone(openfluid::machine::MachineListener::Status::LISTEN_OK);
   }
 
   mp_SimLogger->resetCurrentWarningFlag();
@@ -733,7 +733,7 @@ void Engine::run()
     }
     catch (openfluid::base::FrameworkException& E)
     {
-      mp_MachineListener->onRunStepDone(openfluid::machine::MachineListener::LISTEN_ERROR);
+      mp_MachineListener->onRunStepDone(openfluid::machine::MachineListener::Status::LISTEN_ERROR);
       throw;
     }
   }
@@ -755,23 +755,23 @@ void Engine::run()
   }
   catch (openfluid::base::FrameworkException& E)
   {
-    mp_MachineListener->onFinalizeRunDone(openfluid::machine::MachineListener::LISTEN_ERROR);
+    mp_MachineListener->onFinalizeRunDone(openfluid::machine::MachineListener::Status::LISTEN_ERROR);
     throw;
   }
 
 
   if (mp_SimLogger->isCurrentWarningFlag())
   {
-    mp_MachineListener->onFinalizeRunDone(openfluid::machine::MachineListener::LISTEN_WARNING);
+    mp_MachineListener->onFinalizeRunDone(openfluid::machine::MachineListener::Status::LISTEN_WARNING);
   }
   else
   {
-    mp_MachineListener->onFinalizeRunDone(openfluid::machine::MachineListener::LISTEN_OK);
+    mp_MachineListener->onFinalizeRunDone(openfluid::machine::MachineListener::Status::LISTEN_OK);
   }
 
   mp_SimLogger->resetCurrentWarningFlag();
 
-  mp_SimStatus->setCurrentStage(openfluid::base::SimulationStatus::POST);
+  mp_SimStatus->setCurrentStage(openfluid::base::SimulationStatus::SimulationStage::POST);
 }
 
 
