@@ -413,7 +413,20 @@ MACRO(OPENFLUID_ADD_SIMULATOR _SIMNAME)
 
   _OPENFLUID_WARE_BUILD(${_SIMNAME})
   
+  # ====== fragments detection ======
 
+  INCLUDE_DIRECTORIES(fragments)
+
+  IF(OPENFLUID_CURRENT_WORKSPACE_PATH)
+    MESSAGE(STATUS "Found workspace path: ${OPENFLUID_CURRENT_WORKSPACE_PATH}")
+    INCLUDE_DIRECTORIES("${OPENFLUID_CURRENT_WORKSPACE_PATH}/wares-dev/fragments")  # FIXME variabilize
+  ENDIF()
+
+  IF(OPENFLUID_CURRENT_USER_DATA_PATH)
+    MESSAGE(STATUS "Found .openfluid path: ${OPENFLUID_CURRENT_USER_DATA_PATH}")
+    INCLUDE_DIRECTORIES("${OPENFLUID_CURRENT_USER_DATA_PATH}/shared/fragments")  # FIXME variabilize
+  ENDIF()
+    
   # ====== doc ======  
 
   # TOIMPL
