@@ -57,7 +57,8 @@ namespace openfluid { namespace ui { namespace waresdev {
 WareSrcExplorerModel::WareSrcExplorerModel(const QString& Path) :
     QFileSystemModel()
 {
-  m_UserIcons = openfluid::ui::waresdev::WareSrcFiletypeManager::instance()->getIconsByFileExtensionList();
+  m_UserFileIcons = openfluid::ui::waresdev::WareSrcFiletypeManager::instance()->getIconsByFileExtensionList();
+  m_UserDirEmblems = openfluid::ui::waresdev::WareSrcFiletypeManager::instance()->getEmblemsByDirPath();
 
   connect(this, SIGNAL(directoryLoaded(const QString&)), this, SLOT(onDirectoryLoaded(const QString&)));
 
@@ -329,17 +330,36 @@ QVariant WareSrcExplorerModel::data(const QModelIndex& Index, int Role) const
       return QIcon(":/ui/common/filetypes/waredir.png");
     }
 
-    if (!isDir(Index))
+    if (isDir(Index))
+    {
+      // detect src/doc/test/fragments folder names 
+      // NOTE externalize structure?
+
+      QString FilePath = filePath(Index);
+      QString FileName = QFileInfo(FilePath).fileName();
+      for (const auto& DirEmblem : m_UserDirEmblems)
+      {
+        if (FilePath.endsWith(DirEmblem.first)) // Warning: match with *src not working
+        {
+          QPixmap Base(":/ui/common/filetypes/basedir.png");
+          QPixmap Overlay(DirEmblem.second);
+          QPainter painter(&Base);
+          painter.drawPixmap(Base.width() / 4, Base.height() / 4, Base.width() / 2, Base.height() / 2, Overlay);
+          return QIcon(Base);
+        }
+      }
+    }
+    else
     {
       QString FilePath = filePath(Index);
       QString FileName = QFileInfo(FilePath).fileName();
       QString BaseIconPath = ":/ui/common/filetypes/notype.png";
 
-      for (QMap<QString, QString>::const_iterator it = m_UserIcons.begin(); it != m_UserIcons.end(); ++it)
+      for (const auto& FileIcon : m_UserFileIcons)
       {
-        if (QDir::match(it.key(), FileName))
+        if (QDir::match(FileIcon, FileName))
         {
-          BaseIconPath = it.value();
+          BaseIconPath = m_UserFileIcons[FileIcon];
           break;
         }
       }

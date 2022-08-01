@@ -111,6 +111,8 @@ class OPENFLUID_API WareSrcFiletypeManager
 
     QMap<QString, QString> m_IconsByFileExtensionList;
 
+    std::vector<std::pair<QString, QString>> m_EmblemsByDirPath;
+
     QMap<QString, WareSrcFiletype> m_WareSrcFiletypes;
 
     WareSrcFiletypeManager();
@@ -130,6 +132,8 @@ class OPENFLUID_API WareSrcFiletypeManager
     void updateStyles();
 
     QMap<QString, QString> getIconsByFileExtensionList() const;
+
+    std::vector<std::pair<QString, QString>> getEmblemsByDirPath() const;
 
     HighlightingRules_t getHighlightingRules(const QString& FilePath) const;
 

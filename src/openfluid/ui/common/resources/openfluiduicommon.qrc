@@ -113,6 +113,7 @@
     <file>icons/OFcode.png</file>
     
     <!-- icons for filetypes -->
+    <file>filetypes/basedir.png</file>        
     <file>filetypes/cmake.png</file>
     <file>filetypes/cmakelists.png</file>
     <file>filetypes/cpp.png</file>
@@ -123,6 +124,7 @@
     <file>filetypes/waredir.png</file>
     <file>filetypes/wareshub.png</file>        
     
+    
     <!-- git emblems -->
     <file>emblems/git_linked.png</file>
     <file>emblems/git_added.png</file>
@@ -130,6 +132,11 @@
     <file>emblems/git_staged.png</file>
     <file>emblems/git_tracked.png</file>
     <file>emblems/git_untracked.png</file>
+
+    <!-- ware structure emblems -->
+    <file>emblems/folder_fragment.png</file>
+    <file>emblems/folder_code.png</file>
+    <file>emblems/folder_test.png</file>
         
   </qresource>
 </RCC>

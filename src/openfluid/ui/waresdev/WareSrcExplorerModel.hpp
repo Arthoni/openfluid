@@ -68,7 +68,8 @@ class OPENFLUID_API WareSrcExplorerModel: public QFileSystemModel
   private:
 
     // set here to speed up display
-    QMap<QString, QString> m_UserIcons;
+    QMap<QString, QString> m_UserFileIcons;
+    std::vector<std::pair<QString, QString>> m_UserDirEmblems;
 
     /*
      * Map of PathInfo for each FilePath

@@ -224,6 +224,13 @@ void WareSrcFiletypeManager::initializeFileTypes()
       m_IconsByFileExtensionList[it.value().m_Extensions] = it.value().m_IconPath;
     }
   }
+
+  // registration of icons by dir path
+  m_EmblemsByDirPath.push_back(std::pair<QString, QString>("src/fragments", ":/ui/common/emblems/folder_fragment.png"));
+  m_EmblemsByDirPath.push_back(std::pair<QString, QString>("src", ":/ui/common/emblems/folder_code.png"));
+  m_EmblemsByDirPath.push_back(std::pair<QString, QString>("doc", ":/ui/common/icons/generate-doc_dark.png"));
+  m_EmblemsByDirPath.push_back(std::pair<QString, QString>("tests", ":/ui/common/emblems/folder_test.png"));
+
 }
 
 
@@ -389,6 +396,16 @@ QString WareSrcFiletypeManager::getFileLanguage(const QString& FilePath) const
 QMap<QString, QString> WareSrcFiletypeManager::getIconsByFileExtensionList() const
 {
   return m_IconsByFileExtensionList;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+std::vector<std::pair<QString, QString>> WareSrcFiletypeManager::getEmblemsByDirPath() const
+{
+  return m_EmblemsByDirPath;
 }
 
 
