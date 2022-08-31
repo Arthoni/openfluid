@@ -419,7 +419,7 @@ BOOST_FIXTURE_TEST_CASE(clone_https_wrongauth_v0_fails,HubTestFixture)
 
   W.setSelectedWaresUrl( { { openfluid::ware::WareType::SIMULATOR, { getFirstAvailSimUrl(W) } } });
 
-  BOOST_CHECK_EQUAL(W.clone(), false);
+  BOOST_CHECK_EQUAL(W.onCloneRequest(), false);
 
   BOOST_CHECK(TestWaresDevSimulatorsDir.entryList(QDir::Files).empty());
 }
@@ -438,11 +438,12 @@ BOOST_FIXTURE_TEST_CASE(clone_https_wrongauth_v1_fails,HubTestFixture)
 
   openfluid::ui::waresdev::FluidHubWaresImportWorker W(UrlHttpsV1, true);
   W.connect();
-  BOOST_CHECK_EQUAL(W.login("wrongname", "wrongpass"), false);
+  BOOST_CHECK_EQUAL(W.login("wrongname@somewhere", "wrongpass"), false);
+  // TODO ADD TEST VIA LDAP UID?
 
   W.setSelectedWaresUrl( { { openfluid::ware::WareType::SIMULATOR, { getFirstAvailSimUrl(W) } } });
 
-  BOOST_CHECK_EQUAL(W.clone(), false);
+  BOOST_CHECK_EQUAL(W.onCloneRequest(), false);
 
   BOOST_CHECK(TestWaresDevSimulatorsDir.entryList(QDir::Files).empty());
 }

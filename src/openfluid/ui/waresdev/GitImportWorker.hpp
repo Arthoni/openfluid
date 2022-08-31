@@ -31,15 +31,15 @@
 
 
 /**
-  @file FluidHubWaresImportWorker.hpp
+  @file GitImportWorker.hpp
 
   @author Aline LIBRES <aline.libres@gmail.com>
   @author Armel THÖNI <armel.thoni@inrae.fr>
  */
 
 
-#ifndef __OPENFLUID_UIWARESDEV_FLUIDHUBWARESIMPORTWORKER_HPP__
-#define __OPENFLUID_UIWARESDEV_FLUIDHUBWARESIMPORTWORKER_HPP__
+#ifndef __OPENFLUID_UIWARESDEV_GITIMPORTWORKER_HPP__
+#define __OPENFLUID_UIWARESDEV_GITIMPORTWORKER_HPP__
 
 
 #include <QObject>
@@ -48,57 +48,57 @@
 
 #include <openfluid/dllexport.hpp>
 #include <openfluid/utils/FluidHubAPIClient.hpp>
-#include <openfluid/ui/waresdev/GitImportWorker.hpp>
 
 
 namespace openfluid { namespace ui { namespace waresdev {
 
 
-class OPENFLUID_API FluidHubWaresImportWorker: public GitImportWorker
+class OPENFLUID_API GitImportWorker: public QObject
 {
   Q_OBJECT
-
-  private:
-
-    openfluid::utils::FluidHubAPIClient* mp_HubClient;
-
-    QString m_HubUrl;
-
-    WaresDetailsByIDByType_t m_AvailableWaresDetailsByIDByType;
 
 
   protected:
 
-    bool importWorkflow(QString GitUrl, openfluid::ware::WareType Type);
+    QString m_Username;
+
+    QString m_Password;
+
+    bool m_SslNoVerify;
+
+    std::map<openfluid::ware::WareType, QStringList> m_SelectedWaresUrlByType;
+
+    virtual bool importWorkflow(const QString GitUrl, const openfluid::ware::WareType WareType) = 0;
+
+
+  signals:
+
+    void info(const QString& Message);
+
+    void error(const QString& Message);
+
+    void finished(bool Ok, const QString& Message);
+
+    void progressed(int Value);
 
 
   public slots :
 
-    bool connect();
-
-    void disconnect();
-
-    bool login(const QString& Username, const QString& Password);
-
-    void logout();
-
-    bool onCloneRequest();
+    virtual bool onCloneRequest();
 
 
   public:
+    
+    typedef QMap<openfluid::ware::WareType, openfluid::utils::FluidHubAPIClient::WaresDetailsByID_t>
+      WaresDetailsByIDByType_t;
 
-    FluidHubWaresImportWorker(const QString& WareshubUrl, bool SslNoVerify = false);
+    GitImportWorker(bool SslNoVerify = false);
 
-    ~FluidHubWaresImportWorker();
+    ~GitImportWorker();
 
-    bool isConnected() const;
-
-    bool isLoggedIn() const;
-
-    bool isV0ofAPI() const;
-
-    openfluid::utils::FluidHubAPIClient::WaresDetailsByID_t getAvailableWaresWithDetails(
-      openfluid::ware::WareType Type) const;
+    QString getUsername() const;
+    
+    void setSelectedWaresUrl(const std::map<openfluid::ware::WareType, QStringList>& SelectedWaresUrlByType);
 
 };
 
@@ -106,4 +106,4 @@ class OPENFLUID_API FluidHubWaresImportWorker: public GitImportWorker
 } } } // namespaces
 
 
-#endif /* __OPENFLUID_UIWARESDEV_FLUIDHUBWARESIMPORTWORKER_HPP__ */
+#endif /* __OPENFLUID_UIWARESDEV_GITIMPORTWORKER_HPP__ */

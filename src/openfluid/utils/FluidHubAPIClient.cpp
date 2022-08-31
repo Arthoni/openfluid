@@ -217,6 +217,10 @@ QString FluidHubAPIClient::wareTypeToString(openfluid::ware::WareType Type)
   {
     return "builderexts";
   }
+  else if (Type == openfluid::ware::WareType::FRAGMENT)
+  {
+    return "fragments";
+  }
 
   return "";
 }
@@ -324,6 +328,7 @@ FluidHubAPIClient::WaresListByType_t FluidHubAPIClient::getAllAvailableWares() c
   WaresDesc[openfluid::ware::WareType::SIMULATOR] = std::set<openfluid::ware::WareID_t>();
   WaresDesc[openfluid::ware::WareType::OBSERVER] = std::set<openfluid::ware::WareID_t>();
   WaresDesc[openfluid::ware::WareType::BUILDEREXT] = std::set<openfluid::ware::WareID_t>();
+  WaresDesc[openfluid::ware::WareType::FRAGMENT] = std::set<openfluid::ware::WareID_t>();
 
   if (isConnected() && isCapable(m_WareCapabilityName))
   {
@@ -357,6 +362,10 @@ FluidHubAPIClient::WaresListByType_t FluidHubAPIClient::getAllAvailableWares() c
           else if (Key == "builderexts")
           {
             JSONArrayToStringSet(Info,WaresDesc[openfluid::ware::WareType::BUILDEREXT]);
+          }
+          else if (Key == "fragments")
+          {
+            JSONArrayToStringSet(Info,WaresDesc[openfluid::ware::WareType::FRAGMENT]);
           }
         }
       }

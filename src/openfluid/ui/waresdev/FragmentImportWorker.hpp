@@ -26,31 +26,62 @@
   license, and requires a written agreement between You and INRA.
   Licensees for Other Usage of OpenFLUID may use this file in accordance
   with the terms contained in the written agreement between You and INRA.
-  
-*/
+
+ */
 
 
 /**
-  @file main.cpp
+  @file FragmentImportWorker.hpp
 
-  @author Jean-Christophe FABRE <jean-christophe.fabre@inra.fr>
-*/
-
-
-#include <cstdlib>
-#include <iostream>
+  @author Armel THÖNI <armel.thoni@inrae.fr>
+ */
 
 
-int main()
+#ifndef __OPENFLUID_UIWARESDEV_FRAGMENTIMPORTWORKER_HPP__
+#define __OPENFLUID_UIWARESDEV_FRAGMENTIMPORTWORKER_HPP__
+
+
+#include <QObject>
+#include <QMap>
+#include <QStringList>
+
+#include <openfluid/dllexport.hpp>
+#include <openfluid/utils/FluidHubAPIClient.hpp>
+#include <openfluid/ui/waresdev/GitImportWorker.hpp>
+
+
+namespace openfluid { namespace ui { namespace waresdev {
+
+
+class OPENFLUID_API FragmentImportWorker: public GitImportWorker
 {
-   char* Pwd = std::getenv(OFBUILD_GITASKPASS_ENVVAR);
+  Q_OBJECT
 
-   if (Pwd)
-   {
-     std::cout <<  Pwd << std::endl;
-   }
-   else
-   {     
-     std::cout << "" << std::endl;
-   }
-}
+  private:
+
+    bool m_AsSubmodule;
+
+    QString m_RootPath;
+
+
+  protected:
+
+    bool importWorkflow(QString GitUrl, openfluid::ware::WareType Type);
+
+
+  public:
+
+    FragmentImportWorker(bool SslNoVerify = false, bool AsSubmodule = true);
+
+    ~FragmentImportWorker();
+
+    void setup(const QString& Username, 
+               const QString& Password,
+               const QString& RootPath);
+};
+
+
+} } } // namespaces
+
+
+#endif /* __OPENFLUID_UIWARESDEV_FRAGMENTIMPORTWORKER_HPP__ */

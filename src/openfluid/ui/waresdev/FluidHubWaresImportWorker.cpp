@@ -33,7 +33,7 @@
   @file FluidHubWaresImportWorker.cpp
 
   @author Aline LIBRES <aline.libres@gmail.com>
-  @author Armel THONI <armel.thoni@inrae.fr>
+  @author Armel THÖNI <armel.thoni@inrae.fr>
  */
 
 
@@ -49,7 +49,8 @@ namespace openfluid { namespace ui { namespace waresdev {
 
 
 FluidHubWaresImportWorker::FluidHubWaresImportWorker(const QString& WareshubUrl, bool SslNoVerify) :
-    mp_HubClient(new openfluid::utils::FluidHubAPIClient()), m_HubUrl(WareshubUrl), m_SslNoVerify(SslNoVerify)
+    GitImportWorker(SslNoVerify),
+    mp_HubClient(new openfluid::utils::FluidHubAPIClient()), m_HubUrl(WareshubUrl)
 {
 
 }
@@ -99,31 +100,10 @@ bool FluidHubWaresImportWorker::isV0ofAPI() const
 // =====================================================================
 
 
-QString FluidHubWaresImportWorker::getUsername() const
-{
-  return m_Username;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
 openfluid::utils::FluidHubAPIClient::WaresDetailsByID_t FluidHubWaresImportWorker::getAvailableWaresWithDetails(
   openfluid::ware::WareType Type) const
   {
   return m_AvailableWaresDetailsByIDByType.value(Type, openfluid::utils::FluidHubAPIClient::WaresDetailsByID_t());
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void FluidHubWaresImportWorker::setSelectedWaresUrl(
-  const std::map<openfluid::ware::WareType, QStringList>& SelectedWaresUrlByType)
-{
-  m_SelectedWaresUrlByType = SelectedWaresUrlByType;
 }
 
 
@@ -141,7 +121,7 @@ bool FluidHubWaresImportWorker::connect()
     SSLConfig.setCertificateVerifyMode(QSslSocket::VerifyNone);
   }
 
-  bool Ok = mp_HubClient->connect(m_HubUrl, SSLConfig);
+  bool OK = mp_HubClient->connect(m_HubUrl, SSLConfig);
 
   for (const auto& ByType : mp_HubClient->getAllAvailableWares())
   {
@@ -149,7 +129,7 @@ bool FluidHubWaresImportWorker::connect()
                                                                                                       m_Username);  
   }
 
-  if (!Ok)
+  if (!OK)
   {
     emit finished(false, tr("Fetching information failed"));
   }
@@ -163,7 +143,7 @@ bool FluidHubWaresImportWorker::connect()
     moveToThread(qApp->thread());
   }
 
-  return Ok;
+  return OK;
 }
 
 
@@ -191,9 +171,17 @@ bool FluidHubWaresImportWorker::login(const QString& Username, const QString& Pa
   }
   else
   {
-    //fetch unixname from email via request /account/, field unixname
-    m_Username = QString::fromStdString(mp_HubClient->getUserUnixname(Username.toStdString(), 
-                                                                            m_Password.toStdString()));
+    if (Username.contains("@"))
+    {
+      //fetch unixname from email via request /account/, field unixname
+      m_Username = QString::fromStdString(mp_HubClient->getUserUnixname(Username.toStdString(), 
+                                                                              m_Password.toStdString()));
+    }
+    else
+    {
+      //special case where LDAP username is given
+      m_Username = Username;
+    }
   }
 
   return !m_Username.isEmpty(); // returns true when username found
@@ -216,67 +204,31 @@ void FluidHubWaresImportWorker::logout()
 // =====================================================================
 
 
-bool FluidHubWaresImportWorker::clone()
+bool FluidHubWaresImportWorker::importWorkflow(const QString GitUrl, const openfluid::ware::WareType WareType)
+{
+  auto WksMgr = openfluid::base::WorkspaceManager::instance();
+  QString WareTypePath = QString::fromStdString(WksMgr->getWaresPath(WareType));
+  QString DestPath = QString("%1/%2").arg(WareTypePath).arg(QFileInfo(GitUrl).fileName());
+  
+  openfluid::utils::GitProxy Git;
+  QObject::connect(&Git, SIGNAL(info(const QString&)), this, SIGNAL(info(const QString&)));
+  QObject::connect(&Git, SIGNAL(error(const QString&)), this, SIGNAL(error(const QString&)));
+  return Git.clone(GitUrl, DestPath, m_Username, m_Password, m_SslNoVerify);
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+bool FluidHubWaresImportWorker::onCloneRequest()
 {
   if (!isConnected())
   {
     return false;
   }
 
-  auto WksMgr = openfluid::base::WorkspaceManager::instance();
-
-  double ProgressRatio = 100;
-  int SelectedWarePathsNb = 0;
-  for (const auto& Pair : m_SelectedWaresUrlByType)
-  {
-    SelectedWarePathsNb += Pair.second.size();
-  }
-  if (SelectedWarePathsNb)
-  {
-    ProgressRatio /= SelectedWarePathsNb;
-  }
-
-  int Progress = 0;
-  bool Ok = true;
-
-  for (const auto& Pair : m_SelectedWaresUrlByType)
-  {
-    QString WareTypePath = QString::fromStdString(WksMgr->getWaresPath(Pair.first));
-
-    for (const auto& GitUrl : Pair.second)
-    {
-      QString DestPath = QString("%1/%2").arg(WareTypePath).arg(QFileInfo(GitUrl).fileName());
-      
-      openfluid::utils::GitProxy Git;
-      QObject::connect(&Git, SIGNAL(info(const QString&)), this, SIGNAL(info(const QString&)));
-      QObject::connect(&Git, SIGNAL(error(const QString&)), this, SIGNAL(error(const QString&)));
-
-      if (!Git.clone(GitUrl, DestPath, m_Username, m_Password, m_SslNoVerify))
-      {
-        Ok = false;
-        break;
-      }
-
-      Progress += ProgressRatio;
-      emit progressed(Progress);
-    }
-  }
-
-  if (Ok)
-  {
-    emit finished(true,tr("Import completed"));
-  }
-  else
-  {
-    emit finished(false, tr("Import failed"));
-  }
-
-  if (qApp && qApp->thread() != thread())
-  {
-    moveToThread(qApp->thread());
-  }
-
-  return Ok;
+  return GitImportWorker::onCloneRequest();
 }
 
 
