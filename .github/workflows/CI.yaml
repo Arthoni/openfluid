@@ -9,6 +9,38 @@ jobs:
 ##########################################
 
 
+  ci-linux-debug-sonar:
+    runs-on: ubuntu-20.04
+
+    env:
+      BUILD_WRAPPER_OUT_DIR: bw-output
+
+    steps:
+      - name: Installation of dependencies
+        run: | 
+          sudo apt update && sudo apt install -y \
+            libboost-all-dev libgdal-dev \
+            qt5-default qtbase5-dev-tools qttools5-dev-tools libqt5svg5-dev \
+            gnuplot p7zip-full graphviz
+      - name: Checkout of source code
+        uses: actions/checkout@v2
+      - name: Preparation
+        run: mkdir ./_build
+      - name: Configuration
+        run: cmake .
+      
+      - name: Install sonar-scanner and build-wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v1
+      - name: Run build-wrapper
+        run: |
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make -j 2 clean all
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner -X --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+
   ci-linux-debug:
     runs-on: ubuntu-20.04
 
