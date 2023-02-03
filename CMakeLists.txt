@@ -48,7 +48,7 @@ SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/internal;${CMAKE_SOURCE_DIR}/cm
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     include(CodeCoverage)
-    setup_target_for_coverage_gcovr_html(NAME ${PROJECT_NAME}_coverage ${PROJECT_TEST_NAME} coverage)
+    setup_target_for_coverage_gcovr_xml(NAME ${PROJECT_NAME}_coverage ${PROJECT_TEST_NAME} coverage)
 
     SET(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
     SET(CMAKE_C_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")

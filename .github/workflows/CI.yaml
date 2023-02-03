@@ -24,22 +24,44 @@ jobs:
             gnuplot p7zip-full graphviz
       - name: Checkout of source code
         uses: actions/checkout@v2
+      
+      - name: Set up Python 3.8 for gcovr
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: install gcovr 5.0
+        run: |
+          pip install gcovr==5.0 # 5.1 is not supported
+      
+      - name: Install sonar-scanner and build-wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v1
+
       - name: Preparation
         run: mkdir ./_build
       - name: Configuration
         run: cmake .
-      
-      - name: Install sonar-scanner and build-wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp@v1
+        
       - name: Run build-wrapper
         run: |
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} make -j 2 clean all
+
+
+      - name: Testing
+        run: ctest -j 2 --output-on-failure
+
+      - name: Coverage
+        run: make OpenFLUID_coverage
+
+      - name: Collect coverage into one XML report
+        run: |
+          gcovr --sonarqube > coverage.xml
+      
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner -X --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+          sonar-scanner -X --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" --define sonar.coverageReportPaths=coverage.xml
 
   ci-linux-debug:
     runs-on: ubuntu-20.04
