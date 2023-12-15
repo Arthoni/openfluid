@@ -25,7 +25,7 @@ SET(CPACK_NSIS_MODIFY_PATH ON)
 # It requires the OFBUILD_SUPPORT_DIR environment variable
 
  # support libraries
-IF(OFBUILD_SUPPORT_DIR)
+IF(OFBUILD_SUPPORT_DIR) #DIRTYCODE was set to 1 for windows debug
   FILE(TO_CMAKE_PATH "$ENV{OFBUILD_SUPPORT_DIR}" OFBUILD_SUPPORT_DIR_MOD)
   FILE(TO_CMAKE_PATH "$ENV{OFBUILD_SUPPORT_DIR}/bin" OFBUILD_SUPPORT_BINDIR_MOD)
   FILE(TO_CMAKE_PATH "$ENV{OFBUILD_SUPPORT_DIR}/lib" OFBUILD_SUPPORT_LIBDIR_MOD)
@@ -34,12 +34,12 @@ IF(OFBUILD_SUPPORT_DIR)
   INSTALL(DIRECTORY "${OFBUILD_SUPPORT_BINDIR_MOD}/" DESTINATION ${OFBUILD_BIN_INSTALL_PATH} FILES_MATCHING PATTERN "libgdal*.dll") 
   INSTALL(DIRECTORY "${OFBUILD_SUPPORT_LIBDIR_MOD}/" DESTINATION ${OFBUILD_BIN_INSTALL_PATH} FILES_MATCHING PATTERN "libgdal*.dll") 
 ELSE()
-  MESSAGE(WARNING "environment variable OFBUILD_SUPPORT_DIR is not set!")
+  MESSAGE(WARNING "environment variable OFBUILD_SUPPORT_DIR is not set! $ENV{OFBUILD_SUPPORT_DIR}")
 ENDIF()
 
 
 # Qt
-SET(WINDEPLOYQT_COMMAND "windeployqt")
+SET(WINDEPLOYQT_COMMAND "windeployqt6")  # DIRTYCODE added "6" as test for packaging
 
 SET(WINDEPLOYQT_TARGETS openfluid)
 
@@ -53,6 +53,7 @@ IF(OFBUILD_ENABLE_GUI)
 ENDIF()
 
 FOREACH(CURRENT_TARGET ${WINDEPLOYQT_TARGETS})
+  # DIRTYCODE test for pachaging: removed --release and added --no-translations
   INSTALL(CODE 
           "
           FILE(READ \"${CMAKE_BINARY_DIR}/${CURRENT_TARGET}_path.txt\" CURRENT_TARGET_PATH)
@@ -60,8 +61,9 @@ FOREACH(CURRENT_TARGET ${WINDEPLOYQT_TARGETS})
                                         \"\${CURRENT_TARGET_PATH}\"
                                         --dir \"\${CMAKE_INSTALL_PREFIX}/${OFBUILD_BIN_INSTALL_PATH}\" 
                                         --libdir \"\${CMAKE_INSTALL_PREFIX}/${OFBUILD_BIN_INSTALL_PATH}\"
-                                        --compiler-runtime --release
+                                        --compiler-runtime
                                         -xml -network -concurrent
+                                        --no-translations
                                         --verbose 1
                                 WORKING_DIRECTORY \"${CMAKE_BINARY_DIR}\"
                                 OUTPUT_FILE windeployqt_exec_${CURRENT_TARGET}.log 
