@@ -54,6 +54,9 @@ class OPENFLUID_API GitProxy : public ProgramProxy<GitProxy>
 
     static void findGitProgram();
 
+  protected: 
+  
+    std::string m_LocalGitProgram;
 
   public:
 

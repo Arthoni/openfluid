@@ -562,6 +562,43 @@ void WareSrcMigrator::processSignature(const WareSrcMigrator::WareMigrationInfo&
 // =====================================================================
 
 
+// DIRTYCODE find better location for this code: in utils? 
+void copyDirectoryContent(const std::filesystem::path& Source, const std::filesystem::path& Destination)
+{
+  // was a filesystem::copy but not working when destination directory already exists under Windows, 
+  // even with copy_options::update_existing
+  const auto CopyOptions = std::filesystem::copy_options::update_existing | 
+                           std::filesystem::copy_options::recursive;
+  for (const auto& E : std::filesystem::recursive_directory_iterator(Source))
+  {
+    const auto SourceItem = E.path();
+    const auto DestinationItem = Destination / std::filesystem::relative(SourceItem, Source);
+
+    try
+    {
+      if (std::filesystem::is_directory(SourceItem))
+      {
+        std::filesystem::create_directories(DestinationItem);
+        // FIXME: check recursivity handling in unit test
+      }
+      else
+      {
+        std::filesystem::copy_file(SourceItem, DestinationItem, CopyOptions);
+      }
+    } 
+    catch (const std::filesystem::filesystem_error& e)
+    {
+      //DIRTYCODE cleaner exception / logging management
+      std::cerr << "Filesystem error: " << e.what() << std::endl;
+    }
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 void WareSrcMigrator::dispatchExistingFiles(const WareSrcMigrator::WareMigrationInfo& Info) const
 {
   mp_Listener->onDispatchFilesStart();
@@ -586,7 +623,21 @@ void WareSrcMigrator::dispatchExistingFiles(const WareSrcMigrator::WareMigration
         if (Stem == openfluid::config::WARESDEV_DOC_DIR || Stem == openfluid::config::WARESDEV_TESTS_DIR)
         {
           mp_Listener->stageMessage("standard " + Stem + " " + std::string(E.is_directory() ? "directory" : "file"));
-          std::filesystem::copy(E.path(),m_DestPathObj.stdPath()/Stem, CopyOptions);
+          try
+          {
+            copyDirectoryContent(E.path(), m_DestPathObj.stdPath()/Stem);
+          }
+          catch (std::exception & E)
+          {
+            //DIRTYCODE cleaner exception / logging management
+            // use throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION, "Exported signature file was not correctly written");
+            std::cerr << "std ERROR: " << E.what() << std::endl;
+          }
+          catch (...)
+          {
+            //DIRTYCODE cleaner exception / logging management
+            std::cerr << "ERROR: " << "Unknown Error" << std::endl;
+          }
         }
         else
         {

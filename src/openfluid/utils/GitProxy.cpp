@@ -37,6 +37,7 @@
  @author Armel THÖNI <armel.thoni@inrae.fr>
 */
 
+#include <iostream>
 
 #include <openfluid/utils/GitProxy.hpp>
 #include <openfluid/utils/ExternalProgram.hpp>
@@ -50,7 +51,7 @@ namespace openfluid { namespace utils {
 GitProxy::GitProxy()
 {
   findGitProgram();
-
+  m_LocalGitProgram = m_ExecutablePath;  // Hotfix to avoid issues under windows with static var def by child class
 }
 
 
