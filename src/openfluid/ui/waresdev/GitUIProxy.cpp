@@ -255,9 +255,12 @@ bool cleanModuleDir(QString RootPath, openfluid::tools::FilesystemPath ModuleSub
 {
   // returns true if submodule was really deleted
   openfluid::tools::FilesystemPath GitSubmoduleTargetDirectory = openfluid::tools::FilesystemPath(
-        {RootPath.toStdString(), ".git", "modules", ModuleSubPath.toGeneric()});
+        {RootPath.toStdString(), ".git", "modules", ModuleSubPath.toNative()});
+        //FIXME #1167 debug 
+        //std::cout << GitSubmoduleTargetDirectory.toNative() << std::endl;
   if (GitSubmoduleTargetDirectory.isDirectory())
   {
+      // FIXME #1167 under Windows, removeDirectory generates an internal error "5" with message "access denied"
     return GitSubmoduleTargetDirectory.removeDirectory();
   }
   return false;

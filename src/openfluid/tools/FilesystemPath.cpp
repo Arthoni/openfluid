@@ -402,7 +402,7 @@ bool FilesystemPath::removeDirectory(const std::string& Path) const
   {  
     const auto CompPath = composeWithSubPath(m_Path,Path);
     std::error_code TmpErr;
-    std::filesystem::remove_all(CompPath,TmpErr);  
+    std::filesystem::remove_all(CompPath,TmpErr);  //TODO use TmpErr.value() and TmpErr.message() in an exception
   }
   return !exists(Path);
 }
