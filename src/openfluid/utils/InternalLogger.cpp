@@ -104,7 +104,7 @@ void LoggingSystem::setup(bool DefaultAsFallback, std::string LogPath)
     // Creates path if necessary
     openfluid::tools::FilesystemPath(openfluid::tools::FilesystemPath(m_LogPath).dirname()).makeDirectory();
 
-    std::cout << "Initializing internal OpenFLUID logs at: "+m_LogPath << std::endl;
+    //std::cout << "Initializing internal OpenFLUID logs" << std::endl;  // at: "+m_LogPath
     // FIXME should not be displayed in some cases 
     // (interference risk with version detection for now, eg regex L142 in OpenFLUIDConfig.cmake.in)
     m_Logger.init(m_LogPath, false);
