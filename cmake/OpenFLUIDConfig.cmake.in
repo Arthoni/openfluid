@@ -76,7 +76,7 @@ ENDIF()
 SET(_OpenFLUID_SEARCH_DIRS
   ${OpenFLUID_ROOT_DIR}
   $ENV{OPENFLUID_INSTALL_PREFIX}
-  @CMAKE_INSTALL_PREFIX@  
+  @CMAKE_INSTALL_PREFIX@  ## issue of priority when rebuilding OF 
   /usr
   /usr/local
   /sw # Fink
@@ -85,6 +85,7 @@ SET(_OpenFLUID_SEARCH_DIRS
   $ENV{OpenFLUID_EXTRA_SEARCH_PATHS}
 )
 
+MESSAGE(WARNING ${_OpenFLUID_SEARCH_DIRS})  # HACK remove when mismatch diagnosis done
 
 MACRO(_OpenFLUID_RETURN MSG)
   IF (OpenFLUID_FIND_REQUIRED)
@@ -138,6 +139,7 @@ IF(NOT OpenFLUID_FOUND)
 
   ### Check version consistency
 
+  MESSAGE("from ${_OpenFLUID_INCLUDE_DIR}/openfluid/config.hpp")  # HACK remove when mismatch diagnosis done
   FILE(STRINGS "${_OpenFLUID_INCLUDE_DIR}/openfluid/config.hpp" _OpenFLUID_VERSION_CONFIG_LINE REGEX "VERSION_FULL = \"[0-9.a-z~]+\"")
   STRING(REGEX MATCH "[0-9]+.[0-9]+.[0-9]+(~[a-z]+[0-9]*)?" _OpenFLUID_VERSION "${_OpenFLUID_VERSION_CONFIG_LINE}")
 
@@ -153,10 +155,12 @@ IF(NOT OpenFLUID_FOUND)
     _OpenFLUID_RETURN("Unable to find version from OpenFLUID program")
   ENDIF()
 
+
+  MESSAGE(STATUS "CMD OUT? ${_OpenFLUID_CMD_OUTPUT}")  # HACK remove when mismatch diagnosis done
   STRING(FIND ${_OpenFLUID_CMD_OUTPUT} ${_OpenFLUID_VERSION} _OpenFLUID_CMD_TEST_VERSION)
 
   IF(${_OpenFLUID_CMD_TEST_VERSION} LESS 0)
-    _OpenFLUID_RETURN("Unable to find the OpenFLUID program")
+    _OpenFLUID_RETURN("OpenFLUID version mismatch: (command) ${_OpenFLUID_CMD_OUTPUT} vs (in config file) ${_OpenFLUID_VERSION}")
   ENDIF()
 
 
