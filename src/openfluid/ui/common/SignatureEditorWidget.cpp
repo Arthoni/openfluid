@@ -78,6 +78,10 @@ SignatureEditorWidget::SignatureEditorWidget(QWidget* Parent):
   connect(ui->AddAuthorButton,SIGNAL(clicked()),this,SLOT(addAuthorLine()));
   connect(ui->RemoveAuthorButton,SIGNAL(clicked()),this,SLOT(removeAuthorLine()));
 
+  ui->BextTypeComboBox->addItems(getBuilderExtTypeTexts());
+  ui->BextCategoryComboBox->addItems(getBuilderExtCategoryTexts());
+
+
 }
 
 
@@ -88,6 +92,31 @@ SignatureEditorWidget::SignatureEditorWidget(QWidget* Parent):
 SignatureEditorWidget::~SignatureEditorWidget()
 {
   delete ui;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+QStringList SignatureEditorWidget::getBuilderExtTypeTexts()
+{
+  QStringList BextMode_Texts;
+  BextMode_Texts << QObject::tr("Modal") << QObject::tr("Modeless") << QObject::tr("Workspace");
+  return BextMode_Texts;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+QStringList SignatureEditorWidget::getBuilderExtCategoryTexts()
+{
+  QStringList BextCategory_Texts;
+  BextCategory_Texts << QObject::tr("Spatial domain") << QObject::tr("Model") << QObject::tr("Results")
+                      << QObject::tr("Other");
+  return BextCategory_Texts;
 }
 
 
@@ -460,7 +489,50 @@ void SignatureEditorWidget::initializeDynamicsUIFromSignature(const openfluid::w
 // =====================================================================
 
 
-void SignatureEditorWidget::initialize(const openfluid::ware::SimulatorSignature& Signature)
+void SignatureEditorWidget::initializeIntegrationUIFromSignature(const openfluid::builderext::BuilderExtensionSignature& Signature)
+{
+  // TOIMPL find better way of applying index based on value for both comboboxes
+  if (Signature.Mode == openfluid::builderext::ExtensionMode::MODAL)
+  {
+    ui->BextTypeComboBox->setCurrentIndex(0);
+  }
+  else if (Signature.Mode == openfluid::builderext::ExtensionMode::MODELESS)
+  {
+    ui->BextTypeComboBox->setCurrentIndex(1);
+  }
+  else
+  {
+    ui->BextTypeComboBox->setCurrentIndex(2);
+  }
+  
+
+  if (Signature.Category == openfluid::builderext::ExtensionCategory::SPATIAL)
+  {
+    ui->BextCategoryComboBox->setCurrentIndex(0);
+  }
+  else if (Signature.Category == openfluid::builderext::ExtensionCategory::MODEL)
+  {
+    ui->BextCategoryComboBox->setCurrentIndex(1);
+  }
+  else if (Signature.Category == openfluid::builderext::ExtensionCategory::RESULTS)
+  {
+    ui->BextCategoryComboBox->setCurrentIndex(2);
+  }
+  else
+  {
+    ui->BextCategoryComboBox->setCurrentIndex(3);
+  }
+
+  ui->BextMenutextEdit->setText(QString::fromStdString(Signature.MenuText));
+
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SignatureEditorWidget::initializeSimulator(const openfluid::ware::SimulatorSignature& Signature)
 {
   initializeCommon(&Signature);
 
@@ -483,6 +555,18 @@ void SignatureEditorWidget::initialize(const openfluid::ware::SimulatorSignature
 // =====================================================================
 
 
+void SignatureEditorWidget::initializeBuilderext(const openfluid::builderext::BuilderExtensionSignature& Signature)
+{
+  initializeCommon(&Signature);
+
+  initializeIntegrationUIFromSignature(Signature);
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 void SignatureEditorWidget::initialize(const QString& SignaturePath)
 {
   openfluid::ware::WareType Type = openfluid::waresdev::detectWareType(SignaturePath.toStdString());
@@ -490,9 +574,10 @@ void SignatureEditorWidget::initialize(const QString& SignaturePath)
 
   if (Type == openfluid::ware::WareType::SIMULATOR)
   {
+    removeTab(5);//BuilderextTab
     auto Signature = openfluid::waresdev::SimulatorSignatureSerializer().readFromJSONFile(SignaturePath.toStdString());
 
-    initialize(Signature);
+    initializeSimulator(Signature);
   }
   else 
   {
@@ -502,6 +587,7 @@ void SignatureEditorWidget::initialize(const QString& SignaturePath)
     removeTab(1);//DynamicsTab
     if (Type == openfluid::ware::WareType::OBSERVER)
     {
+      removeTab(1);//BuilderextTab
       auto Signature = openfluid::waresdev::ObserverSignatureSerializer().readFromJSONFile(SignaturePath.toStdString());
 
       initializeCommon(&Signature);
@@ -511,9 +597,7 @@ void SignatureEditorWidget::initialize(const QString& SignaturePath)
       auto Signature = openfluid::waresdev::BuilderextSignatureSerializer().readFromJSONFile(
         SignaturePath.toStdString());
 
-      initializeCommon(&Signature);
-
-      //TODO add custom tab for builderext type
+      initializeBuilderext(Signature);
     }
   }
 }
@@ -820,6 +904,52 @@ void SignatureEditorWidget::updateSignatureFromCommonsUI(openfluid::ware::WareSi
   
   Signature.Issues = mp_IssuesManager->getIssues();
 }
+
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SignatureEditorWidget::updateSignatureFromIntegrationUI(openfluid::builderext::BuilderExtensionSignature& Signature) const
+{
+//openfluid::builderext::ExtensionMode  NewWareDialog::getBuilderextMode() const
+//   if (ui->BextTypeComboBox->currentIndex() == 0)
+//   {
+//     return openfluid::builderext::ExtensionMode::MODAL;
+//   }
+
+//   if (ui->BextTypeComboBox->currentIndex() == 1)
+//   {
+//     return openfluid::builderext::ExtensionMode::MODELESS;
+//   }
+
+//   return openfluid::builderext::ExtensionMode::WORKSPACE;
+
+// openfluid::builderext::ExtensionCategory  NewWareDialog::getBuilderextCategory() const
+// {
+//   if (ui->BextCategoryComboBox->currentIndex() == 0)
+//   {
+//     return openfluid::builderext::ExtensionCategory::SPATIAL;
+//   }
+
+//   if (ui->BextCategoryComboBox->currentIndex() == 1)
+//   {
+//     return openfluid::builderext::ExtensionCategory::MODEL;
+//   }
+
+//   if (ui->BextCategoryComboBox->currentIndex() == 2)
+//   {
+//     return openfluid::builderext::ExtensionCategory::RESULTS;
+//   }
+
+//   return openfluid::builderext::ExtensionCategory::OTHER;
+
+  // return ui->BextMenutextEdit->text();
+  //TOIMPL apply in signature
+
+}
+
 
 
 // =====================================================================

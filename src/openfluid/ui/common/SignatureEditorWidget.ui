@@ -14,7 +14,7 @@
    <string notr="true">TabWidget</string>
   </property>
   <property name="currentIndex">
-   <number>0</number>
+   <number>5</number>
   </property>
   <widget class="QWidget" name="InfosTab">
    <attribute name="title">
@@ -488,6 +488,29 @@
     </item>
    </layout>
   </widget>
+  <widget class="QWidget" name="BuilderextTab">
+   <attribute name="title">
+    <string>Integration in Builder</string>
+   </attribute>
+   <layout class="QVBoxLayout" name="verticalLayout_15">
+    <item>
+     <widget class="openfluid::ui::common::BuilderextSetupWidget" name="widget" native="true"/>
+    </item>
+    <item>
+     <spacer name="verticalSpacer_4">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
   <widget class="QWidget" name="IssuesTab">
    <attribute name="title">
     <string>Issues</string>
@@ -510,6 +533,12 @@
    <class>openfluid::ui::common::WareIssuesManagerWidget</class>
    <extends>QWidget</extends>
    <header location="global">openfluid/ui/common/WareIssuesManagerWidget.hpp</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>openfluid::ui::common::BuilderextSetupWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">openfluid/ui/common/BuilderextSetupWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

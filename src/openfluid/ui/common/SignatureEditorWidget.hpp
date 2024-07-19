@@ -33,6 +33,7 @@
   @file SignatureEditorWidget.hpp
 
   @author Jean-Christophe FABRE <jean-christophe.fabre@inra.fr>
+  @author Armel THÖNI <armel.thoni@inrae.fr>
 */
 
 
@@ -43,6 +44,7 @@
 #include <QTabWidget>
 #include <QTableWidget>
 
+#include <openfluid/builderext/BuilderExtensionSignature.hpp>
 #include <openfluid/dllexport.hpp>
 #include <openfluid/ware/SimulatorSignature.hpp>
 #include <openfluid/ui/common/WareIssuesManagerWidget.hpp>
@@ -79,6 +81,10 @@ class OPENFLUID_API SignatureEditorWidget : public QTabWidget
 
     openfluid::ui::common::WareIssuesManagerWidget* mp_IssuesManager;
 
+    static QStringList getBuilderExtTypeTexts();
+
+    static QStringList getBuilderExtCategoryTexts();
+
     void initializeCommon(const openfluid::ware::WareSignature* Signature);
 
     void initializeID(const QString& ID);
@@ -97,6 +103,8 @@ class OPENFLUID_API SignatureEditorWidget : public QTabWidget
 
     void initializeDynamicsUIFromSignature(const openfluid::ware::SimulatorSignature& Signature);
 
+    void initializeIntegrationUIFromSignature(const openfluid::builderext::BuilderExtensionSignature& Signature);
+
     void updateSignatureFromCommonsUI(openfluid::ware::WareSignature& Signature) const;
 
     void updateSignatureFromParametersUI(openfluid::ware::SimulatorSignature& Signature) const;
@@ -110,6 +118,8 @@ class OPENFLUID_API SignatureEditorWidget : public QTabWidget
     void updateSignatureFromVariablesUI(openfluid::ware::SimulatorSignature& Signature) const;
 
     void updateSignatureFromDynamicsUI(openfluid::ware::SimulatorSignature& Signature) const;
+    
+    void updateSignatureFromIntegrationUI(openfluid::builderext::BuilderExtensionSignature& Signature) const;
 
 
   signals:
@@ -123,7 +133,9 @@ class OPENFLUID_API SignatureEditorWidget : public QTabWidget
 
     virtual ~SignatureEditorWidget();
 
-    void initialize(const openfluid::ware::SimulatorSignature& Signature);  // used by ghosts
+    void initializeSimulator(const openfluid::ware::SimulatorSignature& Signature);  // used by ghosts
+
+    void initializeBuilderext(const openfluid::builderext::BuilderExtensionSignature& Signature);
     
     void initialize(const QString& SignaturePath);
 

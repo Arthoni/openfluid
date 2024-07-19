@@ -41,6 +41,12 @@
 
 #include <QPushButton>
 #include <QMessageBox>
+ #include <QRegularExpressionValidator>
+#if (QT_VERSION_MAJOR < 6)
+#include <QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 
 #include <openfluid/ui/config.hpp>
 #include <openfluid/ui/waresdev/NewWareDialog.hpp>
@@ -324,6 +330,8 @@ openfluid::builderext::ExtensionMode  NewWareDialog::getBuilderextMode() const
 
 // =====================================================================
 // =====================================================================
+
+//TOIMPL create dedicated widget shared between new ware dialog and signature edit dialog?
 
 
 openfluid::builderext::ExtensionCategory  NewWareDialog::getBuilderextCategory() const
