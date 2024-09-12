@@ -34,6 +34,7 @@
   @file ObserverSignatureSerializer.cpp
 
   @author Jean-Christophe FABRE <jean-christophe.fabre@inrae.fr>
+  @author Armel THÖNI <armel.thoni@inrae.fr>
  */
 
 
@@ -45,6 +46,16 @@
 namespace openfluid { namespace waresdev {
 
 
+void ObserverSignatureSerializer::unserializeDataFromJSON(const openfluid::thirdparty::json& Json, 
+                                                           openfluid::ware::ObserverSignature& Sign) const
+{
+  if (Json.contains("parameters")) //TOIMPL factorize
+  {
+    //ParameterizedWareSignatureSerializer<openfluid::ware::ObserverSignature>::
+    unserializeParametersFromJSON(Json.at("parameters"),Sign);
+  }
+}
+
 openfluid::ware::ObserverSignature ObserverSignatureSerializer::fromJSON(const openfluid::thirdparty::json& Json) const
 {
   openfluid::ware::ObserverSignature Sign = fromJSONBase(Json);
@@ -52,6 +63,13 @@ openfluid::ware::ObserverSignature ObserverSignatureSerializer::fromJSON(const o
    if (!Json.contains("observer"))
   {
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,"Missing observer entry");
+  }
+
+  const auto JsonObs = Json.at("observer");
+
+  if (JsonObs.contains("data"))
+  {
+    unserializeDataFromJSON(JsonObs.at("data"),Sign);
   }
 
   return Sign;
@@ -67,6 +85,7 @@ openfluid::thirdparty::json ObserverSignatureSerializer::toJSON(const openfluid:
   openfluid::thirdparty::json Json = toJSONBase(Sign);
 
   Json["observer"] = openfluid::thirdparty::json::object();
+  Json["observer"]["data"] = serializeDataToJSON(Sign);
 
   return Json;
 }
@@ -82,6 +101,8 @@ std::string ObserverSignatureSerializer::toWareCPP(const openfluid::ware::Observ
   
   CPP += getCPPHead("openfluid/ware/ObserverSignature.hpp","openfluid::ware::ObserverSignature");
   CPP += toWareCPPBase(Sign);
+
+  CPP += toWareCPPParams(Sign);
   
   CPP += getCPPTail();
 

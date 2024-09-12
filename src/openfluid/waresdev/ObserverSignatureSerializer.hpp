@@ -34,6 +34,7 @@
   @file ObserverSignatureSerializer.hpp
 
   @author Jean-Christophe FABRE <jean-christophe.fabre@inrae.fr>
+  @author Armel THÖNI <armel.thoni@inrae.fr>
  */
 
 
@@ -41,7 +42,7 @@
 #define __OPENFLUID_WARESDEV_OBSERVERSIGNATURESERIALIZER_HPP__
 
 
-#include <openfluid/waresdev/WareSignatureSerializer.hpp>
+#include <openfluid/waresdev/ParameterizedWareSignatureSerializer.hpp>
 #include <openfluid/ware/ObserverSignature.hpp>
 #include <openfluid/dllexport.hpp>
 
@@ -49,15 +50,19 @@
 namespace openfluid { namespace waresdev {
 
 
-class OPENFLUID_API ObserverSignatureSerializer : public WareSignatureSerializer<openfluid::ware::ObserverSignature>
+class OPENFLUID_API ObserverSignatureSerializer : 
+  public ParameterizedWareSignatureSerializer<openfluid::ware::ObserverSignature>
 {
   public:
 
-    ObserverSignatureSerializer() : WareSignatureSerializer<openfluid::ware::ObserverSignature>()
+    ObserverSignatureSerializer() : ParameterizedWareSignatureSerializer<openfluid::ware::ObserverSignature>()
     { }
 
     ~ObserverSignatureSerializer()
     { } 
+
+    void unserializeDataFromJSON(const openfluid::thirdparty::json& Json, 
+                                                           openfluid::ware::ObserverSignature& Sign) const;
 
     openfluid::ware::ObserverSignature fromJSON(const openfluid::thirdparty::json& Json) const;
 

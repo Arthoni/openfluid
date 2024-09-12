@@ -44,9 +44,11 @@
 #include <openfluid/ui/common/SignatureEditorWidget.hpp>
 #include <openfluid/ui/common/UIHelpers.hpp>
 #include <openfluid/ui/config.hpp>
+#include <openfluid/ware/WareSignature.hpp>
 #include <openfluid/waresdev/SimulatorSignatureSerializer.hpp>
 #include <openfluid/waresdev/ObserverSignatureSerializer.hpp>
 #include <openfluid/waresdev/BuilderextSignatureSerializer.hpp>
+#include <openfluid/builderext/BuilderExtensionSignature.hpp>
 #include <openfluid/builderext/BuilderExtensionSignature.hpp>
 
 #include "ui_SignatureEditorWidget.h"
@@ -187,7 +189,7 @@ void SignatureEditorWidget::initializeCommon(const openfluid::ware::WareSignatur
 // =====================================================================
 
 
-void SignatureEditorWidget::initializeParametersUIFromSignature(const openfluid::ware::SimulatorSignature& Signature)
+void SignatureEditorWidget::injectParamData(const openfluid::ware::SignatureHandledData& Data)
 {
   QMap<int,QVariant> DataMap;
 
@@ -199,7 +201,7 @@ void SignatureEditorWidget::initializeParametersUIFromSignature(const openfluid:
   DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::ROCONDITION),
                  static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::REQUIRED));
 
-  for (auto& Item : Signature.HandledData.RequiredParams)
+  for (auto& Item : Data.RequiredParams)
   {
     DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATAID),
                    QString::fromStdString(Item.Name));
@@ -213,7 +215,7 @@ void SignatureEditorWidget::initializeParametersUIFromSignature(const openfluid:
   DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::ROCONDITION),
                  static_cast<int>(SignatureDataEditorWidget::DataConditionsIndices::USED));
 
-  for (auto& Item : Signature.HandledData.UsedParams)
+  for (auto& Item : Data.UsedParams)
   {
     DataMap.insert(static_cast<int>(SignatureDataEditorWidget::DataColumns::DATAID),
                    QString::fromStdString(Item.Name));
@@ -224,6 +226,26 @@ void SignatureEditorWidget::initializeParametersUIFromSignature(const openfluid:
     ui->ParametersDataWidget->addDataLine(DataMap);
   }
 
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SignatureEditorWidget::initializeParametersUIFromSignature(const openfluid::ware::SimulatorSignature& Signature)
+{
+  injectParamData(Signature.HandledData);
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SignatureEditorWidget::initializeParametersUIFromSignature(const openfluid::ware::ObserverSignature& Signature)
+{
+  injectParamData(Signature.HandledData);
 }
 
 
@@ -516,6 +538,18 @@ void SignatureEditorWidget::initializeSimulator(const openfluid::ware::Simulator
 // =====================================================================
 
 
+void SignatureEditorWidget::initializeObserver(const openfluid::ware::ObserverSignature& Signature)
+{
+  initializeCommon(&Signature);
+
+  initializeParametersUIFromSignature(Signature);
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 void SignatureEditorWidget::initializeBuilderext(const openfluid::builderext::BuilderExtensionSignature& Signature)
 {
   initializeCommon(&Signature);
@@ -542,19 +576,22 @@ void SignatureEditorWidget::initialize(const QString& SignaturePath)
   }
   else 
   {
-    removeTab(1);//ParametersTab
-    removeTab(1);//AttributesTab
-    removeTab(1);//VariablesTab
-    removeTab(1);//DynamicsTab
     if (Type == openfluid::ware::WareType::OBSERVER)
     {
-      removeTab(1);//BuilderextTab
+      removeTab(2);//AttributesTab
+      removeTab(2);//VariablesTab
+      removeTab(2);//DynamicsTab
+      removeTab(2);//BuilderextTab
       auto Signature = openfluid::waresdev::ObserverSignatureSerializer().readFromJSONFile(SignaturePath.toStdString());
 
-      initializeCommon(&Signature);
+      initializeObserver(Signature);
     }
     else if (Type == openfluid::ware::WareType::BUILDEREXT)
     {
+      removeTab(1);//ParametersTab
+      removeTab(1);//AttributesTab
+      removeTab(1);//VariablesTab
+      removeTab(1);//DynamicsTab
       auto Signature = openfluid::waresdev::BuilderextSignatureSerializer().readFromJSONFile(
         SignaturePath.toStdString());
 
@@ -657,6 +694,40 @@ void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::Sim
 // =====================================================================
 
 
+void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::ObserverSignature& Signature) const
+{
+  const QTableWidget* DataTableW = ui->ParametersDataWidget->dataTableWidget();
+
+  for (int i=0; i < DataTableW->rowCount();i++)
+  {
+    openfluid::ware::SignatureDataItem Item;
+
+    Item.Name = extractTableFieldToString(DataTableW,i,0);
+    Item.Description = extractTableFieldToString(DataTableW,i,2);
+    Item.SIUnit = extractTableFieldToString(DataTableW,i,3);
+
+    SignatureDataEditorWidget::DataConditionsIndices CondIndex = extractTableComboToCondition(DataTableW,i,1);
+
+    if (static_cast<int>(CondIndex) >= 0)
+    {
+      if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::USED)
+      {
+        Signature.HandledData.UsedParams.push_back(Item);
+      }
+      else
+      {
+        Signature.HandledData.RequiredParams.push_back(Item);
+      }
+    }
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+//TOIMPL remove extra file panel from obs UI
 void SignatureEditorWidget::updateSignatureFromExtrafilesUI(openfluid::ware::SimulatorSignature& Signature) const
 {
   const QTableWidget* DataTableW = ui->ExtraFilesDataWidget->dataTableWidget();
@@ -932,8 +1003,10 @@ bool SignatureEditorWidget::exportSignature(const QString& SignaturePath) const
   }
   else if (Type == openfluid::ware::WareType::OBSERVER)
   {
+    //TOIMPL tolerance in board check for missing data?
     openfluid::ware::ObserverSignature Signature;
     updateSignatureFromCommonsUI(Signature);
+    updateSignatureFromParametersUI(Signature);
     openfluid::waresdev::ObserverSignatureSerializer().writeToJSONFile(Signature,SignaturePath.toStdString());
     return true;
   }

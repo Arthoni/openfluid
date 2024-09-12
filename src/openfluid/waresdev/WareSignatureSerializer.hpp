@@ -53,6 +53,7 @@
 #include <openfluid/ware/PluggableWare.hpp>
 #include <openfluid/tools/IDHelpers.hpp>
 #include <openfluid/tools/StringHelpers.hpp>
+#include <openfluid/utils/InternalLogger.hpp>
 #include <openfluid/config.hpp>
 #include <openfluid/dllexport.hpp>
 
@@ -95,6 +96,7 @@ inline openfluid::ware::WareType detectWareType(const std::string& Path)
   }
   catch (openfluid::thirdparty::json::exception& E)
   {
+    openfluid::utils::log::error("Waresdev", E.what());
     return openfluid::ware::WareType::UNDEFINED;
   }
 
@@ -127,6 +129,7 @@ inline std::pair<openfluid::ware::WareType,openfluid::ware::WareID_t> detectWare
   }
   catch (openfluid::thirdparty::json::exception& E)
   {
+    openfluid::utils::log::error("Waresdev", E.what());
     Type = openfluid::ware::WareType::UNDEFINED;
   }  
 
@@ -147,26 +150,134 @@ class OPENFLUID_API WareSignatureSerializer
 
     // TOIMPL review and refactor methods names, responsibilities and organization for better consistency
 
-    static std::string getHead(const std::string CommentChar);
+    static std::string getHead(const std::string CommentChar)
+    {
+      std::string Head =
+      CommentChar + " ======\n" +
+      CommentChar + " AUTOMATICALLY GENERATED FILE. DO NOT EDIT MANUALLY\n" +
+      CommentChar + " ======\n\n"; 
 
-    static std::string getCPPHead(const std::string& WareIncludeStr, const std::string& WareTypeStr);
+      return Head;
+    }
 
-    static std::string getQuotedString(const std::string& Str);
+    static std::string getCPPHead(const std::string& WareIncludeStr, const std::string& WareTypeStr)
+    {
+      std::string Head = getHead("//");
+      
+      Head += 
+        "#include <"+WareIncludeStr+">\n\n"
+        "extern \"C\" {\n"
+        "OPENFLUID_PLUGIN "+WareTypeStr+"* "+std::string(WARESIGNATURE_PROC_NAME)+"()\n"
+        "{\n"
+        +WareTypeStr+"* Signature = new "+WareTypeStr+"();\n\n"; 
 
-    static std::string getCPPDateTimeString(const openfluid::core::DateTime& DT);
+      return Head;
+    }
 
-    static std::string getCPPVectorString(const std::vector<std::string>& StrVect,bool AutoQuote = false);
+    static std::string getQuotedString(const std::string& Str)
+    {
+      return "\""+Str+"\"";
+    }
 
-    static std::string getCPPEntry(const std::string& Member);
+    static std::string getCPPDateTimeString(const openfluid::core::DateTime& DT) // TODO EXPORT AS UTILS?
+    {
+      std::string Str = "openfluid::core::DateTime(";
 
-    static std::string getCPPAssignment(const std::string& Member, const std::string& Value, bool AutoQuote = false);
+      Str += std::to_string(DT.getYear())+",";
+      Str += std::to_string(DT.getMonth())+",";
+      Str += std::to_string(DT.getDay())+",";
+      Str += std::to_string(DT.getHour())+",";
+      Str += std::to_string(DT.getMinute())+",";
+      Str += std::to_string(DT.getSecond())+")";
+
+      return Str;
+    }
+
+    static std::string getCPPVectorString(const std::vector<std::string>& StrVect,bool AutoQuote = false)
+    {
+      std::string Str;
+
+      Str += "{";
+      bool isFirst = true;
+      for (const auto& S : StrVect)
+      {
+        if (!isFirst)
+        {
+          Str += ",";
+        }
+        if (AutoQuote)
+        {
+          Str += getQuotedString(S);
+        }
+        else
+        {
+          Str += S;
+        }
+        isFirst = false;
+      }
+      Str += "}";
+
+      return Str;
+    }
+
+
+    static std::string getCPPEntry(const std::string& Member)
+    {
+      return "Signature->"+Member;
+    }
+
+
+    static std::string getCPPAssignment(const std::string& Member, const std::string& Value, bool AutoQuote = false)
+    {
+      std::string QuotedVal(Value);
+      
+      if (AutoQuote)
+      {
+        QuotedVal = getQuotedString(QuotedVal);
+      }
+      
+      return getCPPEntry(Member)+" = "+QuotedVal+";\n";
+    }
 
     static std::string getCPPMethod(const std::string& Member, const std::string& Method, 
-                                    const std::vector<std::string>& Args, const std::string& Access = ".");
+                                    const std::vector<std::string>& Args, const std::string& Access = ".")
+    {
+      std::string ArgsStr;
+      bool FirstArg = true;
+      
+      for (const auto& A : Args)
+      {
+        if (FirstArg)
+        {
+          FirstArg = false;
+        }
+        else
+        {
+          ArgsStr += ",";
+        }
 
-    std::string getCPPLinkUIDProc() const;
+        ArgsStr += A;
+      }
 
-    static std::string getCPPTail();
+      return getCPPEntry(Member)+Access+Method+"("+ArgsStr+");\n";
+    }
+
+    std::string getCPPLinkUIDProc() const
+    {
+      std::string Str =
+        "extern \"C\" {\n"
+        "OPENFLUID_PLUGIN const std::string* "+std::string(WARELINKUID_PROC_NAME)+"()\n"
+        "{\n"
+        "return new std::string(\""+m_LinkUID+"\");\n"
+        "}\n"
+        "}"; 
+      return Str;
+    }
+
+    static std::string getCPPTail()
+    {
+      return "\nreturn Signature;\n}\n}\n";
+    }
 
     static std::string getCMakeHead();
 
@@ -210,72 +321,6 @@ class OPENFLUID_API WareSignatureSerializer
 
     virtual void writeToBuildFiles(const SignatureType& Sign, const std::string& Path) const = 0;
 };
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getHead(const std::string CommentChar)
-{
-  std::string Head =
-  CommentChar + " ======\n" +
-  CommentChar + " AUTOMATICALLY GENERATED FILE. DO NOT EDIT MANUALLY\n" +
-  CommentChar + " ======\n\n"; 
-
-  return Head;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPHead(const std::string& WareIncludeStr,
-                                                               const std::string& WareTypeStr)
-{
-  std::string Head = getHead("//");
-  
-  Head += 
-    "#include <"+WareIncludeStr+">\n\n"
-    "extern \"C\" {\n"
-    "OPENFLUID_PLUGIN "+WareTypeStr+"* "+std::string(WARESIGNATURE_PROC_NAME)+"()\n"
-    "{\n"
-    +WareTypeStr+"* Signature = new "+WareTypeStr+"();\n\n"; 
-
-  return Head;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPLinkUIDProc() const
-{
-  std::string Str =
-    "extern \"C\" {\n"
-    "OPENFLUID_PLUGIN const std::string* "+std::string(WARELINKUID_PROC_NAME)+"()\n"
-    "{\n"
-    "return new std::string(\""+m_LinkUID+"\");\n"
-    "}\n"
-    "}"; 
-  return Str;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPTail()
-{
-  return "\nreturn Signature;\n}\n}\n";
-}
 
 
 // =====================================================================
@@ -458,132 +503,6 @@ openfluid::thirdparty::json WareSignatureSerializer<SignatureType>::toJSONBase(c
   }
 
   return Json;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getQuotedString(const std::string& Str)
-{
-  return "\""+Str+"\"";
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPEntry(const std::string& Member)
-{
-  return "Signature->"+Member;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPAssignment(const std::string& Member,
-                                                                     const std::string& Value,
-                                                                     bool AutoQuote)
-{
-  std::string QuotedVal(Value);
-  
-  if (AutoQuote)
-  {
-    QuotedVal = getQuotedString(QuotedVal);
-  }
-  
-  return getCPPEntry(Member)+" = "+QuotedVal+";\n";
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPMethod(const std::string& Member, const std::string& Method, 
-                                                                 const std::vector<std::string>& Args,
-                                                                 const std::string& Access)
-{
-  std::string ArgsStr;
-  bool FirstArg = true;
-  
-  for (const auto& A : Args)
-  {
-    if (FirstArg)
-    {
-      FirstArg = false;
-    }
-    else
-    {
-      ArgsStr += ",";
-    }
-
-    ArgsStr += A;
-  }
-
-  return getCPPEntry(Member)+Access+Method+"("+ArgsStr+");\n";
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPVectorString(const std::vector<std::string>& StrVect,
-                                                                       bool AutoQuote)
-{
-  std::string Str;
-
-  Str += "{";
-  bool isFirst = true;
-  for (const auto& S : StrVect)
-  {
-    if (!isFirst)
-    {
-      Str += ",";
-    }
-    if (AutoQuote)
-    {
-      Str += getQuotedString(S);
-    }
-    else
-    {
-      Str += S;
-    }
-    isFirst = false;
-  }
-  Str += "}";
-
-  return Str;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-template<class SignatureType>
-std::string WareSignatureSerializer<SignatureType>::getCPPDateTimeString(const openfluid::core::DateTime& DT)
-{
-  std::string Str = "openfluid::core::DateTime(";
-
-  Str += std::to_string(DT.getYear())+",";
-  Str += std::to_string(DT.getMonth())+",";
-  Str += std::to_string(DT.getDay())+",";
-  Str += std::to_string(DT.getHour())+",";
-  Str += std::to_string(DT.getMinute())+",";
-  Str += std::to_string(DT.getSecond())+")";
-
-  return Str;
 }
 
 

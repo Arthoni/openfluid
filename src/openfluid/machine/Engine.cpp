@@ -281,6 +281,7 @@ void Engine::checkSimulationVarsProduction(int ExpectedVarsCount)
 
 void Engine::checkParametersConsistency()
 {
+  //TOIMPL APPLY TO OBSERVER ALSO
   for (ModelItemInstance* IInstance : m_ModelInstance.items())
   {
     for (openfluid::ware::SignatureDataItem Param : IInstance->Container.signature()->HandledData.RequiredParams)
@@ -331,7 +332,7 @@ void Engine::checkParametersConsistency()
 void Engine::checkModelConsistency()
 {
   std::list<ModelItemInstance*>::const_iterator SimIter;
-  openfluid::ware::SignatureHandledData HData;
+  openfluid::ware::SimulatorSignatureHandledData HData;
   ModelItemInstance* CurrentSimulator;
   unsigned int i;
 
@@ -395,7 +396,7 @@ void Engine::checkModelConsistency()
 void Engine::checkAttributesConsistency()
 {
   std::list<ModelItemInstance*>::const_iterator SimIter;
-  openfluid::ware::SignatureHandledData HData;
+  openfluid::ware::SimulatorSignatureHandledData HData;
   ModelItemInstance* CurrentSimulator;
   unsigned int i;
 
@@ -433,7 +434,7 @@ void Engine::checkAttributesConsistency()
 
 void Engine::checkExtraFilesConsistency()
 {
-  openfluid::ware::SignatureHandledData HData;
+  openfluid::ware::SimulatorSignatureHandledData HData;
 
   // on each simulator
   for (const auto* Sim : m_ModelInstance.items())
