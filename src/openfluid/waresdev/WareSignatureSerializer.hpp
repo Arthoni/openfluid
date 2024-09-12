@@ -53,6 +53,7 @@
 #include <openfluid/ware/PluggableWare.hpp>
 #include <openfluid/tools/IDHelpers.hpp>
 #include <openfluid/tools/StringHelpers.hpp>
+#include <openfluid/utils/InternalLogger.hpp>
 #include <openfluid/config.hpp>
 #include <openfluid/dllexport.hpp>
 
@@ -95,6 +96,8 @@ inline openfluid::ware::WareType detectWareType(const std::string& Path)
   }
   catch (openfluid::thirdparty::json::exception& E)
   {
+    std::cout << __LINE__ <<  E.what() << std::endl; //DIRTYCODE
+    //openfluid::utils::log::error("Ware type detection json error: ", E.what());
     return openfluid::ware::WareType::UNDEFINED;
   }
 
@@ -127,6 +130,8 @@ inline std::pair<openfluid::ware::WareType,openfluid::ware::WareID_t> detectWare
   }
   catch (openfluid::thirdparty::json::exception& E)
   {
+    std::cout << __LINE__ << E.what() << std::endl; //DIRTYCODE
+    //openfluid::utils::log::error("Ware type/id detection json error: ", E.what());
     Type = openfluid::ware::WareType::UNDEFINED;
   }  
 
@@ -799,6 +804,138 @@ void WareSignatureSerializer<SignatureType>::writeToParamsUICMakeFile(const Sign
   OutFile << "SET(WARE_IS_BUILDEREXT TRUE)\n";
   OutFile << "SET(WARE_IS_PARAMSUI TRUE)\n";
   OutFile << "\n\n";
+}
+
+
+//TOIMPL move to dedicated file?
+
+inline openfluid::ware::SignatureDataItem readDataItemFromJSON(const openfluid::thirdparty::json& Item)
+{
+  openfluid::ware::SignatureDataItem Data;
+
+  Data.Name = Item.value("name","");
+
+  if (!openfluid::tools::isValidVariableName(Data.Name))
+  {
+    throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,"Missing or invalid data name");
+  }
+
+  Data.Description = Item.value("description","");
+  Data.SIUnit = Item.value("siunit","");
+  
+  openfluid::core::Value::Type VT;
+
+  if (openfluid::core::Value::getValueTypeFromString(Item.value("type",""),VT))
+  {
+    Data.DataType = VT;
+  }
+
+  return Data;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+inline openfluid::thirdparty::json serializeDataItemToJSON(const openfluid::ware::SignatureDataItem& Item)
+{
+  openfluid::thirdparty::json Json = openfluid::thirdparty::json::object();
+
+  Json["name"] = Item.Name;
+  Json["description"] = Item.Description;
+  Json["siunit"] = Item.SIUnit;
+  Json["type"] = openfluid::core::Value::getStringFromValueType(Item.DataType);
+
+  return Json;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+inline std::vector<openfluid::ware::SignatureDataItem> 
+readDataListFromJSON(const openfluid::thirdparty::json& Json)
+{
+  std::vector<openfluid::ware::SignatureDataItem> List;
+
+  if (Json.is_array())
+  {
+    for (const auto& I : Json)
+    {
+      List.push_back(readDataItemFromJSON(I));
+    }
+  }
+
+  return List;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+template<class SignatureType>
+class OPENFLUID_API ParametrizedWareSignatureSerializer : public WareSignatureSerializer<SignatureType>
+{
+  protected:
+
+    ParametrizedWareSignatureSerializer(): WareSignatureSerializer<SignatureType>()
+    { }
+
+    void unserializeParametersFromJSON(const openfluid::thirdparty::json& Json, 
+                                       SignatureType& Sign) const;
+
+    openfluid::thirdparty::json serializeParametersToJSON(const SignatureType& Sign) const;
+
+
+  public:
+
+    ~ParametrizedWareSignatureSerializer()
+    { }
+};
+
+template<class SignatureType>
+openfluid::thirdparty::json
+ParametrizedWareSignatureSerializer<SignatureType>::serializeParametersToJSON(const SignatureType& Sign) const
+{
+  openfluid::thirdparty::json Json = openfluid::thirdparty::json::object();
+
+  auto JsonReq = openfluid::thirdparty::json::array();
+  for (const auto& P : Sign.HandledData.RequiredParams)
+  {
+    JsonReq.push_back(serializeDataItemToJSON(P));
+  }
+  Json["required"] = JsonReq;
+
+  auto JsonUs = openfluid::thirdparty::json::array();
+  for (const auto& P : Sign.HandledData.UsedParams)
+  {
+    JsonUs.push_back(serializeDataItemToJSON(P));
+  }
+  Json["used"] = JsonUs;
+
+  return Json;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+template<class SignatureType>
+void ParametrizedWareSignatureSerializer<SignatureType>::unserializeParametersFromJSON(const openfluid::thirdparty::json& Json, 
+                                                                 SignatureType& Sign) const
+{
+  if (Json.contains("used"))
+  {
+    Sign.HandledData.UsedParams = readDataListFromJSON(Json.at("used"));
+  }
+
+  if (Json.contains("required"))
+  {
+    Sign.HandledData.RequiredParams = readDataListFromJSON(Json.at("required"));
+  }
 }
 
 

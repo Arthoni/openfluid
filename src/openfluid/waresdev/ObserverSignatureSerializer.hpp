@@ -49,11 +49,11 @@
 namespace openfluid { namespace waresdev {
 
 
-class OPENFLUID_API ObserverSignatureSerializer : public WareSignatureSerializer<openfluid::ware::ObserverSignature>
+class OPENFLUID_API ObserverSignatureSerializer : public ParametrizedWareSignatureSerializer<openfluid::ware::ObserverSignature>
 {
   public:
 
-    ObserverSignatureSerializer() : WareSignatureSerializer<openfluid::ware::ObserverSignature>()
+    ObserverSignatureSerializer() : ParametrizedWareSignatureSerializer<openfluid::ware::ObserverSignature>()
     { }
 
     ~ObserverSignatureSerializer()

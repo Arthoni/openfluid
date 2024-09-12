@@ -64,32 +64,6 @@ typedef std::string SimDomain_t; // TOIMPL to remove, replaced by tags
 /**
 Class for storage of the definition of data handled by the simulator.
 */
-class OPENFLUID_API SignatureDataItem
-{
-  public:
-
-    std::string Name;
-    std::string Description;
-    std::string SIUnit;
-    openfluid::core::Value::Type DataType = openfluid::core::Value::NONE;
-
-    SignatureDataItem()
-    { }
-
-    SignatureDataItem(const std::string& N, const std::string& D, const std::string& SI);
-
-    SignatureDataItem(const std::string& N, const std::string& D, const std::string& SI,
-                      openfluid::core::Value::Type T);
-};
-
-
-// =====================================================================
-// =====================================================================
-
-
-/**
-Class for storage of the definition of data handled by the simulator.
-*/
 class OPENFLUID_API SignatureSpatialDataItem : public SignatureDataItem
 {
   public:
@@ -118,7 +92,7 @@ class OPENFLUID_API SignatureSpatialDataItem : public SignatureDataItem
 /**
   Class for storage of the definition of the data handled by the simulator. This is part of the signature.
 */
-class OPENFLUID_API SignatureHandledData
+class OPENFLUID_API SimulatorSignatureHandledData : SignatureHandledData
 {
   public:
 
@@ -149,7 +123,7 @@ class OPENFLUID_API SignatureHandledData
     std::vector<openfluid::core::UnitsClass_t> UsedEventsOnUnits; // TOIMPL add description to units class events?
 
 
-    SignatureHandledData()
+    SimulatorSignatureHandledData() : SignatureHandledData()
     {
       clear();
     }
@@ -157,8 +131,7 @@ class OPENFLUID_API SignatureHandledData
 
     void clear()
     {
-      UsedParams.clear();
-      RequiredParams.clear();
+      SignatureHandledData::clear();
       ProducedVars.clear();
       UpdatedVars.clear();
       RequiredVars.clear();
@@ -321,7 +294,7 @@ class OPENFLUID_API SignatureTimeScheduling
   Class encapsulating the plugin signature,
   returned from the plugin to the host app for registering
 */
-class OPENFLUID_API SimulatorSignature : public WareSignature
+class OPENFLUID_API SimulatorSignature : public DataWareSignature<SimulatorSignatureHandledData>
 {
 
   public:
@@ -347,11 +320,6 @@ class OPENFLUID_API SimulatorSignature : public WareSignature
     SimMethod_t Method; // TOIMPL to remove, replaced by tags
 
     /**
-      Handled data
-    */
-    SignatureHandledData HandledData;
-
-    /**
       Handled units graph
     */
     SignatureUnitsGraph HandledUnitsGraph;
@@ -362,7 +330,7 @@ class OPENFLUID_API SimulatorSignature : public WareSignature
     SignatureTimeScheduling TimeScheduling;
 
 
-    SimulatorSignature() : WareSignature()
+    SimulatorSignature() : DataWareSignature<SimulatorSignatureHandledData>()
     {
       clear();
     }
@@ -371,11 +339,10 @@ class OPENFLUID_API SimulatorSignature : public WareSignature
 
     void clear()
     {
-      WareSignature::clear();
+      DataWareSignature<SimulatorSignatureHandledData>::clear();
       Domain.clear(); // TOIMPL to remove
       Process.clear(); // TOIMPL to remove
       Method.clear(); // TOIMPL to remove
-      HandledData.clear();
       HandledUnitsGraph.clear();
       TimeScheduling.setAsUndefined();
     }
