@@ -67,6 +67,7 @@ openfluid::thirdparty::json ObserverSignatureSerializer::toJSON(const openfluid:
   openfluid::thirdparty::json Json = toJSONBase(Sign);
 
   Json["observer"] = openfluid::thirdparty::json::object();
+  Json["observer"]["data"] = serializeDataToJSON(Sign);
 
   return Json;
 }
@@ -82,6 +83,8 @@ std::string ObserverSignatureSerializer::toWareCPP(const openfluid::ware::Observ
   
   CPP += getCPPHead("openfluid/ware/ObserverSignature.hpp","openfluid::ware::ObserverSignature");
   CPP += toWareCPPBase(Sign);
+
+  CPP += toWareCPPParams(Sign);
   
   CPP += getCPPTail();
 

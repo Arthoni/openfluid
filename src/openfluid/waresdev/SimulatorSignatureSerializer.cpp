@@ -419,9 +419,9 @@ SimulatorSignatureSerializer::serializeExtrafilesToJSON(const openfluid::ware::S
 openfluid::thirdparty::json
 SimulatorSignatureSerializer::serializeDataToJSON(const openfluid::ware::SimulatorSignature& Sign) const
 {
-  openfluid::thirdparty::json Json = openfluid::thirdparty::json::object();
+  openfluid::thirdparty::json Json = 
+    WareSignatureSerializer<openfluid::ware::SimulatorSignature>::serializeDataToJSON(Sign);
 
-  Json["parameters"] = serializeParametersToJSON(Sign);
   Json["attributes"] = serializeAttributesToJSON(Sign);
   Json["variables"] = serializeVariablesToJSON(Sign);
   Json["events"] = serializeEventsToJSON(Sign);
@@ -493,60 +493,6 @@ openfluid::thirdparty::json SimulatorSignatureSerializer::toJSON(const openfluid
 }
 
 
-// =====================================================================
-// =====================================================================
-
-
-std::string getCPPValueType(const openfluid::core::Value::Type ValueType)
-{
-  switch (ValueType)
-  {
-    case openfluid::core::Value::NONE:
-      return "openfluid::core::Value::NONE";
-    case openfluid::core::Value::DOUBLE:
-      return "openfluid::core::Value::DOUBLE";
-    case openfluid::core::Value::INTEGER:
-      return "openfluid::core::Value::INTEGER";
-    case openfluid::core::Value::BOOLEAN:
-      return "openfluid::core::Value::BOOLEAN";
-    case openfluid::core::Value::VECTOR:
-      return "openfluid::core::Value::VECTOR";
-    case openfluid::core::Value::MATRIX:
-      return "openfluid::core::Value::MATRIX";
-    case openfluid::core::Value::MAP:
-      return "openfluid::core::Value::MAP";
-    case openfluid::core::Value::TREE:
-      return "openfluid::core::Value::TREE";
-    case openfluid::core::Value::STRING:
-      return "openfluid::core::Value::STRING";
-    case openfluid::core::Value::NULLL:
-      return "openfluid::core::Value::NULLL";
-    default:
-      return "";
-  }
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-std::string SimulatorSignatureSerializer::getCPPDataString(const std::string Member, 
-                                                           const std::vector<openfluid::ware::SignatureDataItem>& Data)
-{
-  std::string Str;
-  
-  for (const auto& D : Data)
-  {
-    Str += getCPPMethod(Member,"push_back",{"{"+getQuotedString(D.Name)+","+
-                                                getQuotedString(D.Description)+","+
-                                                getQuotedString(D.SIUnit)+","+
-                                                getCPPValueType(D.DataType)+"}"});
-  }
-
-  return Str;
-}
-
 
 // =====================================================================
 // =====================================================================
@@ -583,9 +529,7 @@ std::string SimulatorSignatureSerializer::toWareCPP(const openfluid::ware::Simul
   
   CPP += "\n";
   
-  // Parameters
-  CPP += getCPPDataString("HandledData.UsedParams",Sign.HandledData.UsedParams);
-  CPP += getCPPDataString("HandledData.RequiredParams",Sign.HandledData.RequiredParams);
+  CPP += toWareCPPParams(Sign);
 
   // Extrafiles
   CPP += getCPPAssignment("HandledData.UsedExtraFiles",

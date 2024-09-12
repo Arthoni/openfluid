@@ -41,7 +41,7 @@
 #define __OPENFLUID_WARESDEV_SIMULATORSIGNATURESERIALIZER_HPP__
 
 
-#include <openfluid/waresdev/WareSignatureSerializer.hpp>
+#include <openfluid/waresdev/ParameterizedWareSignatureSerializer.hpp>
 #include <openfluid/ware/SimulatorSignature.hpp>
 #include <openfluid/thirdparty/XML.hpp>
 #include <openfluid/dllexport.hpp>
@@ -50,7 +50,7 @@
 namespace openfluid { namespace waresdev {
 
 
-class OPENFLUID_API SimulatorSignatureSerializer : public ParametrizedWareSignatureSerializer<openfluid::ware::SimulatorSignature>
+class OPENFLUID_API SimulatorSignatureSerializer : public ParameterizedWareSignatureSerializer<openfluid::ware::SimulatorSignature>
 {
   private:
 
@@ -99,7 +99,7 @@ class OPENFLUID_API SimulatorSignatureSerializer : public ParametrizedWareSignat
   public:
 
     SimulatorSignatureSerializer() : 
-      ParametrizedWareSignatureSerializer<openfluid::ware::SimulatorSignature>()
+      ParameterizedWareSignatureSerializer<openfluid::ware::SimulatorSignature>()
     { }
 
     ~SimulatorSignatureSerializer()
