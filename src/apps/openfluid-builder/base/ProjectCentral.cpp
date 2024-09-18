@@ -165,7 +165,9 @@ QStringList ProjectCentral::convertUpdatedUnitsClassesToQStringList(
   
   for (unsigned int i=0; i<UnitsClassesVector.size();++i)
   {
+    std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
     QSL.append(QString::fromStdString(UnitsClassesVector[i].UnitsClass));
+    std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
   }
 
   return QSL;
@@ -400,6 +402,17 @@ bool ProjectCentral::isParamSet(const openfluid::fluidx::ModelItemDescriptor* It
   return (!Item->getParameters()[ParamName].get().empty() ||
           !m_FXDesc.model().getGlobalParameters()[ParamName].get().empty());
 }
+
+
+// =====================================================================
+// =====================================================================
+
+
+// bool ProjectCentral::isParamSet(const openfluid::fluidx::ObserverDescriptor* Item,
+//                                 const std::string& ParamName) const
+// {
+//   return false;// (!Item->getParameters()[ParamName].get().empty()); //DIRTYCODE
+// }
 
 
 // =====================================================================
@@ -661,7 +674,13 @@ void ProjectCentral::checkModel()
             InjectMinMaxChecked = true;
           }
         }
+        for (const auto& UC :  Sign->HandledUnitsGraph.UpdatedUnitsClass)
+        {
+          std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
 
+          std::cout << UC.Description << std::endl;
+          std::cout << UC.UnitsClass << std::endl;
+        }
 
         // populate updated units classes (created, modified)
         UpdatedUnitsClass.append(convertUpdatedUnitsClassesToQStringList(Sign->HandledUnitsGraph.UpdatedUnitsClass));
@@ -993,20 +1012,60 @@ void ProjectCentral::checkMonitoring()
   bool AtLeastOneEnabled = false;
 
 
-  for (auto itMonitoring = Items.begin(); itMonitoring != Items.end(); ++itMonitoring)
+  for (auto itMonitoring = Items.begin(); itMonitoring != Items.end(); ++itMonitoring) //DIRTYCODE for loop
   {
     if ((*itMonitoring)->isEnabled())
     {
       AtLeastOneEnabled = true;
 
-      const auto& Container = Reg->wareContainer((*itMonitoring)->getID());
+      const std::string ID = (*itMonitoring)->getID();
+      const auto& Container = Reg->wareContainer(ID);
       
       if (!Container.hasSignature())
       {
         m_CheckInfos.part(ProjectCheckInfos::PartInfo::PART_MONITORING).updateStatus(ProjectStatusLevel::PRJ_ERROR);
         m_CheckInfos.part(ProjectCheckInfos::PartInfo::PART_MONITORING).addMessage(tr("Observer %1 is not available")
-                                                                         .arg(QString::fromStdString((*itMonitoring)
-                                                                                                         ->getID())));
+                                                                         .arg(QString::fromStdString(ID)));
+      // }
+
+      // // TODO Factorize
+      // std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
+      // const auto* Sign = Container.signature().get();
+
+      // // required parameters
+      // const auto& ReqParams = Sign->HandledData.RequiredParams;
+
+      // for (auto itParam = ReqParams.begin();itParam != ReqParams.end(); ++itParam)
+      // {
+      //   m_SimulatorsParamsLists[QString::fromStdString(ID)] << QString::fromStdString(itParam->Name);//DIRTYCODE replace simulators param list here
+
+      //   if (!isParamSet((*itMonitoring), itParam->Name))
+      //   {
+      //     m_CheckInfos.part(ProjectCheckInfos::PartInfo::PART_MONITORING).updateStatus(
+      //       ProjectStatusLevel::PRJ_ERROR);
+      //     m_CheckInfos.part(ProjectCheckInfos::PartInfo::PART_MONITORING)
+      //                                 .addMessage(tr("Required parameter %1 for observer %2 is not set")
+      //                                             .arg(QString::fromStdString(itParam->Name))
+      //                                             .arg(QString::fromStdString(ID)));
+      //   }
+      // }
+
+      // // used  parameters
+      // const std::vector<openfluid::ware::SignatureDataItem>& UsParams = Sign->HandledData.UsedParams;
+
+      // for (auto itParam = UsParams.begin();itParam != UsParams.end(); ++itParam)
+      // {
+      //   m_SimulatorsParamsLists[QString::fromStdString(ID)] << QString::fromStdString(itParam->Name);//DIRTYCODE replace simulators param list here
+
+      //   if (!isParamSet((*itMonitoring), itParam->Name))
+      //   {
+      //     m_CheckInfos.part(ProjectCheckInfos::PartInfo::PART_MONITORING).updateStatus(
+      //       ProjectStatusLevel::PRJ_WARNING);
+      //     m_CheckInfos.part(ProjectCheckInfos::PartInfo::PART_MONITORING)
+      //                                 .addMessage(tr("Used parameter %1 for observer %2 is not set")
+      //                                             .arg(QString::fromStdString(itParam->Name))
+      //                                             .arg(QString::fromStdString(ID)));
+      //   }
       }
     }
   }

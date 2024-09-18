@@ -295,6 +295,51 @@ void SignatureWidget::updateParametersCategory(const std::vector<openfluid::ware
 // =====================================================================
 
 
+// void SignatureWidget::updateParametersCategory(const std::vector<openfluid::ware::SignatureDataItem>& Infos,
+//                                                const QString& CatStr, unsigned int BaseIndex)
+// {
+//   // for (unsigned int i = 0; i < Infos->size(); i++)
+//   // {
+//   //   QTableWidgetItem *Item;
+
+//   //   Item = new QTableWidgetItem(CatStr);
+//   //       ui->ParametersTableWidget->setItem(i+BaseIndex, 0, Item);
+
+//   //   Item = new QTableWidgetItem(QString::fromStdString(Infos->at(i).Name));
+//   //   ui->ParametersTableWidget->setItem(i+BaseIndex, 1, Item);
+
+//   //   Item = new QTableWidgetItem(QString::fromStdString(Infos->at(i).SIUnit));
+//   //   ui->ParametersTableWidget->setItem(i+BaseIndex, 2, Item);
+
+//   //   Item = new QTableWidgetItem(QString::fromStdString(Infos->at(i).Description));
+//   //   ui->ParametersTableWidget->setItem(i+BaseIndex, 3, Item);
+//   // }
+//   unsigned int i = 0;
+//   for (const auto& SignatureItem : Infos)
+//   {
+//     QTableWidgetItem* Item;
+
+//     Item = new QTableWidgetItem(CatStr);
+//     ui->ParametersTableWidget->setItem(i+BaseIndex, 0, Item);
+
+//     Item = new QTableWidgetItem(QString::fromStdString(SignatureItem.Name));
+//     ui->ParametersTableWidget->setItem(i+BaseIndex, 1, Item);
+
+//     Item = new QTableWidgetItem(QString::fromStdString(SignatureItem.SIUnit));
+//     ui->ParametersTableWidget->setItem(i+BaseIndex, 2, Item);
+
+//     Item = new QTableWidgetItem(QString::fromStdString(SignatureItem.Description));
+//     ui->ParametersTableWidget->setItem(i+BaseIndex, 3, Item);
+//     i++;
+//   }
+// }
+
+
+// =====================================================================
+// =====================================================================
+
+
+
 void SignatureWidget::updateParameters(const openfluid::ware::SimulatorSignature* Signature)
 {
   const std::vector<openfluid::ware::SignatureDataItem>* ReqParams = &(Signature->HandledData.RequiredParams);
@@ -311,9 +356,48 @@ void SignatureWidget::updateParameters(const openfluid::ware::SimulatorSignature
   }
 }
 
+// =====================================================================
+// =====================================================================
+
+
+// void SignatureWidget::updateParameters(const openfluid::ware::SignatureHandledData HandledData)
+// {
+//    ui->ParametersTableWidget->setRowCount(HandledData.RequiredParams.size()+HandledData.UsedParams.size());
+
+//   updateParametersCategory(HandledData.RequiredParams,tr("Required"),0);
+//   updateParametersCategory(HandledData.UsedParams,tr("Used"),HandledData.RequiredParams.size());
+
+//   if (ui->ParametersTableWidget->rowCount() > 0)
+//   {
+//     ui->InfosTabWidget->addTab(ui->ParametersTab,tr("Parameters"));
+//   }
+// }
+
 
 // =====================================================================
 // =====================================================================
+
+
+// //TOIMPL factorize
+// void SignatureWidget::updateParameters(const openfluid::ware::ObserverSignature* Signature)
+// {
+//   const std::vector<openfluid::ware::SignatureDataItem>* ReqParams = &(Signature->HandledData.RequiredParams);
+//   const std::vector<openfluid::ware::SignatureDataItem>* UsParams = &(Signature->HandledData.UsedParams);
+
+//   ui->ParametersTableWidget->setRowCount(ReqParams->size()+UsParams->size());
+
+//   updateParametersCategory(ReqParams,tr("Required"),0);
+//   updateParametersCategory(UsParams,tr("Used"),ReqParams->size());
+
+//   if (ui->ParametersTableWidget->rowCount() > 0)
+//   {
+//     ui->InfosTabWidget->addTab(ui->ParametersTab,tr("Parameters"));
+//   }
+// }
+
+
+// // =====================================================================
+// // =====================================================================
 
 
 void SignatureWidget::updateExtrafilesCategory(const std::vector<std::string>* Infos,
@@ -560,7 +644,11 @@ void SignatureWidget::update(const openfluid::machine::WareContainer<openfluid::
   {
     setEnabled(true);
     updateGeneral(Container);
+    std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
     updateParameters(Container.signature().get());
+
+    //updateParameters(Container.signature().get()->HandledData);
+    std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
     updateExtrafiles(Container.signature().get());
     updateVariables(Container.signature().get());
     updateAttributes(Container.signature().get());
@@ -582,6 +670,9 @@ void SignatureWidget::update(const openfluid::machine::WareContainer<openfluid::
   {
     setEnabled(true);
     updateGeneral(Container);
+    std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
+    //updateParameters(Container.signature().get()->HandledData);
+    std::cout << __PRETTY_FUNCTION__  << ", " << __LINE__ << std::endl; // DIRTYCODE
   }
 }
 

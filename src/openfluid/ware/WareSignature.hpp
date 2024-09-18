@@ -248,13 +248,17 @@ class OPENFLUID_API SignatureHandledData
     ~SignatureHandledData() {}
 
 
-    void clear()
+    virtual void clear()
     {
       UsedParams.clear();
       RequiredParams.clear();
     }
 
 };
+
+
+// =====================================================================
+// =====================================================================
 
 
 template<class D>

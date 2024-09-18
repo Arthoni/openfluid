@@ -98,10 +98,6 @@ class OPENFLUID_API SimulatorSignatureHandledData : public SignatureHandledData
 
     // TODO use the same naming style for all members
 
-    std::vector<SignatureDataItem> UsedParams;
-
-    std::vector<SignatureDataItem> RequiredParams;
-
     std::vector<SignatureSpatialDataItem> ProducedVars;
 
     std::vector<SignatureSpatialDataItem> UpdatedVars;
@@ -128,8 +124,10 @@ class OPENFLUID_API SimulatorSignatureHandledData : public SignatureHandledData
       clear();
     }
 
+    ~SimulatorSignatureHandledData() {}
 
-    void clear()
+
+    void clear() override
     {
       SignatureHandledData::clear();
       ProducedVars.clear();

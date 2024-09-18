@@ -60,6 +60,14 @@ class ObserverWidget : public WareWidget
     
     bool isClickable() {return true;}
 
+    // QStringList createParamWidgetsFromSignature(const openfluid::ware::ObserverSignature* Signature); //TOIMPL Factorize
+
+    // std::string getParamValue(const std::string& ParamName, openfluid::ware::WareParams_t& DescParams); //TOIMPL Factorize
+    
+    // void addParam(const std::string& ParamName, const std::string& ParamValue, const std::string& ParamUnit, 
+    //               QStringList& ParamsInSign, const bool Required, const bool Removable); //TOIMPL Factorize
+
+    // void updateParametersListWithSignature(const openfluid::ware::ObserverSignature* Signature); //TOIMPL Factorize
 
   private slots:
 
