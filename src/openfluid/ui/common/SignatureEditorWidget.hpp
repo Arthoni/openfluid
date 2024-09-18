@@ -94,9 +94,13 @@ class OPENFLUID_API SignatureEditorWidget : public QTabWidget
 
     void injectParamData(const openfluid::ware::SignatureHandledData& Data);
 
+    std::pair<std::vector<openfluid::ware::SignatureDataItem>, std::vector<openfluid::ware::SignatureDataItem>> 
+    updateDataFromParametersUI() const;
+
     void initializeParametersUIFromSignature(const openfluid::ware::SimulatorSignature& Signature);
 
-    void initializeParametersUIFromSignature(const openfluid::ware::ObserverSignature& Signature); //TOIMPL factorize
+    void initializeParametersUIFromSignature(const openfluid::ware::ObserverSignature& Signature);
+    // can't factorize into DataWareSignature<SignatureHandledData>, casting not possible
 
     void initializeExtrafilesUIFromSignature(const openfluid::ware::SimulatorSignature& Signature);
 
@@ -114,7 +118,8 @@ class OPENFLUID_API SignatureEditorWidget : public QTabWidget
 
     void updateSignatureFromParametersUI(openfluid::ware::SimulatorSignature& Signature) const;
 
-    void updateSignatureFromParametersUI(openfluid::ware::ObserverSignature& Signature) const; // TOIMPL factorize
+    void updateSignatureFromParametersUI(openfluid::ware::ObserverSignature& Signature) const;
+    // can't factorize into DataWareSignature<SignatureHandledData>, casting not possible
 
     void updateSignatureFromExtrafilesUI(openfluid::ware::SimulatorSignature& Signature) const;
 

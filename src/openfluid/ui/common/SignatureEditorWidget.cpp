@@ -661,10 +661,13 @@ openfluid::core::Value::Type extractTableComboToDataType(const QTableWidget* Tab
 // =====================================================================
 
 
-void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::SimulatorSignature& Signature) const
+std::pair<std::vector<openfluid::ware::SignatureDataItem>, std::vector<openfluid::ware::SignatureDataItem>> 
+SignatureEditorWidget::updateDataFromParametersUI() const
 {
-  const QTableWidget* DataTableW = ui->ParametersDataWidget->dataTableWidget();
+  std::vector<openfluid::ware::SignatureDataItem> UsedParams, RequiredParams;
 
+  const QTableWidget* DataTableW = ui->ParametersDataWidget->dataTableWidget();
+ 
   for (int i=0; i < DataTableW->rowCount();i++)
   {
     openfluid::ware::SignatureDataItem Item;
@@ -679,14 +682,27 @@ void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::Sim
     {
       if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::USED)
       {
-        Signature.HandledData.UsedParams.push_back(Item);
+        UsedParams.push_back(Item);
       }
       else
       {
-        Signature.HandledData.RequiredParams.push_back(Item);
+        RequiredParams.push_back(Item);
       }
     }
   }
+  return {UsedParams, RequiredParams};
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::SimulatorSignature& Signature) const
+{
+  auto ParamsPair = updateDataFromParametersUI();
+  Signature.HandledData.UsedParams = ParamsPair.first;
+  Signature.HandledData.RequiredParams = ParamsPair.second;
 }
 
 
@@ -696,30 +712,9 @@ void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::Sim
 
 void SignatureEditorWidget::updateSignatureFromParametersUI(openfluid::ware::ObserverSignature& Signature) const
 {
-  const QTableWidget* DataTableW = ui->ParametersDataWidget->dataTableWidget();
-
-  for (int i=0; i < DataTableW->rowCount();i++)
-  {
-    openfluid::ware::SignatureDataItem Item;
-
-    Item.Name = extractTableFieldToString(DataTableW,i,0);
-    Item.Description = extractTableFieldToString(DataTableW,i,2);
-    Item.SIUnit = extractTableFieldToString(DataTableW,i,3);
-
-    SignatureDataEditorWidget::DataConditionsIndices CondIndex = extractTableComboToCondition(DataTableW,i,1);
-
-    if (static_cast<int>(CondIndex) >= 0)
-    {
-      if (CondIndex == SignatureDataEditorWidget::DataConditionsIndices::USED)
-      {
-        Signature.HandledData.UsedParams.push_back(Item);
-      }
-      else
-      {
-        Signature.HandledData.RequiredParams.push_back(Item);
-      }
-    }
-  }
+  auto ParamsPair = updateDataFromParametersUI();
+  Signature.HandledData.UsedParams = ParamsPair.first;
+  Signature.HandledData.RequiredParams = ParamsPair.second;
 }
 
 
