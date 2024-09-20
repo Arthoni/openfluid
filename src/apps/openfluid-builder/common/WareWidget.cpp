@@ -50,6 +50,7 @@
 #include "ui_WareWidget.h"
 #include "WareWidget.hpp"
 #include "ParameterWidget.hpp"
+#include "AddParamDialog.hpp"
 
 
 WareWidget::WareWidget(QWidget* Parent,
@@ -155,18 +156,6 @@ void WareWidget::setAvailableWare(bool Available)
   ui->ParamInfoTitleWidget->setVisible(Available);
   ui->ShowHideParamsLabel->setVisible(Available);
   ui->ParamInfoWidget->setVisible(Available && m_ParamsExpanded);
-
-  updateWidgetBackground();
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void WareWidget::setEnabledWare(bool Enabled)
-{
-  m_Enabled = Enabled;
 
   updateWidgetBackground();
 }
@@ -372,26 +361,6 @@ void WareWidget::notifyRemoveClicked()
 // =====================================================================
 
 
-void WareWidget::updateParameterValue(const QString& /*Name*/, const QString& /*Value*/)
-{
-
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void WareWidget::removeParameterFromList(const QString& /*Name*/)
-{
-
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
 bool WareWidget::addParameterWidget(const QString& Name, const QString& Value)
 {
   ParameterWidget* ParamWidget = new ParameterWidget(this,
@@ -436,26 +405,6 @@ bool WareWidget::removeParameterWidget(const QString& Name)
 // =====================================================================
 
 
-void WareWidget::prepareWareUpdate()
-{
-
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void WareWidget::updateWare()
-{
-
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
 void WareWidget::openDocFile()
 {
   if (!m_DocFilePath.empty())
@@ -485,6 +434,226 @@ void WareWidget::clearParameterWidgets()
 
     delete Item;
   }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+std::string WareWidget::getParamValue(const std::string& ParamName, openfluid::ware::WareParams_t& DescParams)
+{
+  std::string ParamValue;
+  if (DescParams.find(ParamName) != DescParams.end())
+  {
+    ParamValue = DescParams[ParamName];
+  }
+  return ParamValue;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::addParam(const std::string& ParamName, const std::string& ParamValue, const std::string& ParamUnit, 
+                  QStringList& ParamsInSign, const bool Required, const bool Removable)
+{
+  ParameterWidget* ParamWidget = new ParameterWidget(this,
+                                                     QString::fromStdString(ParamName),
+                                                     QString::fromStdString(ParamValue),
+                                                     QString::fromStdString(ParamUnit),
+                                                     Required, Removable);
+
+  if (Removable)
+  {
+    connect(ParamWidget,SIGNAL(removeClicked(const QString&)),
+            this, SLOT(removeParameterFromList(const QString&)));
+  }
+  else
+  {
+    connect(ParamWidget,SIGNAL(valueChanged(const QString&, const QString&)),
+            this, SLOT(updateParameterValue(const QString&,const QString&)));
+    ParamsInSign << QString::fromStdString(ParamName);
+  }
+
+  ((QBoxLayout*)(ui->ParamsListZoneWidget->layout()))->addWidget(ParamWidget);
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+QStringList WareWidget::createParamWidgetsFromSignature(const openfluid::ware::DataWareSignature* Signature)
+{
+  const auto& UsedParams = Signature->HandledData.UsedParams;
+  const auto&  RequiredParams = Signature->HandledData.RequiredParams;
+    
+  openfluid::ware::WareParams_t DescParams = getWareDescriptor()->getParameters();
+  QStringList ParamsInSign;
+  
+  // Required params
+
+  for (const auto& Param : RequiredParams)
+  {
+    std::string ParamName = Param.Name;
+    addParam(ParamName, getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, true, false);
+  }
+
+  // Used params
+
+  for (const auto& Param : UsedParams)
+  {
+    std::string ParamName = Param.Name;
+    addParam(ParamName, getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, false, false);
+  }
+  return ParamsInSign;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::updateParametersList()
+{
+  clearParameterWidgets();
+
+  openfluid::ware::WareParams_t DescParams = getWareDescriptor()->getParameters();
+
+  for (auto it = DescParams.begin();it != DescParams.end(); ++it)
+  {
+    ParameterWidget* ParamWidget =
+        new ParameterWidget(this,
+                            QString::fromStdString((*it).first),QString::fromStdString((*it).second),
+                            QString::fromStdString(""),
+                            false,true);
+
+    connect(ParamWidget,SIGNAL(valueChanged(const QString&, const QString&)),
+            this, SLOT(updateParameterValue(const QString&,const QString&)));
+    connect(ParamWidget,SIGNAL(removeClicked(const QString&)),
+            this, SLOT(removeParameterFromList(const QString&)));
+
+    ((QBoxLayout*)(ui->ParamsListZoneWidget->layout()))->addWidget(ParamWidget);
+  }
+  applyContainer();
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::updateParametersListWithSignature(const openfluid::ware::DataWareSignature* Signature)
+{
+  clearParameterWidgets();
+
+  QStringList ParamsInSign = createParamWidgetsFromSignature(Signature);
+
+  // Other params not in signature
+  openfluid::ware::WareParams_t DescParams = getWareDescriptor()->getParameters();
+  for (const auto& DescParam : DescParams)
+  {
+    if (!ParamsInSign.contains(QString::fromStdString(DescParam.first)))
+    { 
+      addParam(DescParam.first, DescParam.second, "", ParamsInSign, false, true);
+    }
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::addParameterToList()
+{
+  QStringList ExistPList;
+
+  openfluid::ware::WareParams_t Params = getWareDescriptor()->getParameters();
+
+  for (openfluid::ware::WareParams_t::iterator it = Params.begin();it != Params.end(); ++it)
+  {
+    ExistPList.append(QString::fromStdString((*it).first));
+  }
+
+  // set existing parameters list as completion list
+  // (for easy access to series of similar parameters)
+
+  AddParamDialog AddPDlg(ExistPList,ExistPList,this);
+
+  if (AddPDlg.exec() == QDialog::Accepted)
+  {
+    if (addParameterWidget(AddPDlg.getParamName(),AddPDlg.getParamValue()))
+    {
+      getWareDescriptor()->setParameter(AddPDlg.getParamName().toStdString(),AddPDlg.getParamValue().toStdString());
+      emit changed();
+    }
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::updateParameterValue(const QString& Name, const QString& Value)
+{
+  getWareDescriptor()->setParameter(Name.toStdString(),Value.toStdString());
+  emit changed();
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::removeParameterFromList(const QString& Name)
+{
+  if (removeParameterWidget(Name))
+  {
+    getWareDescriptor()->eraseParameter(Name.toStdString());
+    emit changed();
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::prepareWareUpdate()
+{
+  if (mp_ParamsWidget)
+  {
+    ui->ParameterizationStackWidget->removeWidget(mp_ParamsWidget);
+    delete mp_ParamsWidget;
+    mp_ParamsWidget = nullptr;
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::updateWare()
+{
+  refresh();
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WareWidget::setEnabledWare(bool Enabled)
+{
+  m_Enabled = Enabled;
+  updateWidgetBackground();
+  getWareDescriptor()->setEnabled(Enabled);
+  emit changed();
 }
 
 

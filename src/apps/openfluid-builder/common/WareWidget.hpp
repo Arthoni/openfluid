@@ -72,17 +72,19 @@ class WareWidget : public QWidget
 
   protected slots:
 
-    virtual void setEnabledWare(bool Enabled);
+    void setEnabledWare(bool Enabled);
 
-    virtual void updateParameterValue(const QString& Name, const QString& Value);
+    void updateParameterValue(const QString& Name, const QString& Value);
 
-    virtual void removeParameterFromList(const QString& Name);
+    void removeParameterFromList(const QString& Name);
 
     void openDocFile();
 
     void switchParameterizationMode();
 
     void notifyChangedFromParameterizationWidget();
+
+    void addParameterToList();
 
 
   protected:
@@ -103,10 +105,7 @@ class WareWidget : public QWidget
 
     int m_CurrentIndex;
 
-    bool m_ParamsExpanded;
-
-    openfluid::ui::builderext::PluggableParameterizationExtension* mp_ParamsWidget;
-
+    virtual openfluid::fluidx::WareDescriptor* getWareDescriptor() = 0;
 
     virtual void setAvailableWare(bool Available);
 
@@ -116,6 +115,18 @@ class WareWidget : public QWidget
 
     void findDocFile(const std::string& WarePath, const openfluid::ware::WareID_t& WareID);
 
+    virtual bool isClickable() = 0;
+    
+    virtual void mouseDoubleClickEvent(QMouseEvent* Event);
+    
+    // Params-related
+
+    static std::string getParamValue(const std::string& ParamName, openfluid::ware::WareParams_t& DescParams);
+
+    virtual void applyContainer()=0;
+
+    void updateParametersList();
+
     bool addParameterWidget(const QString& Name, const QString& Value);
 
     bool removeParameterWidget(const QString& Name);
@@ -124,12 +135,17 @@ class WareWidget : public QWidget
 
     void updateParameterizationSwitch();
 
-    virtual void updateParametersList() = 0;
+    bool m_ParamsExpanded;
 
-    virtual bool isClickable() = 0;
+    openfluid::ui::builderext::PluggableParameterizationExtension* mp_ParamsWidget;
     
-    virtual void mouseDoubleClickEvent(QMouseEvent* Event);
+    QStringList createParamWidgetsFromSignature(const openfluid::ware::DataWareSignature* Signature);
+        
+    void addParam(const std::string& ParamName, const std::string& ParamValue, const std::string& ParamUnit, 
+                  QStringList& ParamsInSign, const bool Required, const bool Removable);
     
+    void updateParametersListWithSignature(const openfluid::ware::DataWareSignature* Signature);
+
 
   signals:
 
@@ -160,9 +176,9 @@ class WareWidget : public QWidget
 
     virtual ~WareWidget();
 
-    virtual void updateWare();
+    void updateWare();
 
-    virtual void prepareWareUpdate();
+    void prepareWareUpdate();
 
     void setExpanded(bool Expand);
 

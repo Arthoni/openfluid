@@ -82,37 +82,37 @@ SimulatorWidget::~SimulatorWidget()
 // =====================================================================
 
 
-void SimulatorWidget::updateParametersListWithSignature(const openfluid::ware::SimulatorSignature* Signature)
-{
-  clearParameterWidgets();
+// void SimulatorWidget::updateParametersListWithSignature(const openfluid::ware::DataWareSignature* Signature)
+// {
+//   clearParameterWidgets();
 
-  QStringList ParamsInSign = createParamWidgetsFromSignature(Signature);
+//   QStringList ParamsInSign = createParamWidgetsFromSignature(Signature);
 
-  // Other params not in signature
-  openfluid::ware::WareParams_t DescParams = mp_Desc->getParameters();
-  for (const auto& DescParam : DescParams)
-  {
-    if (!ParamsInSign.contains(QString::fromStdString(DescParam.first)))
-    { 
-      addParam(DescParam.first, DescParam.second, "", ParamsInSign, false, true);
-    }
-  }
-}
-
-
-// =====================================================================
-// =====================================================================
+//   // Other params not in signature
+//   openfluid::ware::WareParams_t DescParams = mp_Desc->getParameters();
+//   for (const auto& DescParam : DescParams)
+//   {
+//     if (!ParamsInSign.contains(QString::fromStdString(DescParam.first)))
+//     { 
+//       addParam(DescParam.first, DescParam.second, "", ParamsInSign, false, true);
+//     }
+//   }
+// }
 
 
-void SimulatorWidget::updateParametersList()
-{
-  const auto& Container = openfluid::machine::SimulatorRegistry::instance()->wareContainer(m_ID);
+// // =====================================================================
+// // =====================================================================
 
-  if (Container.isValid() && Container.hasSignature())
-  {
-    updateParametersListWithSignature(Container.signature().get());
-  }
-}
+
+// void SimulatorWidget::updateParametersList()
+// {
+//   const auto& Container = openfluid::machine::SimulatorRegistry::instance()->wareContainer(m_ID);
+
+//   if (Container.isValid() && Container.hasSignature())
+//   {
+//     updateParametersListWithSignature(Container.signature().get());
+//   }
+// }
 
 
 // =====================================================================
@@ -192,72 +192,47 @@ void SimulatorWidget::refresh()
 }
 
 
-// =====================================================================
-// =====================================================================
+// // =====================================================================
+// // =====================================================================
 
 
-void SimulatorWidget::addParameterToList()
-{
-  QStringList ExistPList;
+// void SimulatorWidget::addParameterToList()
+// {
+//   QStringList ExistPList;
 
-  openfluid::ware::WareParams_t Params = mp_Desc->getParameters();
+//   openfluid::ware::WareParams_t Params = mp_Desc->getParameters();
 
-  for (openfluid::ware::WareParams_t::iterator it = Params.begin();it != Params.end(); ++it)
-  {
-    ExistPList.append(QString::fromStdString((*it).first));
-  }
-
-
-  AddParamDialog AddPDlg(ExistPList,QStringList(),this);
-
-  if (AddPDlg.exec() == QDialog::Accepted)
-  {
-    if (addParameterWidget(AddPDlg.getParamName(),AddPDlg.getParamValue()))
-    {
-      mp_Desc->setParameter(AddPDlg.getParamName().toStdString(),AddPDlg.getParamValue().toStdString());
-      emit changed();
-    }
-  }
-}
+//   for (openfluid::ware::WareParams_t::iterator it = Params.begin();it != Params.end(); ++it)
+//   {
+//     ExistPList.append(QString::fromStdString((*it).first));
+//   }
 
 
-// =====================================================================
-// =====================================================================
+//   AddParamDialog AddPDlg(ExistPList,QStringList(),this);
 
-
-void SimulatorWidget::removeParameterFromList(const QString& Name)
-{
-  if (removeParameterWidget(Name))
-  {
-    mp_Desc->eraseParameter(Name.toStdString());
-    emit changed();
-  }
-}
+//   if (AddPDlg.exec() == QDialog::Accepted)
+//   {
+//     if (addParameterWidget(AddPDlg.getParamName(),AddPDlg.getParamValue()))
+//     {
+//       mp_Desc->setParameter(AddPDlg.getParamName().toStdString(),AddPDlg.getParamValue().toStdString());
+//       emit changed();
+//     }
+//   }
+// }
 
 
 // =====================================================================
 // =====================================================================
 
 
-void SimulatorWidget::prepareWareUpdate()
-{
-  if (mp_ParamsWidget)
-  {
-    ui->ParameterizationStackWidget->removeWidget(mp_ParamsWidget);
-    delete mp_ParamsWidget;
-    mp_ParamsWidget = nullptr;
-  }
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void SimulatorWidget::updateWare()
-{
-  refresh();
-}
+// void SimulatorWidget::removeParameterFromList(const QString& Name)
+// {
+//   if (removeParameterWidget(Name))
+//   {
+//     mp_Desc->eraseParameter(Name.toStdString());
+//     emit changed();
+//   }
+// }
 
 
 // =====================================================================
@@ -271,3 +246,17 @@ void SimulatorWidget::notifySrcGenerateAsked()
     emit srcGenerateAsked(QString::fromStdString(m_ID));
   }
 }
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SimulatorWidget::applyContainer()
+{
+  const auto& Container = openfluid::machine::SimulatorRegistry::instance()->wareContainer(m_ID);
+  if (Container.isValid() && Container.hasSignature())
+  {
+    updateParametersListWithSignature(Container.signature().get());
+  }
+}//DIRTYCODE MOVE CONTENT

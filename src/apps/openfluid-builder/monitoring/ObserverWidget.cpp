@@ -41,7 +41,6 @@
 #include <openfluid/machine/ObserverInstance.hpp>
 #include <openfluid/machine/ObserverRegistry.hpp>
 #include <openfluid/machine/ObserverPluginsManager.hpp>
-#include <openfluid/ware/ParamsHelper.hpp>
 
 #include "ui_WareWidget.h"
 #include "ObserverWidget.hpp"
@@ -81,6 +80,16 @@ ObserverWidget::~ObserverWidget()
 // =====================================================================
 
 
+openfluid::fluidx::WareDescriptor* ObserverWidget::getWareDescriptor()
+{
+  return mp_Desc;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+//DIRTYCODE FACTORIZE
 void ObserverWidget::refresh()
 {
   const auto& Container = openfluid::machine::ObserverRegistry::instance()->wareContainer(m_ID);
@@ -148,206 +157,11 @@ void ObserverWidget::refresh()
 // =====================================================================
 
 
-void ObserverWidget::setEnabledWare(bool Enabled)
+void ObserverWidget::applyContainer()
 {
-  mp_Desc->setEnabled(Enabled);
-  WareWidget::setEnabledWare(Enabled);
-  emit changed();
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::addParam(const std::string& ParamName, const std::string& ParamValue, const std::string& ParamUnit, 
-                  QStringList& ParamsInSign, const bool Required, const bool Removable)
-{
-  ParameterWidget* ParamWidget = new ParameterWidget(this,
-                                                     QString::fromStdString(ParamName),
-                                                     QString::fromStdString(ParamValue),
-                                                     QString::fromStdString(ParamUnit),
-                                                     Required, Removable);
-
-  if (Removable)
-  {
-    connect(ParamWidget,SIGNAL(removeClicked(const QString&)),
-            this, SLOT(removeParameterFromList(const QString&)));
-  }
-  else
-  {
-    connect(ParamWidget,SIGNAL(valueChanged(const QString&, const QString&)),
-            this, SLOT(updateParameterValue(const QString&,const QString&)));
-    ParamsInSign << QString::fromStdString(ParamName);
-  }
-
-  ((QBoxLayout*)(ui->ParamsListZoneWidget->layout()))->addWidget(ParamWidget);
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-QStringList ObserverWidget::createParamWidgetsFromSignature(const openfluid::ware::ObserverSignature* Signature) //TOIMPL Factorize
-{
-  const auto& UsedParams = Signature->HandledData.UsedParams;
-  const auto&  RequiredParams = Signature->HandledData.RequiredParams;
-    
-  openfluid::ware::WareParams_t DescParams = mp_Desc->getParameters();
-  QStringList ParamsInSign;
-  
-  // Required params
-
-  for (const auto& Param : RequiredParams)
-  {
-    std::string ParamName = Param.Name;
-    addParam(ParamName, openfluid::ware::getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, true, false);
-  }
-
-  // Used params
-
-  for (const auto& Param : UsedParams)
-  {
-    std::string ParamName = Param.Name;
-    addParam(ParamName, openfluid::ware::getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, false, false);
-  }
-  return ParamsInSign;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::updateParametersListWithSignature(const openfluid::ware::ObserverSignature* Signature)
-{
-  clearParameterWidgets();
-
-  QStringList ParamsInSign = createParamWidgetsFromSignature(Signature);
-
-  // Other params not in signature
-  openfluid::ware::WareParams_t DescParams = mp_Desc->getParameters();
-  for (const auto& DescParam : DescParams)
-  {
-    if (!ParamsInSign.contains(QString::fromStdString(DescParam.first)))
-    { 
-      addParam(DescParam.first, DescParam.second, "", ParamsInSign, false, true);
-    }
-  }
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::updateParametersList()
-{
-  clearParameterWidgets();
-
-  openfluid::ware::WareParams_t DescParams = mp_Desc->getParameters();
-
-  for (auto it = DescParams.begin();it != DescParams.end(); ++it)
-  {
-    ParameterWidget* ParamWidget =
-        new ParameterWidget(this,
-                            QString::fromStdString((*it).first),QString::fromStdString((*it).second),
-                            QString::fromStdString(""),
-                            false,true);
-
-    connect(ParamWidget,SIGNAL(valueChanged(const QString&, const QString&)),
-            this, SLOT(updateParameterValue(const QString&,const QString&)));
-    connect(ParamWidget,SIGNAL(removeClicked(const QString&)),
-            this, SLOT(removeParameterFromList(const QString&)));
-
-    ((QBoxLayout*)(ui->ParamsListZoneWidget->layout()))->addWidget(ParamWidget);
-  }
   const auto& Container = openfluid::machine::ObserverRegistry::instance()->wareContainer(m_ID);
-
   if (Container.isValid() && Container.hasSignature())
   {
     updateParametersListWithSignature(Container.signature().get());
   }
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::addParameterToList()
-{
-  QStringList ExistPList;
-
-  openfluid::ware::WareParams_t Params = mp_Desc->getParameters();
-
-  for (openfluid::ware::WareParams_t::iterator it = Params.begin();it != Params.end(); ++it)
-  {
-    ExistPList.append(QString::fromStdString((*it).first));
-  }
-
-  // set existing parameters list as completion list
-  // (for easy access to series of similar parameters)
-
-  AddParamDialog AddPDlg(ExistPList,ExistPList,this);
-
-  if (AddPDlg.exec() == QDialog::Accepted)
-  {
-    if (addParameterWidget(AddPDlg.getParamName(),AddPDlg.getParamValue()))
-    {
-      mp_Desc->setParameter(AddPDlg.getParamName().toStdString(),AddPDlg.getParamValue().toStdString());
-      emit changed();
-    }
-  }
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::updateParameterValue(const QString& Name, const QString& Value)
-{
-  mp_Desc->setParameter(Name.toStdString(),Value.toStdString());
-  emit changed();
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::removeParameterFromList(const QString& Name)
-{
-  if (removeParameterWidget(Name))
-  {
-    mp_Desc->eraseParameter(Name.toStdString());
-    emit changed();
-  }
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::prepareWareUpdate()
-{
-  if (mp_ParamsWidget)
-  {
-    ui->ParameterizationStackWidget->removeWidget(mp_ParamsWidget);
-    delete mp_ParamsWidget;
-    mp_ParamsWidget = nullptr;
-  }
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void ObserverWidget::updateWare()
-{
-  refresh();
 }

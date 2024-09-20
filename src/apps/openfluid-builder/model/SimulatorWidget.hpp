@@ -54,21 +54,21 @@ class SimulatorWidget : public ModelItemWidget
 
     bool m_IsTranslated;
     
-    void updateParametersList();
+    // void updateParametersList();
 
-    void updateParametersListWithSignature(const openfluid::ware::SimulatorSignature* Signature);
+    // void updateParametersListWithSignature(const openfluid::ware::DataWareSignature* Signature);
 
     bool isClickable() 
     {
       return true;
     }
 
+    void applyContainer();
+
 
   private slots:
 
-    void addParameterToList();
-
-    void removeParameterFromList(const QString& Name);
+    // void removeParameterFromList(const QString& Name);
 
     void notifySrcGenerateAsked();
 
@@ -91,10 +91,6 @@ class SimulatorWidget : public ModelItemWidget
                     int Index);
 
     ~SimulatorWidget();
-
-    void prepareWareUpdate();
-
-    void updateWare();
 
     openfluid::ware::WareType getType() const
     { 

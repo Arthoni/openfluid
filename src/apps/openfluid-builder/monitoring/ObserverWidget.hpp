@@ -55,29 +55,12 @@ class ObserverWidget : public WareWidget
     openfluid::fluidx::ObserverDescriptor* mp_Desc;
 
     bool m_IsTranslated;
-
-    void updateParametersList();
     
     bool isClickable() {return true;}
 
-    QStringList createParamWidgetsFromSignature(const openfluid::ware::ObserverSignature* Signature); //TOIMPL Factorize
+    openfluid::fluidx::WareDescriptor* getWareDescriptor() override;
 
-    std::string getParamValue(const std::string& ParamName, openfluid::ware::WareParams_t& DescParams); //TOIMPL Factorize
-    
-    void addParam(const std::string& ParamName, const std::string& ParamValue, const std::string& ParamUnit, 
-                  QStringList& ParamsInSign, const bool Required, const bool Removable); //TOIMPL Factorize
-
-    void updateParametersListWithSignature(const openfluid::ware::ObserverSignature* Signature); //TOIMPL Factorize
-
-  private slots:
-
-    void setEnabledWare(bool Enabled);
-
-    void addParameterToList();
-
-    void updateParameterValue(const QString& Name, const QString& Value);
-
-    void removeParameterFromList(const QString& Name);
+    void applyContainer();
 
 
   public slots:
@@ -93,10 +76,6 @@ class ObserverWidget : public WareWidget
                    int Index);
 
     ~ObserverWidget();
-
-    void prepareWareUpdate();
-
-    void updateWare();
 
     openfluid::ware::WareType getType() const
     { 
