@@ -321,7 +321,8 @@ void Engine::checkParametersConsistency()
                                                   " required by " + IInstance->Container.signature()->ID + " is empty");
       }
     }
-  }//DIRTYCODE Factorize
+  }
+
   for (ObserverInstance* IInstance : m_MonitoringInstance.observers())
   {
     for (openfluid::ware::SignatureDataItem Param : IInstance->Container.signature()->HandledData.RequiredParams)
@@ -335,16 +336,6 @@ void Engine::checkParametersConsistency()
       {
         FoundParam = true;
         FilledParam = (*it).second.size() > 0;
-      }
-      else
-      {
-        // searching for parameter in global parameters
-        auto git = m_ModelInstance.globalParameters().find(Param.Name);
-        if (git != m_ModelInstance.globalParameters().end())
-        {
-          FoundParam = true;
-          FilledParam = (*git).second.size() > 0;
-        }
       }
 
 

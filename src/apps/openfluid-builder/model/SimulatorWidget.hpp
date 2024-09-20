@@ -52,12 +52,6 @@ class SimulatorWidget : public ModelItemWidget
 
   private:
 
-    bool m_IsTranslated;
-    
-    // void updateParametersList();
-
-    // void updateParametersListWithSignature(const openfluid::ware::DataWareSignature* Signature);
-
     bool isClickable() 
     {
       return true;
@@ -67,8 +61,6 @@ class SimulatorWidget : public ModelItemWidget
 
 
   private slots:
-
-    // void removeParameterFromList(const QString& Name);
 
     void notifySrcGenerateAsked();
 

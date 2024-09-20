@@ -58,7 +58,7 @@ ObserverWidget::ObserverWidget(QWidget* Parent,
                                const openfluid::ware::WareID_t& ID,
                                int Index):
   WareWidget(Parent,ID,QString::fromStdString(ID),Desc->isEnabled(),BUILDER_OBSERVER_BGCOLOR,Index),
-  mp_Desc(Desc), m_IsTranslated(false)
+  mp_Desc(Desc)
 {
   refresh();
 
@@ -100,7 +100,7 @@ openfluid::fluidx::WareDescriptor* ObserverWidget::getWareDescriptor()
 // =====================================================================
 // =====================================================================
 
-//DIRTYCODE FACTORIZE
+
 void ObserverWidget::refresh()
 {
   const auto& Container = openfluid::machine::ObserverRegistry::instance()->wareContainer(m_ID);
@@ -119,42 +119,8 @@ void ObserverWidget::refresh()
 
     updateParametersList();
 
-    // TODO begin to be refactored, see also SimulatorWidget =========
-
-    mp_ParamsWidget = nullptr;
-
-    if (ExtensionsRegistry::instance()->isParameterizationExtensionRegistered(Container.getLinkUID()))
-    {
-      
-      if (!m_IsTranslated)
-      {
-        auto ParamsUIWarePath = QString::fromStdString(
-          ExtensionsRegistry::instance()->getParameterizationExtensionPath(Container.getLinkUID())
-        );
-        WaresTranslationsRegistry::instance()->tryLoadWareTranslation(ParamsUIWarePath);
-        m_IsTranslated = true;
-      }
-
-      mp_ParamsWidget = static_cast<openfluid::ui::builderext::PluggableParameterizationExtension*>(
-          ExtensionsRegistry::instance()->instanciateParameterizationExtension(Container.getLinkUID()));
-      mp_ParamsWidget->setParent(this);
-      mp_ParamsWidget->linkParams(&(mp_Desc->parameters()));
-      mp_ParamsWidget->setFluidXDescriptor(&(ProjectCentral::instance()->descriptors()));
- 
-      connect(mp_ParamsWidget,SIGNAL(changed()),this,SLOT(notifyChangedFromParameterizationWidget()));
-
-      int Position = ui->ParameterizationStackWidget->addWidget(mp_ParamsWidget);
-
-      mp_ParamsWidget->update();
-
-      ui->ParameterizationStackWidget->setCurrentIndex(Position);
-    }
-
-    updateParameterizationSwitch();
-
-    // end to be refactored =========
-
-  }
+    const auto& LinkUID = Container.getLinkUID();
+    setupParamExtension(ExtensionsRegistry::instance()->isParameterizationExtensionRegistered(LinkUID), LinkUID);  }
   else
   {
     setAvailableWare(false);

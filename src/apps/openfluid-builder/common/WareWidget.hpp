@@ -97,6 +97,8 @@ class WareWidget : public QWidget
 
     bool m_Available;
 
+    bool m_IsTranslated;
+
     bool m_Ghost;
 
     bool m_Enabled;
@@ -136,6 +138,8 @@ class WareWidget : public QWidget
     void updateParameterizationSwitch();
 
     bool m_ParamsExpanded;
+
+    void setupParamExtension(bool IsParameterization, openfluid::machine::UUID_t LinkUID);
 
     openfluid::ui::builderext::PluggableParameterizationExtension* mp_ParamsWidget;
     

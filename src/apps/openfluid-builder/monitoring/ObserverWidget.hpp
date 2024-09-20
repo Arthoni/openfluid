@@ -53,8 +53,6 @@ class ObserverWidget : public WareWidget
   private:
 
     openfluid::fluidx::ObserverDescriptor* mp_Desc;
-
-    bool m_IsTranslated;
     
     bool isClickable() {return true;}
 

@@ -50,6 +50,9 @@
 #include "ui_WareWidget.h"
 #include "WareWidget.hpp"
 #include "ParameterWidget.hpp"
+#include "ExtensionsRegistry.hpp"
+#include "WaresTranslationsRegistry.hpp"
+#include "ProjectCentral.hpp"
 #include "AddParamDialog.hpp"
 
 
@@ -58,7 +61,7 @@ WareWidget::WareWidget(QWidget* Parent,
                        const QString& DisplayedText,
                        bool Enabled, const QString& BGColor, int Index):
   QWidget(Parent),ui(new Ui::WareWidget), m_ID(ID), m_EnabledBGColor(BGColor),
-  m_Available(false),m_Ghost(false),m_Enabled(Enabled), m_CurrentIndex(Index),
+  m_Available(false),m_IsTranslated(false), m_Ghost(false),m_Enabled(Enabled), m_CurrentIndex(Index),
   m_ParamsExpanded(false), mp_ParamsWidget(nullptr)
 {
   ui->setupUi(this);
@@ -637,6 +640,43 @@ void WareWidget::prepareWareUpdate()
 // =====================================================================
 // =====================================================================
 
+
+void WareWidget::setupParamExtension(bool IsParameterization, openfluid::machine::UUID_t LinkUID)
+{
+  mp_ParamsWidget = nullptr;
+  if (IsParameterization)
+  {
+    if (!m_IsTranslated)
+    {
+      auto ParamsUIWarePath = QString::fromStdString(
+        ExtensionsRegistry::instance()->getParameterizationExtensionPath(LinkUID)
+      );
+      WaresTranslationsRegistry::instance()->tryLoadWareTranslation(ParamsUIWarePath);
+      m_IsTranslated = true;
+    }
+
+    mp_ParamsWidget = static_cast<openfluid::ui::builderext::PluggableParameterizationExtension*>(
+        ExtensionsRegistry::instance()->instanciateParameterizationExtension(LinkUID));
+    mp_ParamsWidget->setParent(this);
+    mp_ParamsWidget->linkParams(&(getWareDescriptor()->parameters()));
+    mp_ParamsWidget->setFluidXDescriptor(&(ProjectCentral::instance()->descriptors()));
+
+    connect(mp_ParamsWidget,SIGNAL(changed()),this,SLOT(notifyChangedFromParameterizationWidget()));
+
+    int Position = ui->ParameterizationStackWidget->addWidget(mp_ParamsWidget);
+
+    mp_ParamsWidget->update();
+
+    ui->ParameterizationStackWidget->setCurrentIndex(Position);
+  }
+
+  updateParameterizationSwitch();
+}
+
+
+// =====================================================================
+// =====================================================================
+    
 
 void WareWidget::updateWare()
 {
