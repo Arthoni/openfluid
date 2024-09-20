@@ -92,6 +92,7 @@ void ModelItemWidget::setEnabledWare(bool Enabled)
   getWareDescriptor()->setEnabled(Enabled);
 }
 
+
 // =====================================================================
 // =====================================================================
 
