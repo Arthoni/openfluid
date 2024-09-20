@@ -109,7 +109,7 @@ class WareWidget : public QWidget
 
     virtual void setAvailableWare(bool Available);
 
-    virtual void updateWidgetBackground();
+    void updateWidgetBackground();
 
     void updateBuildInfoIcons(bool Debug,bool Speed);
 

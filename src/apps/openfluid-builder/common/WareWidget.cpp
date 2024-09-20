@@ -652,7 +652,6 @@ void WareWidget::setEnabledWare(bool Enabled)
 {
   m_Enabled = Enabled;
   updateWidgetBackground();
-  getWareDescriptor()->setEnabled(Enabled);
   emit changed();
 }
 

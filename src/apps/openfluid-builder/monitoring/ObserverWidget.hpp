@@ -62,6 +62,8 @@ class ObserverWidget : public WareWidget
 
     void applyContainer();
 
+    void setEnabledWare(bool Enabled);
+
 
   public slots:
 

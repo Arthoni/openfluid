@@ -61,6 +61,8 @@ class ModelItemWidget : public WareWidget
 
     openfluid::fluidx::WareDescriptor* getWareDescriptor() override;
 
+    void setEnabledWare(bool Enabled);
+
 
   public:
     ModelItemWidget(QWidget* Parent, 

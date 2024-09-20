@@ -80,6 +80,17 @@ ObserverWidget::~ObserverWidget()
 // =====================================================================
 
 
+void ObserverWidget::setEnabledWare(bool Enabled)
+{
+  WareWidget::setEnabled(Enabled);
+  getWareDescriptor()->setEnabled(Enabled);
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 openfluid::fluidx::WareDescriptor* ObserverWidget::getWareDescriptor()
 {
   return mp_Desc;

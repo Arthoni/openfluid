@@ -86,6 +86,16 @@ ModelItemWidget::~ModelItemWidget()
 // =====================================================================
 
 
+void ModelItemWidget::setEnabledWare(bool Enabled)
+{
+  WareWidget::setEnabled(Enabled);
+  getWareDescriptor()->setEnabled(Enabled);
+}
+
+// =====================================================================
+// =====================================================================
+
+
 openfluid::fluidx::WareDescriptor* ModelItemWidget::getWareDescriptor()
 {
   return mp_Desc;
