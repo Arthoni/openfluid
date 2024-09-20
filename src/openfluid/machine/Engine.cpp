@@ -281,8 +281,48 @@ void Engine::checkSimulationVarsProduction(int ExpectedVarsCount)
 
 void Engine::checkParametersConsistency()
 {
-  //TOIMPL APPLY TO OBSERVER ALSO
+  
   for (ModelItemInstance* IInstance : m_ModelInstance.items())
+  {
+    for (openfluid::ware::SignatureDataItem Param : IInstance->Container.signature()->HandledData.RequiredParams)
+    {
+      bool FoundParam = false;
+      bool FilledParam = false;
+
+      // searching for parameter in local parameters
+      auto it = IInstance->Params.find(Param.Name);
+      if (it != IInstance->Params.end())
+      {
+        FoundParam = true;
+        FilledParam = (*it).second.size() > 0;
+      }
+      else
+      {
+        // searching for parameter in global parameters
+        auto git = m_ModelInstance.globalParameters().find(Param.Name);
+        if (git != m_ModelInstance.globalParameters().end())
+        {
+          FoundParam = true;
+          FilledParam = (*git).second.size() > 0;
+        }
+      }
+
+
+      if (!FoundParam)
+      {
+        throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,
+                                                  "Cannot find parameter " + Param.Name +
+                                                  " required by " + IInstance->Container.signature()->ID);
+      }
+      else if (!FilledParam)
+      {
+        throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,
+                                                  "Parameter " + Param.Name +
+                                                  " required by " + IInstance->Container.signature()->ID + " is empty");
+      }
+    }
+  }//DIRTYCODE Factorize
+  for (ObserverInstance* IInstance : m_MonitoringInstance.observers())
   {
     for (openfluid::ware::SignatureDataItem Param : IInstance->Container.signature()->HandledData.RequiredParams)
     {

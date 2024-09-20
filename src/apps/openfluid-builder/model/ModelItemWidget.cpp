@@ -44,6 +44,7 @@
 #include <openfluid/machine/ModelItemInstance.hpp>
 #include <openfluid/ui/common/UIHelpers.hpp>
 #include <openfluid/tools/Filesystem.hpp>
+#include <openfluid/ware/ParamsHelper.hpp>
 
 #include "ui_WareWidget.h"
 #include "ModelItemWidget.hpp"
@@ -126,21 +127,6 @@ void ModelItemWidget::addParam(const std::string& ParamName, const std::string& 
 // =====================================================================
 
 
-std::string ModelItemWidget::getParamValue(const std::string& ParamName, openfluid::ware::WareParams_t& DescParams)
-{
-  std::string ParamValue;
-  if (DescParams.find(ParamName) != DescParams.end())
-  {
-    ParamValue = DescParams[ParamName];
-  }
-  return ParamValue;
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
  QStringList ModelItemWidget::createParamWidgetsFromSignature(const openfluid::ware::SimulatorSignature* Signature)
 {  
   const auto& UsedParams = Signature->HandledData.UsedParams;
@@ -154,7 +140,7 @@ std::string ModelItemWidget::getParamValue(const std::string& ParamName, openflu
   for (const auto& Param : RequiredParams)
   {
     std::string ParamName = Param.Name;
-    addParam(ParamName, getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, true, false);
+    addParam(ParamName, openfluid::ware::getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, true, false);
   }
 
   // Used params
@@ -162,7 +148,7 @@ std::string ModelItemWidget::getParamValue(const std::string& ParamName, openflu
   for (const auto& Param : UsedParams)
   {
     std::string ParamName = Param.Name;
-    addParam(ParamName, getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, false, false);
+    addParam(ParamName, openfluid::ware::getParamValue(ParamName, DescParams), Param.SIUnit, ParamsInSign, false, false);
   }
   return ParamsInSign;
 }
