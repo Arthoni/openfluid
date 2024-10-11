@@ -528,6 +528,7 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-MigrateSimulator
                    POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/migrate-ware/sim/tests.cmdline.sim-migration/doc/doc.tex")
 SET_PROPERTY(TEST cmdline-openfluid-MigrateSimulator
              APPEND PROPERTY ENVIRONMENT "OpenFLUID_DIR=${OFBUILD_DIST_CMAKE_MODULES_DIR};OpenFLUID_EXTRA_SEARCH_PATHS=${CMAKE_BINARY_DIR}/src\;${OFBUILD_DIST_DIR};OpenFLUID_MIGRATION_INCLUDE_PATHS=${CMAKE_SOURCE_DIR}/src")
+set_tests_properties(cmdline-openfluid-MigrateSimulator PROPERTIES FIXTURES_SETUP SimulatorMigrated)
 
 ADD_TEST(NAME cmdline-openfluid-CheckMigratedSimulator
 COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
@@ -535,6 +536,7 @@ COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
 SET_PROPERTY(TEST cmdline-openfluid-CheckMigratedSimulator
             APPEND PROPERTY DEPENDS cmdline-openfluid-MigrateSimulator
             APPEND PROPERTY PASS_REGULAR_EXPRESSION "\"migration_isclean_no_comments\"\: \"warning\"")
+            set_tests_properties(cmdline-openfluid-CheckMigratedSimulator PROPERTIES FIXTURES_REQUIRED SimulatorMigrated)
 
 
 OPENFLUID_ADD_TEST(NAME cmdline-openfluid-ConfigureMigratedSimulator
@@ -548,6 +550,7 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-ConfigureMigratedSimulator
                            "-DOpenFLUID_EXTRA_SEARCH_PATHS=${CMAKE_BINARY_DIR}/src"
                            "-DWARE_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/src")
 SET_PROPERTY(TEST cmdline-openfluid-ConfigureMigratedSimulator APPEND PROPERTY DEPENDS cmdline-openfluid-MigrateSimulator)
+set_tests_properties(cmdline-openfluid-ConfigureMigratedSimulator PROPERTIES FIXTURES_REQUIRED SimulatorMigrated)
 
 
 OPENFLUID_ADD_TEST(NAME cmdline-openfluid-BuildMigratedSimulator
@@ -555,6 +558,7 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-BuildMigratedSimulator
                            "build" "--src-path=${OFBUILD_TMP_DIR}/cmdline/migrate-ware/sim/tests.cmdline.sim-migration"
                            "-t" "install" "-j" "2")
 SET_PROPERTY(TEST cmdline-openfluid-BuildMigratedSimulator APPEND PROPERTY DEPENDS cmdline-openfluid-ConfigureMigratedSimulator)
+set_tests_properties(cmdline-openfluid-BuildMigratedSimulator PROPERTIES FIXTURES_REQUIRED SimulatorMigrated)
 
 
 ###########################################################################
