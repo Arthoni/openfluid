@@ -212,6 +212,8 @@ int RunTasks::process() const
     }
     else
     {
+          std::cout << "InputDir in of: " << m_ExtraArgs.at(0) << std::endl;
+
       openfluid::base::RunContextManager::instance()->setInputDir(m_ExtraArgs.at(0));
 
       if (m_ExtraArgs.size() >= 2)

@@ -498,7 +498,7 @@ class Binding
     */
     static void setCurrentOutputDir(const char* Path)
     {
-      openfluid::base::RunContextManager::instance()->setOutputDir(std::string(Path));
+      openfluid::base::RunContextManager::instance()->setOutputDir(std::string(Path), true);
     }
 
 
@@ -520,8 +520,8 @@ class Binding
         init();
 
         openfluid::base::IOListener FluidXListener;
-
-        openfluid::base::RunContextManager::instance()->setInputDir(std::string(Path));
+        openfluid::base::RunContextManager::instance()->closeProject();
+        openfluid::base::RunContextManager::instance()->setInputDir(std::string(Path), true);
         Data->m_FluidXDesc = openfluid::fluidx::FluidXIO(&FluidXListener)
                                .loadFromDirectory(openfluid::base::RunContextManager::instance()->getInputDir());
 
@@ -579,13 +579,14 @@ class Binding
 
         openfluid::base::IOListener FluidXListener;
         
+        openfluid::base::RunContextManager::instance()->closeProject();
         if (!openfluid::base::RunContextManager::instance()->openProject(std::string(Path)))
         {
           throw openfluid::base::ApplicationException(
-              openfluid::base::ApplicationException::computeContext("ROpenFLUID"),
+              openfluid::base::ApplicationException::computeContext("ROpenFLUID"), //TODO check why written "ROpenFLUID", what happens for js?
               std::string(Path) + " is not a correct project path");
         }
-
+        std::cout << "in project opening: " << openfluid::base::RunContextManager::instance()->getInputDir() << std::endl;
         Data->m_FluidXDesc = openfluid::fluidx::FluidXIO(&FluidXListener)
                                .loadFromDirectory(openfluid::base::RunContextManager::instance()->getInputDir());
 
@@ -613,6 +614,8 @@ class Binding
       {
         m_LastErrorMsg = "UNKNOWN ERROR\n";
       }
+
+      std::cout << "AN ISSUE?" << std::endl;
 
       delete Data;
 
@@ -686,6 +689,9 @@ class Binding
     unsigned short int runSimulation(int IsVerbose = false)
     {
       unsigned short int RetValue = 0;
+
+      std::cout << "in run simu: " << openfluid::base::RunContextManager::instance()->getInputDir() << std::endl;
+
 
       try
       {

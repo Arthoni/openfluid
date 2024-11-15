@@ -116,6 +116,8 @@ void InterpGenerator::prepareData()
   OPENFLUID_GetRunEnvironment("dir.temp",BaseTmpDir);
 
   m_TmpDir = openfluid::tools::Filesystem::makeUniqueSubdirectory(BaseTmpDir,"interp-generator");
+  std::cout << "InputDir?" << InputDir << std::endl;
+  std::cout << "BaseTmpDir?" << BaseTmpDir << std::endl;
 
   if (m_TmpDir.empty())
   {

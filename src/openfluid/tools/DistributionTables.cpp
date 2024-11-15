@@ -55,6 +55,7 @@ void DistributionTables::build(const std::string& BasePath,
 
 
   // Sources file
+  std::cout << "Paths? " << BasePath << ", " << SourcesFileName << ", " << DistributionFileName << std::endl;
 
   openfluid::thirdparty::xml::XMLDocument Doc;
   std::string SourcesFilePath = openfluid::tools::Filesystem::joinPath({BasePath,SourcesFileName});

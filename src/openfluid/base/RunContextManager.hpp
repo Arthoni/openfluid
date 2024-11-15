@@ -124,6 +124,7 @@ class OPENFLUID_API RunContextManager : public Environment
     */
     std::string getInputDir() const
     {
+      std::cout << "getInputDir" << std::endl;
       return m_InputDir;
     }
 
@@ -138,7 +139,7 @@ class OPENFLUID_API RunContextManager : public Environment
       Sets the full path of the simulation input directory
       @param[in] InputDir the full path of the directory
     */
-    void setInputDir(const std::string& InputDir);
+    void setInputDir(const std::string& InputDir, bool KeepOthers=false);
 
     /**
       Returns the full path of the simulation output directory
@@ -160,7 +161,7 @@ class OPENFLUID_API RunContextManager : public Environment
       Sets the full path of the simulation output directory
       @param[in] OutputDir the full path of the directory
     */
-    void setOutputDir(const std::string& OutputDir);
+    void setOutputDir(const std::string& OutputDir, bool KeepOthers=false);
 
     void setDateTimeOutputDir();
 

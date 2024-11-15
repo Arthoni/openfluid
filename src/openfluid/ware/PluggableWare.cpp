@@ -68,9 +68,11 @@ void PluggableWare::OPENFLUID_RaiseError(const std::string& Msg)
 
 bool PluggableWare::OPENFLUID_GetRunEnvironment(const std::string& Key, std::string& Value)
 {
+  std::cout << "RE?" << Key << std::endl;
   if (mp_WareEnv->isKeyExist(Key) && mp_WareEnv->at(Key).isStringValue())
   {
     Value = mp_WareEnv->getString(Key);
+    std::cout << "RE!" << Value << std::endl;
     return true;
   }
 

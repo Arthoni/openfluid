@@ -69,6 +69,7 @@ RunContextManager::RunContextManager() :
   mp_ProjectFile(nullptr),
   m_ProjectIncOutputDir(false), m_ProjectIsOpen(false)
 {
+  std::cout << "SET INPUT DIR DEFAULT" << std::endl;
   openfluid::base::Environment::init();
 
   m_InputDir = openfluid::tools::Filesystem::joinPath({m_UserDataDir,openfluid::config::DEFAULT_INPUT_PATH});
@@ -409,6 +410,7 @@ bool RunContextManager::openProject(const std::string& Path)
   {
     m_ProjectPath = openfluid::tools::Filesystem::absolutePath(Path);
     m_InputDir = getInputDirFromProjectPath(m_ProjectPath);
+    std::cout << "Set!" << m_ProjectPath << ", " << m_InputDir << std::endl;
     m_OutputDir = getOuputDirFromProjectPath(m_ProjectPath);
 
     std::string PrjFilePath = getFilePathFromProjectPath(m_ProjectPath);
@@ -424,6 +426,9 @@ bool RunContextManager::openProject(const std::string& Path)
     updateWaresEnvironment();
 
     m_ProjectIsOpen = true;
+
+    std::cout << "Set still?" << m_InputDir << std::endl;
+
 
     return true;
   }
@@ -512,6 +517,7 @@ void RunContextManager::closeProject()
 
     delete mp_ProjectFile;
     mp_ProjectFile = nullptr;
+    std::cout << "resetting vars in close project" << std::endl;
   }
 }
 
@@ -520,9 +526,13 @@ void RunContextManager::closeProject()
 // =====================================================================
 
 
-void RunContextManager::setInputDir(const std::string& InputDir)
+void RunContextManager::setInputDir(const std::string& InputDir, bool KeepOthers)
 {
-  closeProject();
+  std::cout << "SET INPUT DIR" << std::endl;
+  if (!KeepOthers)
+  {
+    closeProject();
+  }
   m_InputDir = openfluid::tools::Filesystem::absolutePath(InputDir);
   updateWaresEnvironment();
 }
@@ -532,9 +542,12 @@ void RunContextManager::setInputDir(const std::string& InputDir)
 // =====================================================================
 
 
-void RunContextManager::setOutputDir(const std::string& OutputDir)
+void RunContextManager::setOutputDir(const std::string& OutputDir, bool KeepOthers)
 {
-  closeProject();
+  if (!KeepOthers)
+  {
+    closeProject();
+  }
   m_OutputDir = openfluid::tools::Filesystem::absolutePath(OutputDir);
   updateWaresEnvironment();
 }

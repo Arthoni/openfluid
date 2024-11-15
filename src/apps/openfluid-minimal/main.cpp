@@ -89,6 +89,7 @@ int main(int argc, char **argv)
 
     openfluid::base::Environment::addExtraSimulatorsDirs(PlugsDir);
     openfluid::base::Environment::addExtraObserversDirs(PlugsDir);
+    std::cout << "InputDir in minimal: " << InputDir << std::endl;
     openfluid::base::RunContextManager::instance()->setInputDir(InputDir);
     openfluid::base::RunContextManager::instance()->setOutputDir(OutputDir);
 
