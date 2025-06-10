@@ -164,6 +164,8 @@ QToolButton::menu-button:pressed, QToolButton::menu-button:hover {
   ui->ObsExplorer->configure(QString::fromStdString(Manager->getWaresPath(openfluid::ware::WareType::OBSERVER)),true);
   ui->ExtExplorer->configure(QString::fromStdString(Manager->getWaresPath(openfluid::ware::WareType::BUILDEREXT)),true);
 
+  connect(ui->SimFilter, SIGNAL(textChanged(const QString &)), this, SLOT(filterWares()));
+
   mp_WidgetsCollection = new openfluid::ui::waresdev::WareSrcWidgetCollection(ui->WareSrcCollection, false);
 
   mp_BuildStatusWidget = new WareBuildStatusWidget(this);
@@ -481,6 +483,23 @@ void MainWindow::createMenus()
   Menu->addSeparator();
   Menu->addAction(m_Actions["HelpAbout"]);
 
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void MainWindow::filterWares()
+{
+  std::cout << "wares !" << std::endl;
+  QString CurrentWarePath = mp_WidgetsCollection->getCurrentWarePath();
+  QWidget* CurrentWidget = ui->WaresTabWidget->currentWidget();
+
+  if (CurrentWidget == ui->SimPage)
+  {
+    ui->SimExplorer->filterExplorerModel(ui->SimFilter->text());
+  }
 }
 
 

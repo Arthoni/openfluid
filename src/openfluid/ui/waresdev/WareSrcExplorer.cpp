@@ -808,4 +808,21 @@ void WareSrcExplorer::updateExplorerModel(const QString& Path)
 // =====================================================================
 
 
+void WareSrcExplorer::filterExplorerModel(const QString& FilterString)
+{
+  //mp_Model->applyFilter(FilterString);
+
+  // QStringList Filters;
+  // Filters << FilterString;
+  std::cout << "Filter? " << FilterString.toStdString() << std::endl;
+  // setNameFilters(Filters);
+  // setNameFilterDisables(false);
+
+  FolderFilterProxyModel* proxyModel = new FolderFilterProxyModel(this, FilterString);
+  proxyModel->setSourceModel(mp_Model);
+  setModel(proxyModel);
+}
+
+
+
 } } } // namespaces

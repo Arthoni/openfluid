@@ -29,7 +29,7 @@
       </property>
       <widget class="QTabWidget" name="WaresTabWidget">
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <property name="elideMode">
         <enum>Qt::ElideRight</enum>
@@ -42,6 +42,9 @@
          <string>Simulators</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="SimFilter"/>
+         </item>
          <item>
           <widget class="openfluid::ui::waresdev::WareSrcExplorer" name="SimExplorer">
            <attribute name="headerVisible">
@@ -84,6 +87,9 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
+          <widget class="QLineEdit" name="ObsFilter"/>
+         </item>
+         <item>
           <widget class="openfluid::ui::waresdev::WareSrcExplorer" name="ObsExplorer">
            <attribute name="headerVisible">
             <bool>false</bool>
@@ -124,6 +130,9 @@
          <string>Builder extensions</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QLineEdit" name="ExtFilter"/>
+         </item>
          <item>
           <widget class="openfluid::ui::waresdev::WareSrcExplorer" name="ExtExplorer">
            <attribute name="headerVisible">

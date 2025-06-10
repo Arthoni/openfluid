@@ -96,6 +96,7 @@ class OPENFLUID_API MainWindow: public openfluid::ui::common::AppMainWindow
     void setWorkspaceDefaults();
 
 
+
   signals:
 
     void openExternalToolAsked(const QString& Command, const QString& FilePath);
@@ -136,6 +137,8 @@ class OPENFLUID_API MainWindow: public openfluid::ui::common::AppMainWindow
     void onCloseAllWaresRequested();
 
     void updateExplorer();
+
+    void filterWares();
 
 
   public:

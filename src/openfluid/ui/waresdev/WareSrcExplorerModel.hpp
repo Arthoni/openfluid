@@ -44,6 +44,7 @@
 
 #include <QFileSystemModel>
 #include <QFileSystemWatcher>
+#include <QSortFilterProxyModel>
 
 #include <openfluid/ui/waresdev/GitUIProxy.hpp>
 #include <openfluid/waresdev/WareSrcEnquirer.hpp>
@@ -51,6 +52,35 @@
 
 
 namespace openfluid { namespace ui { namespace waresdev {
+
+class FolderFilterProxyModel : public QSortFilterProxyModel
+{
+  private:
+    const QString m_FilterString;
+
+  public:
+    FolderFilterProxyModel(QObject* parent=nullptr, const QString& FilterString="") : QSortFilterProxyModel(parent), 
+      m_FilterString(FilterString)
+    {
+
+    }
+
+  protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override
+    {
+      QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+
+      if (sourceModel()->hasChildren(index))
+      {
+        // It's a folder, check if it contains the filter string
+        QString folderName = sourceModel()->data(index).toString();
+        return folderName.contains(m_FilterString);
+      }
+
+      // It's not a folder, so we don't want to display it
+      return false;
+    }
+};
 
 
 class OPENFLUID_API WareSrcExplorerModel: public QFileSystemModel

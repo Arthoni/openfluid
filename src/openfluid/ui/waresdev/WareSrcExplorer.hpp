@@ -157,6 +157,8 @@ class OPENFLUID_API WareSrcExplorer: public QTreeView
 
     void updateExplorerModel(const QString& Path);
 
+    void filterExplorerModel(const QString& FilterString);
+
 };
 
 
