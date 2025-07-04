@@ -385,6 +385,10 @@ int main(int argc, char **argv)
   {
     return ReportTasks(Parser).process();
   }
+  else if (ActiveCmdStr == "status")  // TODO use generic keyword to group ops: "openfluid ware status"?
+  {
+    return StatusTasks(Parser).process();
+  }
   else if (ActiveCmdStr == "create-ware" ||
            ActiveCmdStr == "import-ware" ||
            ActiveCmdStr == "check" ||

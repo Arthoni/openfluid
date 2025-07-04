@@ -60,4 +60,19 @@ class ReportTasks : public TasksBase
 };
 
 
+class StatusTasks : public TasksBase
+{
+  public:
+
+    StatusTasks() = delete;
+
+    StatusTasks(const openfluid::utils::CommandLineParser& Parser) : TasksBase(Parser)
+    { }
+
+    virtual ~StatusTasks()
+    { }
+
+    int process() const;
+};
+
 #endif /* __OPENFLUID_CMDLINEAPP_REPORTTASKS_HPP__ */
