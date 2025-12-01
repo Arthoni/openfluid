@@ -34,6 +34,7 @@
   @file SimulationContributorWare.hpp
 
   @author Jean-Christophe FABRE <jean-christophe.fabre@inra.fr>
+  @author Armel THÖNI <armel.thoni@inrae.fr>
 */
 
 
@@ -104,6 +105,15 @@ class OPENFLUID_API SimulationContributorWare : public SimulationInspectorWare
                                  const long& Val);
 
      /**
+       Sets attribute for a unit, as a int integer
+       @param[in] UnitPtr a Unit
+       @param[in] AttrName the name of the set attribute
+       @param[in] Val the value of the set attribute
+     */
+     void OPENFLUID_SetAttribute(openfluid::core::SpatialUnit *UnitPtr,
+                                 const openfluid::core::AttributeName_t& AttrName,
+                                 const int& Val);
+     /**
        Sets attribute for a unit, as a string
        @param[in] UnitPtr a Unit
        @param[in] AttrName the name of the set attribute
@@ -152,6 +162,16 @@ class OPENFLUID_API SimulationContributorWare : public SimulationInspectorWare
      void OPENFLUID_InitializeVariable(openfluid::core::SpatialUnit *UnitPtr,
                                        const openfluid::core::VariableName_t& VarName,
                                        const double& Val);
+
+     /**
+       Initializes a distributed int variable value for a unit
+       @param[in] UnitPtr a Unit
+       @param[in] VarName the name of the variable
+       @param[in] Val the added value of the variable (double)
+     */
+     void OPENFLUID_InitializeVariable(openfluid::core::SpatialUnit *UnitPtr,
+                                       const openfluid::core::VariableName_t& VarName,
+                                       const int& Val);
 
      /**
        Initializes a distributed long variable value for a unit
@@ -239,6 +259,17 @@ class OPENFLUID_API SimulationContributorWare : public SimulationInspectorWare
                                   const long& Val);
 
     /**
+      Appends a distributed long variable value for a unit at the end
+      of the previously added values for this variable
+      @param[in] UnitPtr a Unit
+      @param[in] VarName the name of the variable
+      @param[in] Val the added value of the variable (int)
+    */
+    void OPENFLUID_AppendVariable(openfluid::core::SpatialUnit *UnitPtr,
+                                  const openfluid::core::VariableName_t& VarName,
+                                  const int& Val);
+
+    /**
       Appends a distributed boolean variable value for a unit at the end
       of the previously added values for this variable
       @param[in] UnitPtr a Unit
@@ -301,6 +332,16 @@ class OPENFLUID_API SimulationContributorWare : public SimulationInspectorWare
     void OPENFLUID_SetVariable(openfluid::core::SpatialUnit *UnitPtr,
                                const openfluid::core::VariableName_t& VarName,
                                const long& Val);
+
+    /**
+      Sets a distributed double variable value for a unit at the current time index
+      @param[in] UnitPtr a Unit
+      @param[in] VarName the name of the variable
+      @param[in] Val the added value of the variable (long)
+    */
+    void OPENFLUID_SetVariable(openfluid::core::SpatialUnit *UnitPtr,
+                               const openfluid::core::VariableName_t& VarName,
+                               const int& Val);
 
     /**
       Sets a distributed double variable value for a unit at the current time index

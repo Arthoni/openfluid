@@ -108,7 +108,7 @@ class CouplingASimulator : public openfluid::ware::PluggableSimulator
 
     OPENFLUID_UNITS_ORDERED_LOOP("TestUnits",TU)
     {
-      OPENFLUID_InitializeVariable(TU,"varA",(long)0);
+      OPENFLUID_InitializeVariable(TU,"varA",0);
     }
 
 

@@ -34,6 +34,7 @@
   @file SimulationContributorWare.cpp
 
   @author Jean-Christophe FABRE <jean-christophe.fabre@inra.fr>
+  @author Armel THÖNI <armel.thoni@inrae.fr>
  */
 
 
@@ -107,6 +108,18 @@ void SimulationContributorWare::OPENFLUID_SetAttribute(openfluid::core::SpatialU
                                                        const long& Val)
 {
   OPENFLUID_SetAttribute(UnitPtr,AttrName,openfluid::core::IntegerValue(Val));
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SimulationContributorWare::OPENFLUID_SetAttribute(openfluid::core::SpatialUnit *UnitPtr,
+                                                       const openfluid::core::AttributeName_t& AttrName,
+                                                       const int& Val)
+{
+  OPENFLUID_SetAttribute(UnitPtr,AttrName,openfluid::core::IntegerValue((long)Val));
 }
 
 
@@ -212,6 +225,18 @@ void SimulationContributorWare::OPENFLUID_InitializeVariable(openfluid::core::Sp
   {
     throw openfluid::base::FrameworkException(computeFrameworkContext(OPENFLUID_CODE_LOCATION),"Unit is NULL");
   }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SimulationContributorWare::OPENFLUID_InitializeVariable(openfluid::core::SpatialUnit *UnitPtr,
+                                                             const openfluid::core::VariableName_t& VarName,
+                                                             const int& Val)
+{
+  SimulationContributorWare::OPENFLUID_InitializeVariable(UnitPtr, VarName, (long)Val);
 }
 
 
@@ -370,6 +395,18 @@ void SimulationContributorWare::OPENFLUID_AppendVariable(openfluid::core::Spatia
 
 void SimulationContributorWare::OPENFLUID_AppendVariable(openfluid::core::SpatialUnit *UnitPtr,
                                                          const openfluid::core::VariableName_t& VarName,
+                                                         const int& Val)
+{
+  SimulationContributorWare::OPENFLUID_AppendVariable(UnitPtr, VarName, (long)Val);
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SimulationContributorWare::OPENFLUID_AppendVariable(openfluid::core::SpatialUnit *UnitPtr,
+                                                         const openfluid::core::VariableName_t& VarName,
                                                          const bool& Val)
 {
   REQUIRE_SIMULATION_STAGE(openfluid::base::SimulationStatus::RUNSTEP,
@@ -504,6 +541,18 @@ void SimulationContributorWare::OPENFLUID_SetVariable(openfluid::core::SpatialUn
   {
     throw openfluid::base::FrameworkException(computeFrameworkContext(OPENFLUID_CODE_LOCATION),"Unit is NULL");
   }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void SimulationContributorWare::OPENFLUID_SetVariable(openfluid::core::SpatialUnit *UnitPtr,
+                                                      const openfluid::core::VariableName_t& VarName,
+                                                      const int& Val)
+{
+  SimulationContributorWare::OPENFLUID_SetVariable(UnitPtr, VarName, (long)Val);
 }
 
 
