@@ -134,4 +134,4 @@ Windows-MSYS2:
   # https://docs.gitlab.com/ci/runners/hosted_runners/windows/
   tags: [ windows ]
   script: # https://www.msys2.org/docs/ci/#gitlab
-  - C:\msys64_for_ofbuild_qt6\mingw64.exe /usr/bin/bash /c/packaging_openfluid/buildOFwin.sh
+  - Start-Process "cmd.exe" "/c C:\packaging_openfluid\quickBuild.bat"
