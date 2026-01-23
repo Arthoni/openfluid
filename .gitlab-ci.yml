@@ -134,7 +134,7 @@ Windows-MSYS2:
   # https://docs.gitlab.com/ci/runners/hosted_runners/windows/
   tags: [ windows ]
   script: # https://www.msys2.org/docs/ci/#gitlab
-  - C:\msys64_for_ofbuild_qt6\mingw64.exe /usr/bin/bash /c/packaging_openfluid/buildOFwin.sh
-  - Start-Process -FilePath "C:\msys64_for_ofbuild_qt6\mingw64.exe" -ArgumentList "/usr/bin/bash", "/c/packaging_openfluid/buildOFwin.sh" -NoNewWindow
-  - Get-Content stdout.txt
-  - Get-Content stderr.txt
+  - Start-Process -FilePath "C:\msys64_for_ofbuild_qt6\mingw64.exe" -ArgumentList "/usr/bin/bash", "/c/packaging_openfluid/buildOFwin_ci.sh" -NoNewWindow -Wait
+  artifacts:
+    paths:
+      - *.txt
