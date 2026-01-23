@@ -130,8 +130,9 @@ stages:
 
 Windows-MSYS2:
   stage: test
-  when: manual
+  #when: manual
   # https://docs.gitlab.com/ci/runners/hosted_runners/windows/
   tags: [ windows ]
   script: # https://www.msys2.org/docs/ci/#gitlab
-  - cmd.exe "/c C:\packaging_openfluid\quickBuild.bat"
+  - C:\msys64_for_ofbuild_qt6\mingw64.exe /usr/bin/bash /c/packaging_openfluid/buildOFwin.sh
+  - C:\msys64_for_ofbuild_qt6\mingw6.exe /usr/bin/bash /c/packaging_openfluid/buildOFwin.sh
