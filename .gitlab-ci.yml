@@ -135,4 +135,6 @@ Windows-MSYS2:
   tags: [ windows ]
   script: # https://www.msys2.org/docs/ci/#gitlab
   - C:\msys64_for_ofbuild_qt6\mingw64.exe /usr/bin/bash /c/packaging_openfluid/buildOFwin.sh
-  - C:\msys64_for_ofbuild_qt6\mingw6.exe /usr/bin/bash /c/packaging_openfluid/buildOFwin.sh
+  - Start-Process -FilePath "C:\msys64_for_ofbuild_qt6\mingw64.exe" -ArgumentList "/usr/bin/bash", "/c/packaging_openfluid/buildOFwin.sh" -NoNewWindow -Wait -RedirectStandardOutput "stdout.txt" -RedirectStandardError "stderr.txt"
+  - Get-Content stdout.txt
+  - Get-Content stderr.txt
