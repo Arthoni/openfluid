@@ -134,5 +134,4 @@ Windows-MSYS2:
   # https://docs.gitlab.com/ci/runners/hosted_runners/windows/
   tags: [ windows ]
   script: # https://www.msys2.org/docs/ci/#gitlab
-  - wget.exe -nv -O msys2.exe https://github.com/msys2/msys2-installer/releases/download/2025-02-21/msys2-base-x86_64-20250221.sfx.exe # https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.sfx.exe
-  - Get-FileHash ./msys2.exe -Algorithm SHA256 | Format-List
+  - C:\msys64_for_ofbuild_qt6\mingw64.exe /usr/bin/bash /c/packaging_openfluid/buildOFwin.sh
