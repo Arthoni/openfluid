@@ -137,4 +137,4 @@ Windows-MSYS2:
   - Start-Process -FilePath "C:\msys64_for_ofbuild_qt6\mingw64.exe" -ArgumentList "/usr/bin/bash", "/c/packaging_openfluid/buildOFwin_ci.sh" -NoNewWindow -Wait
   artifacts:
     paths:
-      - *.txt
+      - ./*.txt
