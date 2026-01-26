@@ -135,6 +135,7 @@ Windows-MSYS2:
   tags: [ windows ]
   script: # https://www.msys2.org/docs/ci/#gitlab
   - Start-Process -FilePath "C:\msys64_for_ofbuild_qt6\mingw64.exe" -ArgumentList "/usr/bin/bash", "/c/packaging_openfluid/buildOFwin_ci.sh" -NoNewWindow -Wait
+  - C:\GitLab-Runner\checkStatus.ps1
   artifacts:
     paths:
       - ./_build/*.log
