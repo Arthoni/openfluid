@@ -137,11 +137,10 @@ Windows-test:
   variables:
     MINGW64_EXE: "C:\\msys64_for_ofbuild_qt6\\mingw64.exe"
 
-
   script: 
-    - Start-Process -FilePath "$MINGW64_EXE" -ArgumentList "/usr/bin/bash", "/c/Gitlab-Runner/scripts_OF/buildOFwin_ci.sh" -NoNewWindow -Wait
+    - Start-Process -FilePath "$MINGW64_EXE" -ArgumentList "/usr/bin/bash", "./gitlab/buildOFwin_ci.sh" -NoNewWindow -Wait
     - find ./_build/build_out.log "Built target observer-export.vars.files.csv-multicols"
-    - Start-Process -FilePath "$MINGW64_EXE" -ArgumentList "/usr/bin/bash", "/c/Gitlab-Runner/scripts_OF/testOFwin_ci.sh" -NoNewWindow -Wait
+    - Start-Process -FilePath "$MINGW64_EXE" -ArgumentList "/usr/bin/bash", "./gitlab/testOFwin_ci.sh" -NoNewWindow -Wait
     - find ./_build/build_test.log "100% tests passed"
   artifacts:
     paths:
