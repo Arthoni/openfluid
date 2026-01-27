@@ -136,9 +136,9 @@ Windows-test:
   tags: [ windows ]
   script: 
   - C:\GitLab-Runner\scripts_OF\buildOFwin_ci.bat
-  - .\.gitlab\checkStatus.ps1 "./_build/build_out.log" "Built target observer-export.vars.files.csv-multicols"
+  - .\.gitlab\checkStatus.ps1 ./_build/build_out.log "Built target observer-export.vars.files.csv-multicols"
   - C:\GitLab-Runner\scripts_OF\testOFwin_ci.bat
-  - .\.gitlab\checkStatus.ps1 "./_build/build_test.log" "100% tests passed"
+  - .\.gitlab\checkStatus.ps1 ./_build/build_test.log "100% tests passed"
   artifacts:
     paths:
       - ./_build/*.log
