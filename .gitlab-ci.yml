@@ -134,11 +134,15 @@ Windows-test:
   #when: manual
   timeout: 20m
   tags: [ windows ]
+  variables:
+    MINGW64_EXE: "C:\\msys64_for_ofbuild_qt6\\mingw64.exe"
+
+
   script: 
-  - C:\GitLab-Runner\scripts_OF\buildOFwin_ci.bat
-  - find ./_build/build_out.log "Built target observer-export.vars.files.csv-multicols"
-  - C:\GitLab-Runner\scripts_OF\testOFwin_ci.bat
-  - find ./_build/build_test.log "100% tests passed"
+    - Start-Process -FilePath "$MINGW64_EXE" -ArgumentList "/usr/bin/bash", "/c/Gitlab-Runner/scripts_OF/buildOFwin_ci.sh" -NoNewWindow -Wait
+    - find ./_build/build_out.log "Built target observer-export.vars.files.csv-multicols"
+    - Start-Process -FilePath "$MINGW64_EXE" -ArgumentList "/usr/bin/bash", "/c/Gitlab-Runner/scripts_OF/testOFwin_ci.sh" -NoNewWindow -Wait
+    - find ./_build/build_test.log "100% tests passed"
   artifacts:
     paths:
       - ./_build/*.log
