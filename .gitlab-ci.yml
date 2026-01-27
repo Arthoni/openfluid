@@ -128,16 +128,17 @@ stages:
 #     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 #     - docker push registry.forge.inrae.fr/openfluid/incubateur/openfluid/openfluid:2.2.1b1-ubuntu-22.04-qt5
 
+# Warning: relies on machine-dependant structure, especially custom buildOFwin_ci.ps1 and testOFwin_ci.ps1 scripts
 Windows-test:
   stage: test
   #when: manual
-  # https://docs.gitlab.com/ci/runners/hosted_runners/windows/
+  timeout: 20m
   tags: [ windows ]
-  script: # https://www.msys2.org/docs/ci/#gitlab
-  - Start-Process -FilePath "C:\msys64_for_ofbuild_qt6\mingw64.exe" -ArgumentList "/usr/bin/bash", "/c/packaging_openfluid/buildOFwin_ci.sh" -NoNewWindow -Wait -PassThru
-  #- C:\GitLab-Runner\checkStatus.ps1 "./_build/build_out.log" "Built target observer-export.vars.files.csv-multicols"
-  - Start-Process -FilePath "C:\msys64_for_ofbuild_qt6\mingw64.exe" -ArgumentList "/usr/bin/bash", "/c/packaging_openfluid/testOFwin_ci.sh" -NoNewWindow -Wait -PassThru
-  #- C:\GitLab-Runner\checkStatus.ps1 "./_build/build_test.log" "100% tests passed"
+  script: 
+  - C:\GitLab-Runner\scripts_OF\buildOFwin_ci.ps1
+  - .\.gitlab\checkStatus.ps1 "./_build/build_out.log" "Built target observer-export.vars.files.csv-multicols"
+  - C:\GitLab-Runner\scripts_OF\testOFwin_ci.ps1
+  - .\.gitlab\checkStatus.ps1 "./_build/build_test.log" "100% tests passed"
   artifacts:
     paths:
       - ./_build/*.log
