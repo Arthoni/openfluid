@@ -8,7 +8,7 @@ OpenFLUID provides the docalyzer system for simulators designers and developers.
 
 The documentation can be provided inside a `README.md` file located at simulator root folder, or inside `doc/` directory. It can handle LateX (as before), but also markdown and Rmarkdown.
 
-These files will be converted into a pdf file by using the _pandoc_ tool.
+These files will be converted into a pdf file by using the _pandoc_ tool. TOIMPL precise case where pandoc excluded
 
 Docalyze operation can be done through DevStudio ware operation "Build doc" or from command-line:
 ```
