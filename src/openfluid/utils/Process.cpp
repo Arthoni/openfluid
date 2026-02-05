@@ -213,13 +213,13 @@ bool Process::run()
     if (!Ec || (Ec == boost::asio::error::eof))
     { 
       std::cout << "Boost process reading error in out stream: " << Ec.message() << std::endl;
-      openfluid::utils::log::error("Process",  "Boost process reading error in out stream");
+      openfluid::base::log::error("Process",  "Boost process reading error in out stream");
     }
     boost::asio::read(PipeErr, boost::asio::dynamic_buffer(LineErr), Ec);
     if (!Ec || (Ec == boost::asio::error::eof)) 
     { 
       std::cout << "Boost process reading error in err stream: " << Ec.message() << std::endl;
-      openfluid::utils::log::error("Process",  "Boost process reading error in err stream");
+      openfluid::base::log::error("Process",  "Boost process reading error in err stream");
     }
     
     Proc.wait();
