@@ -231,6 +231,15 @@ int main(int argc, char **argv)
 
   // ---
 
+  auto SetupWaresetCmd = openfluid::utils::CommandLineCommand("setup-wareset","Setup ware set (fetch from remote hub, configure and compile)");
+  SetupWaresetCmd.addOptions({{"parent-path","p","parent path where to create the ware sources",true},
+                            {"hub","","hub URL", true},
+                            {"id","i","ID of the ware sources to import (required when importing from hub)", true},
+                            });
+  Parser.addCommand(SetupWaresetCmd, &WareSection);
+  
+  // ---
+
   auto CheckCmd = openfluid::utils::CommandLineCommand("check","Checks ware sources for potential issues"); 
   CheckCmd.addOptions({{"src-path","s","path to the ware sources (required)",true}, 
                        {"ignore","i","ignore checks (comma separated list)"},
@@ -394,6 +403,7 @@ int main(int argc, char **argv)
   }
   else if (ActiveCmdStr == "create-ware" ||
            ActiveCmdStr == "import-ware" ||
+           ActiveCmdStr == "setup-wareset" ||
            ActiveCmdStr == "check" ||
            ActiveCmdStr == "migrate-ware" ||
            ActiveCmdStr == "docalyze" ||

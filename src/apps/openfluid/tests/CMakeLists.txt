@@ -451,6 +451,19 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-ImportSimulator
 ###########################################################################
 
 
+OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset
+                   COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
+                           "setup-wareset"
+                           "-p" "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
+                           "--id=mhyrou"
+                           "--hub=http://147.100.175.211:8181/api/"
+                   PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/setup-wareset/"
+                   PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/setup-wareset/")
+
+
+###########################################################################
+
+
 OPENFLUID_ADD_TEST(NAME cmdline-openfluid-CreateWareObserver
                    COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
                            "create-ware" "--type=observer" "--id=tests.cmdline.obs"

@@ -533,6 +533,36 @@ FluidHubAPIClient::WaresDetailsByID_t FluidHubAPIClient::getAvailableWaresWithDe
   return getAvailableElementsWithDetails(Path, Username);
 }
 
+std::map<std::string, std::string> FluidHubAPIClient::getWaresets() const//TOIMPL change return type
+{
+  HTTPClient::Response Resp = m_RESTClient.getResource({.Path="wares/sets"});
+  std::map<std::string, std::string> waresets;
+  if (Resp.isOK())
+  {
+    openfluid::thirdparty::json JSONDoc;
+
+    try
+    {
+      JSONDoc = openfluid::thirdparty::json::parse(Resp.Content);
+    }
+    catch (openfluid::thirdparty::json::parse_error&)
+    {
+      std::cout << "JSON ERROR" << std::endl; // TOIMPL better error
+    }
+    if (JSONDoc.is_array())
+    {
+      for (const auto& WaresetDetail : JSONDoc)
+      {
+        waresets[WaresetDetail["name"]] = WaresetDetail["wares"].dump();
+      }
+    }
+  }
+  else
+  {
+    std::cout << "RESP KO" << std::endl; // TOIMPL better error
+  }
+  return waresets;
+}
 
 // =====================================================================
 // =====================================================================

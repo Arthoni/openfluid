@@ -54,6 +54,7 @@
 #include <openfluid/utils/Process.hpp>
 #include <openfluid/utils/CMakeProxy.hpp>
 #include <openfluid/utils/GitProxy.hpp>
+#include <openfluid/utils/FluidHubAPIClient.hpp>
 #include <openfluid/tools/Filesystem.hpp>
 #include <openfluid/tools/FilesystemPath.hpp>
 #include <openfluid/tools/StringHelpers.hpp>
@@ -292,6 +293,48 @@ int WareTasks::processImport() const
     return error("Error while cloning ware");
   }
   return success("Ware import successfully completed");
+}
+
+// =====================================================================
+// =====================================================================
+
+
+int WareTasks::processSetup() const
+{
+  const auto ParentPath = (m_Cmd.getOptionValue("parent-path").empty() ? openfluid::tools::Filesystem::currentPath() : 
+                                                                          m_Cmd.getOptionValue("parent-path"));
+
+  std::string ID = m_Cmd.getOptionValue("id");
+  std::string SourceURL = m_Cmd.getOptionValue("hub");
+
+  //curl http://147.100.175.211:8181/api/wares/sets -H "Accept: application/x.openfluid.fluidhub+json; version=1.0"
+
+  openfluid::utils::FluidHubAPIClient FHClient;
+
+  if (FHClient.connect(SourceURL,false))//TOIMPL
+  {
+    const auto Waresets = FHClient.getWaresets();
+    bool found = false;
+    for (const auto& Wareset : Waresets)
+    {
+      if (Wareset.first == ID)
+      {
+        std::cout << "HANDLING " << Wareset.second << std::endl; // TOIMPL
+        // format: [{"id":"export.vars.files.csv","type":"observers","version":"openfluid-2.2"},{"id":"water.atm-surf.rain-su.files","type":"simulators","version":"openfluid-2.2"},{"id":"water.surf.transfer-rs.hayami","type":"simulators","version":"openfluid-2.2"},{"id":"water.surf.transfer-su.hayami","type":"simulators","version":"openfluid-2.2"},{"id":"water.surf-uz.runoff-infiltration.mseytoux","type":"simulators","version":"openfluid-2.2"}]
+        found = true;
+      }
+    }
+    if (!found)
+    {
+      return error("Wareset not found on hub instance");
+    }
+  }
+  else
+  {
+    return error("Error during FluidHub connection");
+  }
+  //return error("Error during wareset setup");
+  return success("Wareset setup successfully completed");
 }
 
 
@@ -834,6 +877,10 @@ int WareTasks::process() const
   else if (m_Cmd.getName() == "import-ware")
   {
     return processImport();
+  }
+  else if (m_Cmd.getName() == "setup-wareset")
+  {
+    return processSetup();
   }
   else if (m_Cmd.getName() == "check")
   {
