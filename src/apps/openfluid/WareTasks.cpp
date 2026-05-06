@@ -39,6 +39,7 @@
 
 
 #include <algorithm>
+#include <fstream>
 #include <memory>
 
 #include <openfluid/base/Environment.hpp>
@@ -351,6 +352,8 @@ int WareTasks::processSetup() const
           std::cout << "JSON ERROR" << std::endl; // TOIMPL better error
         }
 
+        std::ofstream WaresetCmake;
+        WaresetCmake.open(ParentPath.fromThis("wares-dev").fromThis("CMakeLists.txt").toGeneric());
         for (const auto& Ware : JSONWareset)
         {
           //TODO in most cases, wares can be built in parallel, so handle it here? (redundant with "project cmakelists" strategy proposal that would handle it directly)
@@ -392,51 +395,94 @@ int WareTasks::processSetup() const
               std::cout << l << std::endl;
             }
           }
+
+          //1.3- Build centralized wareset CMakeLists.txt
+          WaresetCmake << "ADD_SUBDIRECTORY("<< WareType << "/" << WareID << ")\n";
+        }
+        WaresetCmake.close();//TOIMPL
+        
+        // 2- Building ware 
+        std::string BuildType = "Release";
+        std::string Target = "install";
+        unsigned int JobsNbr = openfluid::base::Environment::getIdealJobsCount();
+
+        std::map<std::string,std::string> Vars = openfluid::waresdev::initializeConfigureVariables();
+
+        Vars["CMAKE_BUILD_TYPE"] = BuildType;
+        Vars["WARES_PREFIX_INSTALL_PATH"] = ParentPathStr+"/wares";
+        
+        std::string WareIncludeDirs = std::getenv("WARE_INTERNAL_INCLUDE_DIRS"); //FIXME find a cleaner way, probably useful only for test context
+        if (WareIncludeDirs.length() > 0) 
+        {
+          Vars["WARE_INTERNAL_INCLUDE_DIRS"] = WareIncludeDirs;
+        }
           
-          // 2- Building ware 
-          //   2.1- Configure ware for installation 
-          // DIRTYCODE merge with other configure steps of this file
-          std::string BuildType = "Release";
-          const auto BuildPath = openfluid::tools::Path({WarePath.toGeneric(),openfluid::utils::CMakeProxy::getBuildDir(BuildType)});
+        bool BuildTogether = false;
+        if (BuildTogether)
+        {
+          const auto BuildPath = openfluid::tools::Path({ParentPath.fromThis("wares-dev").toGeneric(),openfluid::utils::CMakeProxy::getBuildDir(BuildType)});
           if (BuildPath.isDirectory())
           {
             BuildPath.removeDirectory();
           }
           BuildPath.makeDirectory();
 
-          std::map<std::string,std::string> Vars = openfluid::waresdev::initializeConfigureVariables();
-
-          Vars["CMAKE_BUILD_TYPE"] = BuildType;
-          Vars["WARES_PREFIX_INSTALL_PATH"] = ParentPathStr+"/wares";
-          std::string WareIncludeDirs = std::getenv("WARE_INTERNAL_INCLUDE_DIRS"); //FIXME find a cleaner way, probably useful only for test context
-          if (WareIncludeDirs.length() > 0) 
-          {
-            Vars["WARE_INTERNAL_INCLUDE_DIRS"] = WareIncludeDirs;
-          }
-
-          auto CMakeCmd = openfluid::utils::CMakeProxy::getConfigureCommand(BuildPath.toGeneric(),WarePath.toGeneric(),
+          auto CMakeCmd = openfluid::utils::CMakeProxy::getConfigureCommand(BuildPath.toGeneric(),ParentPath.fromThis("wares-dev").toGeneric(),
                                                                             Vars);
 
           if (openfluid::utils::Process::system(CMakeCmd) != 0)
           {
-            std::cout << "Configure failure" << std::endl;
+            std::cout << "Configure failure" << std::endl; //TOIMPL send error signal at the end if one failed
           }
           
           //   2.2- Build ware
-          std::string Target = "install";
-          unsigned int JobsNbr = openfluid::base::Environment::getIdealJobsCount();
 
           auto CMakeCmdBuild = openfluid::utils::CMakeProxy::getBuildCommand(BuildPath.toGeneric(),Target,JobsNbr);
 
           if (openfluid::utils::Process::system(CMakeCmdBuild) != 0)
           {
-            std::cout << "Build failure" << std::endl;
+            std::cout << "Build failure" << std::endl; //TOIMPL send error signal at the end if one failed
           }          
-          // 3- Check if binary valid
-          //   3.1- check if Found in UD/wares/
-          // TOIMPL
-          
-          //   3.2- ensure validity (via symbols?)
+        }
+        else
+        {
+          for (const auto& Ware : JSONWareset)
+          {
+            //   2.1- Configure ware for installation 
+            std::string WareType = Ware["type"];
+            std::string WareID = Ware["id"];
+            const auto WarePath = ParentPath.fromThis("wares-dev").fromThis(WareType).fromThis(WareID);//TOIMPL replace "wares-dev" by var
+            // DIRTYCODE merge with other configure steps of this file
+            const auto BuildPath = openfluid::tools::Path({WarePath.toGeneric(),openfluid::utils::CMakeProxy::getBuildDir(BuildType)});
+            if (BuildPath.isDirectory())
+            {
+              BuildPath.removeDirectory();
+            }
+            BuildPath.makeDirectory();
+
+            auto CMakeCmd = openfluid::utils::CMakeProxy::getConfigureCommand(BuildPath.toGeneric(),WarePath.toGeneric(),
+                                                                              Vars);
+
+            if (openfluid::utils::Process::system(CMakeCmd) != 0)
+            {
+              std::cout << "Configure failure" << std::endl; //TOIMPL send error signal at the end if one failed
+            }
+            
+            //   2.2- Build ware
+
+            auto CMakeCmdBuild = openfluid::utils::CMakeProxy::getBuildCommand(BuildPath.toGeneric(),Target,JobsNbr);
+
+            if (openfluid::utils::Process::system(CMakeCmdBuild) != 0)
+            {
+              std::cout << "Build failure" << std::endl; //TOIMPL send error signal at the end if one failed
+            }          
+            // 3- Check if binary valid
+            //   3.1- check if Found in UD/wares/
+            // TODO
+            
+            //   3.2- ensure validity (via symbols?)
+            // TODO
+          }
         }
       }
     }

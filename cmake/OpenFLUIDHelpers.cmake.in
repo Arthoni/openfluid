@@ -443,12 +443,12 @@ FUNCTION(_OPENFLUID_WAREPLUGIN_BUILD)
                        DEPENDS ${_DOCFILES_DEPENDS}
                        OUTPUT "${CMAKE_BINARY_DIR}/${WARE_ID}.pdf")
 
-    ADD_CUSTOM_TARGET(docalyze
+    ADD_CUSTOM_TARGET(docalyze-${WARE_ID}
                       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
                       DEPENDS "${CMAKE_BINARY_DIR}/${WARE_ID}.pdf"
                       COMMENT "Docalyzing...")
 
-    ADD_CUSTOM_TARGET(docalyze-install
+    ADD_CUSTOM_TARGET(docalyze-install-${WARE_ID}
                       COMMAND "${CMAKE_COMMAND}" "-E" "copy" 
                               "${CMAKE_BINARY_DIR}/${WARE_ID}.pdf" "${_OPNFLD_INSTALL_PATH}/${WARE_ID}.pdf"
                       WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -475,20 +475,20 @@ FUNCTION(_OPENFLUID_WAREPLUGIN_BUILD)
 
     IF(_LUPDATE_EXECUTABLE)
 
-      ADD_CUSTOM_TARGET(update-translations-strings)
+      ADD_CUSTOM_TARGET(update-translations-strings-${WARE_ID})
 
       FOREACH(_LANG ${_BUILDARGS_I18N_LANGS})
 
         SET(_LANG_TSFILE ${CMAKE_CURRENT_SOURCE_DIR}/${WARE_ID}-${_LANG}.ts)
 
-        ADD_CUSTOM_TARGET(update-translation-strings-${_LANG}
+        ADD_CUSTOM_TARGET(update-translation-strings-${WARE_ID}-${_LANG}
                           COMMENT "Updating ${_LANG} translation strings for ${${_WARENAME}_ID}"
                           COMMAND ${_LUPDATE_EXECUTABLE}
                                   "${CMAKE_CURRENT_SOURCE_DIR}"
                                   "-I" "${CMAKE_CURRENT_SOURCE_DIR}"
                                   "-ts" ${_LANG_TSFILE})
 
-        ADD_DEPENDENCIES(update-translations-strings update-translation-strings-${_LANG})
+        ADD_DEPENDENCIES(update-translations-strings-${WARE_ID} update-translation-strings-${WARE_ID}-${_LANG})
 
       ENDFOREACH()
     ELSE()
@@ -508,7 +508,7 @@ FUNCTION(_OPENFLUID_WAREPLUGIN_BUILD)
 
     IF(_LRELEASE_EXECUTABLE)
 
-      ADD_CUSTOM_TARGET(release-translations ALL)
+      ADD_CUSTOM_TARGET(release-translations-${WARE_ID} ALL)
 
       SET (_ALL_LANGS)
 
@@ -523,11 +523,14 @@ FUNCTION(_OPENFLUID_WAREPLUGIN_BUILD)
                                    "-qm" ${_LANG_QMFILE}
                             OUTPUT ${_LANG_QMFILE})
 
-        ADD_CUSTOM_TARGET(release-translations-${_LANG}
-                          COMMENT "Releasing ${_LANG} translation for ${WARE_ID}"
-                          DEPENDS ${_LANG_QMFILE})
+        # IF (NOT TARGET release-translations) # TOIMPL generalize?
+        # ELSE()
+          ADD_CUSTOM_TARGET(release-translations-${WARE_ID}-${_LANG}
+                            COMMENT "Releasing ${_LANG} translation for ${WARE_ID}"
+                            DEPENDS ${_LANG_QMFILE})
+        # ENDIF()
 
-        ADD_DEPENDENCIES(release-translations release-translations-${_LANG})
+        ADD_DEPENDENCIES(release-translations-${WARE_ID} release-translations-${WARE_ID}-${_LANG})
 
         SET (_ALL_LANGS "${_ALL_LANGS}${_LANG} ")
 
