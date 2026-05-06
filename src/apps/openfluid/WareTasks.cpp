@@ -41,6 +41,8 @@
 #include <algorithm>
 #include <memory>
 
+#include <openfluid/base/Environment.hpp>
+#include <openfluid/base/WorkspaceManager.hpp>
 #include <openfluid/ware/TypeDefs.hpp>
 #include <openfluid/waresdev/WareSrcFactory.hpp>
 #include <openfluid/waresdev/GhostsHelpers.hpp>
@@ -301,7 +303,7 @@ int WareTasks::processImport() const
 
 int WareTasks::processSetup() const
 {
-  const auto ParentPath = (m_Cmd.getOptionValue("parent-path").empty() ? openfluid::tools::Filesystem::currentPath() : 
+  const auto ParentPathStr = (m_Cmd.getOptionValue("parent-path").empty() ? openfluid::tools::Filesystem::currentPath() : 
                                                                           m_Cmd.getOptionValue("parent-path"));
 
   std::string ID = m_Cmd.getOptionValue("id");
@@ -314,17 +316,131 @@ int WareTasks::processSetup() const
   if (FHClient.connect(SourceURL,false))//TOIMPL
   {
     const auto Waresets = FHClient.getWaresets();
-    bool found = false;
+    bool Found = false;
     for (const auto& Wareset : Waresets)
     {
       if (Wareset.first == ID)
       {
-        std::cout << "HANDLING " << Wareset.second << std::endl; // TOIMPL
+        std::cout << "HANDLING " << Wareset.second << std::endl;
         // format: [{"id":"export.vars.files.csv","type":"observers","version":"openfluid-2.2"},{"id":"water.atm-surf.rain-su.files","type":"simulators","version":"openfluid-2.2"},{"id":"water.surf.transfer-rs.hayami","type":"simulators","version":"openfluid-2.2"},{"id":"water.surf.transfer-su.hayami","type":"simulators","version":"openfluid-2.2"},{"id":"water.surf-uz.runoff-infiltration.mseytoux","type":"simulators","version":"openfluid-2.2"}]
-        found = true;
+        
+        Found = true;
+        // 0- Setup userdata
+        std::cout << "setup userdata at " << ParentPathStr << std::endl;
+        
+        openfluid::tools::Path ParentPath(ParentPathStr);
+        if (!ParentPath.exists())
+        {
+          if (!ParentPath.makeDirectory())
+          {
+            return error("Userdata creation failed");
+          }
+        }
+        openfluid::base::WorkspaceManager::prepareWorkspace(ParentPathStr);
+        
+        // 1- Fetching wares 
+
+        openfluid::thirdparty::json JSONWareset;
+
+        try
+        {
+          JSONWareset = openfluid::thirdparty::json::parse(Wareset.second);
+        }
+        catch (openfluid::thirdparty::json::parse_error&)
+        {
+          std::cout << "JSON ERROR" << std::endl; // TOIMPL better error
+        }
+
+        for (const auto& Ware : JSONWareset)
+        {
+          //TODO in most cases, wares can be built in parallel, so handle it here? (redundant with "project cmakelists" strategy proposal that would handle it directly)
+          //   1.1- Checking presence/git 
+          std::string WareType = Ware["type"];
+          std::string WareID = Ware["id"];
+          std::string WareVersion = Ware["version"];
+          std::cout << WareID << ": " << WareVersion << " " << WareType << std::endl;
+          const auto WarePath = ParentPath.fromThis("wares-dev").fromThis(WareType).fromThis(WareID);//TOIMPL replace "wares-dev" by var
+          if (!WarePath.exists())
+          {
+            if (openfluid::waresdev::cloneWare(SourceURL, "hub", ParentPath.fromThis("wares-dev").fromThis(WareType).toGeneric(), WareID, WareType) != 0)
+            {
+              return error("Error while cloning ware");
+            }
+          }
+          if (!WarePath.exists())
+          {
+            return error("Ware path not found despite clone success");
+          }
+          
+          //   1.2- Checking version/checkout 
+          openfluid::utils::GitProxy Git;
+          openfluid::utils::Process::Command CmdCheckout{
+            .Program = Git.getExecutablePath(),
+            .Args = {"checkout", WareVersion},
+            .WorkDir = WarePath.toGeneric()
+          };
+          openfluid::utils::Process PCheckout(CmdCheckout);
+          if (!PCheckout.run() || !(PCheckout.getExitCode() == 0))//TOIMPL better logging
+          {
+            std::cout << "error during ware checkout" << std::endl;
+            for (const auto& l : PCheckout.stdOutLines())
+            {
+              std::cout << l << std::endl;
+            }
+            for (const auto& l : PCheckout.stdErrLines())
+            {
+              std::cout << l << std::endl;
+            }
+          }
+          
+          // 2- Building ware 
+          //   2.1- Configure ware for installation 
+          // DIRTYCODE merge with other configure steps of this file
+          std::string BuildType = "Release";
+          const auto BuildPath = openfluid::tools::Path({WarePath.toGeneric(),openfluid::utils::CMakeProxy::getBuildDir(BuildType)});
+          if (BuildPath.isDirectory())
+          {
+            BuildPath.removeDirectory();
+          }
+          BuildPath.makeDirectory();
+
+          std::map<std::string,std::string> Vars = openfluid::waresdev::initializeConfigureVariables();
+
+          Vars["CMAKE_BUILD_TYPE"] = BuildType;
+          Vars["WARES_PREFIX_INSTALL_PATH"] = ParentPathStr+"/wares";
+          std::string WareIncludeDirs = std::getenv("WARE_INTERNAL_INCLUDE_DIRS"); //FIXME find a cleaner way, probably useful only for test context
+          if (WareIncludeDirs.length() > 0) 
+          {
+            Vars["WARE_INTERNAL_INCLUDE_DIRS"] = WareIncludeDirs;
+          }
+
+          auto CMakeCmd = openfluid::utils::CMakeProxy::getConfigureCommand(BuildPath.toGeneric(),WarePath.toGeneric(),
+                                                                            Vars);
+
+          if (openfluid::utils::Process::system(CMakeCmd) != 0)
+          {
+            std::cout << "Configure failure" << std::endl;
+          }
+          
+          //   2.2- Build ware
+          std::string Target = "install";
+          unsigned int JobsNbr = openfluid::base::Environment::getIdealJobsCount();
+
+          auto CMakeCmdBuild = openfluid::utils::CMakeProxy::getBuildCommand(BuildPath.toGeneric(),Target,JobsNbr);
+
+          if (openfluid::utils::Process::system(CMakeCmdBuild) != 0)
+          {
+            std::cout << "Build failure" << std::endl;
+          }          
+          // 3- Check if binary valid
+          //   3.1- check if Found in UD/wares/
+          // TOIMPL
+          
+          //   3.2- ensure validity (via symbols?)
+        }
       }
     }
-    if (!found)
+    if (!Found)
     {
       return error("Wareset not found on hub instance");
     }

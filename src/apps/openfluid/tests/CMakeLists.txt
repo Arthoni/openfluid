@@ -455,10 +455,24 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset
                    COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
                            "setup-wareset"
                            "-p" "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
+                           "--hub=http://147.100.175.211:8181/api/" # TOIMPL TMP, replace by local file
                            "--id=mhyrou"
-                           "--hub=http://147.100.175.211:8181/api/"
-                   PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/setup-wareset/"
-                   PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/setup-wareset/")
+                   PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
+                   PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
+                   POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset/wares-dev/simulators/water.atm-surf.rain-su.files/CMakeLists.txt")
+SET_PROPERTY(TEST cmdline-openfluid-SetupWareset
+                APPEND PROPERTY ENVIRONMENT "OpenFLUID_DIR=${OFBUILD_DIST_CMAKE_MODULES_DIR};"
+                                            "OpenFLUID_EXTRA_SEARCH_PATHS=${CMAKE_BINARY_DIR}/src\;${OFBUILD_DIST_DIR};"
+                                            "WARE_INTERNAL_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/src\;${OFBUILD_DIST_DIR};")
+
+
+ADD_TEST(NAME cmdline-openfluid-CheckWareset
+         COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
+                 "report" "simulators" "-l" ">" "${OFBUILD_TMP_DIR}/cmdline/create-wareset/report.txt"
+         POST_TEST CHECK_FILE_CONTAINS "${OFBUILD_TMP_DIR}/cmdline/create-wareset/report.txt" "water.atm-surf.rain-su.files")
+SET_PROPERTY(TEST cmdline-openfluid-CheckWareset
+             APPEND PROPERTY DEPENDS cmdline-openfluid-SetupWareset
+             APPEND PROPERTY ENVIRONMENT "OpenFLUID_USERDATA_PATH=${OFBUILD_TMP_DIR}/cmdline/create-wareset/")
 
 
 ###########################################################################
@@ -479,6 +493,7 @@ SET_PROPERTY(TEST cmdline-openfluid-CheckObserver
              APPEND PROPERTY DEPENDS cmdline-openfluid-CreateWareObserver)
 
 
+MESSAGE(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 OPENFLUID_ADD_TEST(NAME cmdline-openfluid-ConfigureObserver
                    COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
                            "configure"
