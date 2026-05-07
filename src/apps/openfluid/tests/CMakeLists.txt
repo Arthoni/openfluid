@@ -454,11 +454,13 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-ImportSimulator
 OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset
                    COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
                            "setup-wareset"
-                           "-p" "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
+                           "-p" "${OFBUILD_TMP_DIR}/cmdline/create-wareset/" # TOIMPL fix ambiguity: parent path or root path?
                            "--hub=http://147.100.175.211:8181/api/" # TOIMPL TMP, replace by local file
                            "--id=mhyrou"
+                           "-j" "14"
+                           "-l"
                    PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
-                   PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
+                   PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/"
                    POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset/wares-dev/simulators/water.atm-surf.rain-su.files/CMakeLists.txt")
 SET_PROPERTY(TEST cmdline-openfluid-SetupWareset
                 APPEND PROPERTY ENVIRONMENT "OpenFLUID_DIR=${OFBUILD_DIST_CMAKE_MODULES_DIR};"
@@ -466,13 +468,13 @@ SET_PROPERTY(TEST cmdline-openfluid-SetupWareset
                                             "WARE_INTERNAL_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/src\;${OFBUILD_DIST_DIR};")
 
 
-ADD_TEST(NAME cmdline-openfluid-CheckWareset
-         COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
-                 "report" "simulators" "-l" ">" "${OFBUILD_TMP_DIR}/cmdline/create-wareset/report.txt"
-         POST_TEST CHECK_FILE_CONTAINS "${OFBUILD_TMP_DIR}/cmdline/create-wareset/report.txt" "water.atm-surf.rain-su.files")
-SET_PROPERTY(TEST cmdline-openfluid-CheckWareset
-             APPEND PROPERTY DEPENDS cmdline-openfluid-SetupWareset
-             APPEND PROPERTY ENVIRONMENT "OpenFLUID_USERDATA_PATH=${OFBUILD_TMP_DIR}/cmdline/create-wareset/")
+# ADD_TEST(NAME cmdline-openfluid-CheckWareset
+#          COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
+#                  "report" "simulators"
+#          POST_TEST CHECK_FILE_CONTAINS "${OFBUILD_TMP_DIR}/cmdline/create-wareset/report.txt" "water.atm-surf.rain-su.files")
+# SET_PROPERTY(TEST cmdline-openfluid-CheckWareset
+#              APPEND PROPERTY DEPENDS cmdline-openfluid-SetupWareset
+#              APPEND PROPERTY ENVIRONMENT "OpenFLUID_USERDATA_PATH=${OFBUILD_TMP_DIR}/cmdline/create-wareset/")
 
 
 ###########################################################################

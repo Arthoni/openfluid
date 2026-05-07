@@ -235,6 +235,8 @@ int main(int argc, char **argv)
   SetupWaresetCmd.addOptions({{"parent-path","p","parent path where to create the ware sources",true},
                             {"hub","","hub URL", true},
                             {"id","i","ID of the ware sources to import (required when importing from hub)", true},
+                            {"jobs","j","Jobs number for build step", true},
+                            {"parallel-builds","l","Ware will be built in parallel (incompatible with targets with identical names)"},
                             });
   Parser.addCommand(SetupWaresetCmd, &WareSection);
   
