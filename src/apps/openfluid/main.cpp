@@ -234,6 +234,7 @@ int main(int argc, char **argv)
   auto SetupWaresetCmd = openfluid::utils::CommandLineCommand("setup-wareset","Setup ware set (fetch from remote hub, configure and compile)");
   SetupWaresetCmd.addOptions({{"parent-path","p","parent path where to create the ware sources",true},
                             {"hub","","hub URL", true},
+                            {"dataset", "", "Dataset to deduce wareset from", true},
                             {"id","i","ID of the ware sources to import (required when importing from hub)", true},
                             {"jobs","j","Jobs number for build step", true},
                             {"parallel-builds","l","Ware will be built in parallel (incompatible with targets with identical names)"},

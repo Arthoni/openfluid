@@ -451,22 +451,40 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-ImportSimulator
 ###########################################################################
 
 
-OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset
+OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset-FromHub 
                    COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
                            "setup-wareset"
                            "-p" "${OFBUILD_TMP_DIR}/cmdline/create-wareset/" # TOIMPL fix ambiguity: parent path or root path?
-                           "--hub=http://147.100.175.211:8181/api/" # TOIMPL TMP, replace by local file
+                           "--hub=http://147.100.175.211:8181/api/" # TOIMPL TMP, replace by mock upload (rejocker+git de test)
                            "--id=mhyrou"
                            "-j" "14"
                            "-l"
                    PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset/"
                    PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/"
                    POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset/wares-dev/simulators/water.atm-surf.rain-su.files/CMakeLists.txt")
-SET_PROPERTY(TEST cmdline-openfluid-SetupWareset
+SET_PROPERTY(TEST cmdline-openfluid-SetupWareset-FromHub
                 APPEND PROPERTY ENVIRONMENT "OpenFLUID_DIR=${OFBUILD_DIST_CMAKE_MODULES_DIR};"
                                             "OpenFLUID_EXTRA_SEARCH_PATHS=${CMAKE_BINARY_DIR}/src\;${OFBUILD_DIST_DIR};"
                                             "WARE_INTERNAL_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/src\;${OFBUILD_DIST_DIR};")
 
+
+###########################################################################
+
+OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset-FromLocal 
+                   COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
+                           "setup-wareset"
+                           "-p" "${OFBUILD_TMP_DIR}/cmdline/create-wareset-from-dataset/" # TOIMPL fix ambiguity: parent path or root path?
+                           "--dataset=${CMAKE_SOURCE_DIR}/examples/projects/MHYDAS_Roujan/IN"
+                           "--hub=http://147.100.175.211:8181/api/" # TOIMPL TMP, replace by mock upload (rejocker+git de test)
+                           "-j" "14"
+                           "-l"
+                   PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset-from-dataset/"
+                   PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/"
+                   POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset-from-dataset/wares-dev/simulators/water.atm-surf.rain-su.files/CMakeLists.txt")
+SET_PROPERTY(TEST cmdline-openfluid-SetupWareset-FromLocal
+                APPEND PROPERTY ENVIRONMENT "OpenFLUID_DIR=${OFBUILD_DIST_CMAKE_MODULES_DIR};"
+                                            "OpenFLUID_EXTRA_SEARCH_PATHS=${CMAKE_BINARY_DIR}/src\;${OFBUILD_DIST_DIR};"
+                                            "WARE_INTERNAL_INCLUDE_DIRS=${CMAKE_SOURCE_DIR}/src\;${OFBUILD_DIST_DIR};")
 
 # ADD_TEST(NAME cmdline-openfluid-CheckWareset
 #          COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}"
