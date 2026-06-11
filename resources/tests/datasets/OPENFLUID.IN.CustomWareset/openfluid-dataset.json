@@ -28,12 +28,6 @@
   "issues": [],
   "dataset": {
     "ware-versions": [
-      {
-        "type": "simulator",
-        "git-url": "@OFBUILD_TESTS_GITHELPER_URL@",
-        "id": "water.surf-uz.runoff-infiltration.mseytoux",
-        "version": "for-test"
-      }
     ]
   }
 }

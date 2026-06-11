@@ -218,6 +218,21 @@ std::map<std::string,std::string> OPENFLUID_API initializeConfigureVariables();
 
 
 /**
+  Generates the Ware git URL from Hub context
+  @param[in] SourceURL the ware path, the hub or git adress, may be optional
+  @param[in] WareID the ware path, used for both local name and remote search on hub
+  @param[in] WareType the ware type, required for hub clone
+  @return built URL string
+*/
+std::string OPENFLUID_API buildHubWareURL(const std::string& SourceURL, const std::string& WareID, 
+                                          const std::string& WareType);
+
+
+// =====================================================================
+// =====================================================================
+
+
+/**
   Clones a ware from remote git or hub URL
   @param[in] SourceURL the ware path, the hub or git adress, may be optional
   @param[in] SourceType either "hub" or "git" depending on source type

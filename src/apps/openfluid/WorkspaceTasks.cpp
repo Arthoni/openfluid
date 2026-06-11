@@ -51,6 +51,7 @@ int WorkspaceTasks::process() const
                  openfluid::tools::Filesystem::currentPath() : m_Cmd.getOptionValue("path"));
 
     openfluid::base::WorkspaceManager::prepareWorkspace(Path);
+    std::cout << "Workspace created at " << Path << std::endl;
 
     return 0;
   }

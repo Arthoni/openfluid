@@ -53,6 +53,7 @@
 #include <openfluid/tools/StringHelpers.hpp>
 #include <openfluid/utils/CMakeProxy.hpp>
 #include <openfluid/utils/FluidHubAPIClient.hpp>
+#include <openfluid/utils/Process.hpp>
 #include <openfluid/waresdev/WareSrcHelpers.hpp>
 
 #include "WareSetManager.hpp"
@@ -85,18 +86,25 @@ void throwOrPrint(bool IsStrict, std::string M, unsigned int& Problems)
 }
 
 
+// =====================================================================
+// =====================================================================
+
+
 void WareSetManager::displayStatus()
 {
   // Print status table
   std::cout << "== Wareset status" << std::endl;
   std::vector OrderedSteps = {"fetch", "ckout", "config", "build", "install", "run"};
+  if (m_IsPreconfigureCommand)
+  {
+    OrderedSteps = {"fetch", "ckout", "custom", "config", "build", "install", "run"};
+  }
   std::cout << "                           ";
   for (const std::string Step : OrderedSteps)
   {
     std::cout << "\t" << Step;
   }
   std::cout << std::endl;
-  // TODO set Common line last
   for (const auto& WareLine : m_WareStatus)
   {
     std::cout << "* " << std::setw(25) << (WareLine.first.length() > 25 ? 
@@ -133,7 +141,8 @@ void WareSetManager::displayStatus()
 
 WareSetManager::WareSetManager(const std::string& WareSourceType, const std::string& WaresetSourceType, 
                                const std::string& SetOption, const std::string& WaresOrigin, std::string& ID) : 
-  m_WareSourceType(WareSourceType), m_WaresetSourceType(WaresetSourceType), m_ID(ID), m_WaresOrigin(WaresOrigin)
+  m_WareSourceType(WareSourceType), m_WaresetSourceType(WaresetSourceType), m_ID(ID), m_WaresOrigin(WaresOrigin), 
+  m_IsPreconfigureCommand(false)
 {
   if (m_WaresetSourceType == "hub")
   {    
@@ -244,34 +253,114 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
     // Use version data from potential openfluid-dataset.json
     // TODO this function should be in dataset processing class
     std::ifstream FileStream;
-    FileStream.open(openfluid::tools::Filesystem::joinPath({SetOption, "openfluid-dataset.json"}),std::ifstream::in);
+    FileStream.open(openfluid::tools::Filesystem::joinPath({SetOption, "wareset-setup.json"}),std::ifstream::in);
+    //TOIMPL make filename var
     if (!FileStream.is_open())
     {
-      openfluid::base::log::warning("Wareset setup", "No dataset metadata");
+      openfluid::base::log::warning("Wareset setup", "No wareset metadata");
     }
     else
     {
+      std::string ConfigureOptionKey = "configure-options";
+      std::string CMakeContentKey = "cmake-content";
       try
       {
-        openfluid::thirdparty::json DatasetMetadataJson = openfluid::thirdparty::json::parse(FileStream);
-
-        for (const auto& Ware : DatasetMetadataJson["dataset"]["ware-versions"])
+        openfluid::thirdparty::json WaresetJson = openfluid::thirdparty::json::parse(FileStream);
+        
+        // First check generic ops
+        for (const auto& Ware : WaresetJson["wares-setup"]) //TODO externalise function for solo-ware level?
         {
-          for (auto& WareFromFluidx : m_JSONWareset)
+          if ( Ware["id"] == "*")
           {
-            // tolerance singular/plural on ware type
-            std::string WareTypePlural = Ware["type"];
-            if (WareTypePlural[WareTypePlural.size()-1] != 's')
+            for (auto& WareFromFluidx : m_JSONWareset)
             {
-              WareTypePlural += 's';
-            }
-            if (WareFromFluidx["id"] == Ware["id"] && WareFromFluidx["type"] == WareTypePlural)
-            {
-              WareFromFluidx["version"] = Ware["version"];
-              if (Ware.contains("git-url"))
+              for (const std::string& Key : {(std::string)"version", (std::string)"pre-configure-commands", 
+                                             CMakeContentKey})
               {
-                WareFromFluidx["git-url"] = Ware["git-url"];
-                m_WareSourceType = "remote";
+                if (Ware.contains(Key))
+                {
+                  WareFromFluidx[Key] = Ware[Key];
+                }
+                if ((std::string)Key == "pre-configure-commands")
+                {
+                  m_IsPreconfigureCommand = true;
+                }
+              }
+              if (Ware.contains(ConfigureOptionKey))
+              {
+                if (!WareFromFluidx.contains(ConfigureOptionKey))
+                {
+                  WareFromFluidx[ConfigureOptionKey] = thirdparty::json::object();
+                }
+                for (const auto& Option : Ware[ConfigureOptionKey].items())
+                {
+                  WareFromFluidx[ConfigureOptionKey][Option.key()] = Option.value();
+                }
+              }
+            }
+          }
+        }
+
+
+        for (const auto& Ware : WaresetJson["wares-setup"])
+        {
+          if ( Ware["id"] != "*")
+          {
+            for (auto& WareFromFluidx : m_JSONWareset)
+            {
+              // tolerance singular/plural on ware type
+              std::string WareTypePlural = Ware["type"];
+              if (WareTypePlural[WareTypePlural.size()-1] != 's')
+              {
+                WareTypePlural += 's';
+              }
+              if (WareFromFluidx["id"] == Ware["id"] && WareFromFluidx["type"] == WareTypePlural)
+              {
+                if (Ware.contains("git-url"))
+                {
+                  WareFromFluidx["git-url"] = Ware["git-url"];
+                  m_WareSourceType = "remote";
+                }
+                if (Ware.contains(ConfigureOptionKey))//TOIMPL solve redundancy
+                {
+                  if (!WareFromFluidx.contains(ConfigureOptionKey))
+                  {
+                    WareFromFluidx[ConfigureOptionKey] = thirdparty::json::object();
+                  }
+                  for (const auto& Option : Ware[ConfigureOptionKey].items())
+                  {
+                    WareFromFluidx[ConfigureOptionKey][Option.key()] = Option.value();
+                  }
+                }
+                if (Ware.contains(CMakeContentKey))
+                {
+                  if (!WareFromFluidx.contains(CMakeContentKey))
+                  {
+                    WareFromFluidx[CMakeContentKey] = Ware[CMakeContentKey];
+                  }
+                  else
+                  {
+                    WareFromFluidx[CMakeContentKey] += Ware[CMakeContentKey];
+                  }
+                }
+               
+                if (Ware.contains("version"))
+                {
+                  WareFromFluidx["version"] = Ware["version"];
+                }
+                std::string PreconfigString = "pre-configure-commands";
+                if (Ware.contains(PreconfigString))
+                {
+                  if (!WareFromFluidx.contains(PreconfigString))
+                  {
+                    WareFromFluidx[PreconfigString] = thirdparty::json::array();
+                  }
+                  for (const auto& Command : Ware[PreconfigString])
+                  {
+                    WareFromFluidx[PreconfigString].push_back(Command);
+                  }
+                  m_IsPreconfigureCommand = true;
+                }
               }
             }
           }
@@ -296,9 +385,9 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
     {
       try
       {
-        openfluid::thirdparty::json DatasetMetadataJson = openfluid::thirdparty::json::parse(FileStream);
+        openfluid::thirdparty::json WaresetJson = openfluid::thirdparty::json::parse(FileStream);
 
-        for (auto& Ware : DatasetMetadataJson)
+        for (auto& Ware : WaresetJson)
         {
           // // tolerance singular/plural on ware type
           // std::string WareTypePlural = Ware["type"];
@@ -333,14 +422,17 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
 // =====================================================================
 
 
-int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std::string& WareSourceURL, bool IsStrict, 
-                                    bool NoBuild, unsigned int JobsNbr, bool BuildTogether)
+int WareSetManager::scaffoldWareset(const std::string& UserdataPathStr, 
+                                    const std::string& WareSourceURL, 
+                                    const std::string& WorkspaceName, bool IsStrict, 
+                                    bool NoBuild, unsigned int JobsNbr, bool BuildTogether, bool Overwrite)
 {
-  const openfluid::tools::Path ParentPath(ParentPathStr);
+  const openfluid::tools::Path ParentPath(UserdataPathStr);
   std::ofstream CallerCmake;
   std::ofstream WaresetCmake;
   bool WaresetCMakeList = true;
-  const auto WaresdevPath = ParentPath.fromThis(openfluid::config::WARESDEV_PATH);
+  const auto WaresdevPath = ParentPath.fromThis(WorkspaceName).fromThis(
+    openfluid::config::WARESDEV_PATH);
   if (WaresetCMakeList)
   {
     //TOIMPL better location for these files?
@@ -355,8 +447,9 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
     CallerCmake << "OPENFLUID_ADD_MULTIWARE_TARGETS()\n";
     
     CallerCmake.close();
+
   }
-  for (const auto& Ware : m_JSONWareset)
+  for (auto& Ware : m_JSONWareset)
   {
     // --------------------------------------
     //   1.1- Checking presence/git
@@ -394,6 +487,7 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
         else if (!m_WaresOrigin.empty()) // fallback on hub if provided
         {
           std::cout << "  from Hub repository: " << WareSourceURL << std::endl;
+          Ware["git-url"] = openfluid::waresdev::buildHubWareURL(WareSourceURL, WareID, WareType);
           if (openfluid::waresdev::cloneWare(WareSourceURL, "hub", WareTypePath.toGeneric(), WareID, WareType) == 0)
           {
             m_WareStatus[WareKey]["fetch"] = OK_STRING;
@@ -442,12 +536,12 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
     }
     else
     {
-      std::cout << WarePath.toGeneric() << "already exists" << std::endl;
+      throwOrPrint(!Overwrite, WarePath.toGeneric() + " already exists", 
+                       m_Problems);
       m_WareStatus[WareKey]["fetch"] = "skip"; 
     }
     if (WarePath.exists() && WaresetCMakeList)
     {
-      // Build centralized wareset CMakeLists.txt
       WaresetCmake << "ADD_SUBDIRECTORY("<< WareType << "/" << WareID << ")\n";
     }
     else
@@ -491,23 +585,95 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
       m_WareStatus[WareKey]["ckout"] = "skip";
     }
   }
-  freeze(ParentPathStr);
-
-  if (NoBuild)
-  {
-    for (auto& WareLine : m_WareStatus)
-    {
-      for (const auto& Step : {"config", "build", "install"})//TOIMPL replace magic strings by vars
-      {
-        WareLine.second[Step] = "skip";
-      }
-    }
-    return 0;
-  }
+  freeze(UserdataPathStr);
 
   if (WaresetCMakeList)
   {
     WaresetCmake.close();
+  }
+
+  // 1.3 Custom pre-configure commands
+
+  for (const auto& Ware : m_JSONWareset)
+  {
+    if (Ware.contains("pre-configure-commands"))
+    {
+      // Convert template variables:
+      for (const auto& CommandJson : Ware["pre-configure-commands"])
+      {
+        std::string PreConfigureCommand = CommandJson["program"];
+        // %%OF%% //TODO precise that OF only replaced as command
+        PreConfigureCommand = openfluid::tools::replace(PreConfigureCommand, "%%OF%%", 
+          openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
+                                                  openfluid::config::INSTALL_BIN_PATH,
+                                                  openfluid::config::CMD_APP}));
+        std::string WareType = Ware["type"];
+        std::string WareID = Ware["id"];
+        std::string WareKey = WareType.substr(0,3)+"/"+WareID;
+        const auto WarePath = WaresdevPath.fromThis(WareType).fromThis(WareID);
+        std::vector<std::string> Args;
+        // Placeholders strings:
+        // %%BuildParent%% for ware or waresdev folder depending on build context
+        // %%Ware%% for the current ware root folder
+        // %%Waresdev%% for the current waresdev folder
+        // %%??%% will try to convert to environment value if exists
+        if (CommandJson.contains("args"))
+        {
+          for (const auto& Arg : CommandJson["args"])
+          {
+            std::string ArgProcessed;
+            if (BuildTogether)
+            {
+              ArgProcessed = openfluid::tools::replace(Arg, "%%BuildParent%%", "%%Waresdev%%");
+            }
+            else
+            {
+              ArgProcessed = openfluid::tools::replace(Arg, "%%BuildParent%%", "%%Ware%%");
+            }
+            ArgProcessed = openfluid::tools::replace(ArgProcessed, "%%Ware%%", WarePath.toGeneric());
+            ArgProcessed = openfluid::tools::replace(ArgProcessed, "%%Waresdev%%", WaresdevPath.toGeneric());
+
+            // check for other vars
+            std::regex WordsRegex("%%(.*?)%%");
+            auto WordsBegin = std::sregex_iterator(ArgProcessed.begin(), ArgProcessed.end(), WordsRegex);
+                        
+            for (std::sregex_iterator i = WordsBegin; i != std::sregex_iterator(); ++i)
+            {
+              std::string MatchStr = (*i).str(1);
+              // check if env var found
+                char* EnvVarValueChar = std::getenv(MatchStr.c_str());
+                if (EnvVarValueChar != NULL)
+                {
+                  std::string EnvVarValue = std::string(EnvVarValueChar);
+                  ArgProcessed = openfluid::tools::replace(ArgProcessed, (*i).str(), EnvVarValue);
+                }
+                else
+                {
+                  std::cout << "Env var detected between '%%' but not found: " << MatchStr << std::endl;
+                }
+            }
+
+            Args.push_back(ArgProcessed);
+          }
+        }
+        
+
+        openfluid::utils::Process::Environment Env;
+        std::cout << "Ware " << WareID << ": Triggering custom command " << PreConfigureCommand << \
+                     " " << openfluid::tools::join(Args, " ") << std::endl;
+        int ReturnCode = openfluid::utils::Process::system(PreConfigureCommand, Args, Env);
+        if (ReturnCode == 0)
+        {
+          m_WareStatus[WareKey]["custom"] = OK_STRING;
+          std::cout << "[OK]" << std::endl;
+        }
+        else
+        {
+          m_WareStatus[WareKey]["custom"] = KO_STRING;//TODO keep worst of all commands
+          throwOrPrint(IsStrict, "Custom command failed", m_Problems);
+        }
+      }
+    }
   }
 
   // --------------------------------------
@@ -521,7 +687,7 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
   std::map<std::string,std::string> Vars = openfluid::waresdev::initializeConfigureVariables();
 
   Vars["CMAKE_BUILD_TYPE"] = BuildType;
-  Vars["WARES_PREFIX_INSTALL_PATH"] = ParentPathStr+"/wares";
+  Vars["WARES_PREFIX_INSTALL_PATH"] = UserdataPathStr+"/wares";
   
   //FIXME find a cleaner way, probably useful only for test context
   const char* WareIncludeDirs = std::getenv("WARE_INTERNAL_INCLUDE_DIRS");
@@ -529,8 +695,95 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
   {
     Vars["WARE_INTERNAL_INCLUDE_DIRS"] = std::string(WareIncludeDirs);
   }
-    
-  const auto WaresdevPathStr = ParentPath.fromThis(openfluid::config::WARESDEV_PATH).toGeneric();
+
+
+  for (const auto& Ware : m_JSONWareset)
+  {
+    //TOIMPL FIX CONTAMINATING OTHER WARES
+    if (Ware.contains("configure-options") || Ware.contains("cmake-content"))
+    {
+      Vars["CONTEXT_VARS"] = "ON";
+
+      std::ofstream WareCmakeLists;
+      std::ofstream WareCmakeContextual;
+      
+      std::string WareType = Ware["type"];
+      std::string WareID = Ware["id"];
+      const auto WarePath = WaresdevPath.fromThis(WareType).fromThis(WareID);
+      // TOIMPL 1. check if "CMake.in.contextual.config" exists
+
+
+      // 2. add line in CMakeLists.txt if not already there
+      std::ifstream ReadingFile(WarePath.fromThis("CMakeLists.txt").toGeneric());
+
+      // String to store each line of the file.
+      std::string Line;
+      std::string RewrittenFile;
+
+      bool LineAdded = false;
+      std::string ContextualLine = "INCLUDE(CMake.in.contextual.config OPTIONAL)";
+      std::string ContextualBlock = "# Optional file dedicated for automatic cmake configuration, "
+        "loaded if CONTEXT_VARS is ON\n"
+        "OPTION(CONTEXT_VARS \"Using contextual cmake variables\" OFF)\n"
+        "IF (CONTEXT_VARS)\n"
+        "  MESSAGE(STATUS \"Using contextual variables (warning: may be overwritten by subsequent cmake line)\")\n"
+        "  INCLUDE(CMake.in.contextual.config OPTIONAL)\n"
+        "ENDIF()\n"
+        "# For manual adjustments use a CMake.in.local.config file and include it here\n";
+      if (ReadingFile.is_open())
+      {
+        while (getline(ReadingFile, Line))
+        {
+          RewrittenFile += Line+"\n";
+          if (!LineAdded && Line.find(ContextualLine) != Line.npos)
+          {
+            LineAdded = true;
+          }
+        }
+      }
+      if (!LineAdded)
+      {
+        RewrittenFile = ContextualBlock+"\n" + RewrittenFile;
+      }
+
+      WareCmakeLists.open(WarePath.fromThis("CMakeLists.txt").toGeneric());
+      WareCmakeLists << RewrittenFile;
+
+      WareCmakeLists.close();
+      // 3. write contextual config file
+      WareCmakeContextual.open(WarePath.fromThis("CMake.in.contextual.config").toGeneric());
+      WareCmakeContextual << "# " << m_ID << " context\n";
+
+      for (const auto& Option : Ware["configure-options"].items())
+      {
+        WareCmakeContextual << "SET(" << Option.key() << " " << Option.value() << ")\n";
+      }
+
+      if (Ware.contains("cmake-content"))
+      {
+        WareCmakeContextual << "\n# Custom cmake content from wareset\n" << Ware["cmake-content"].get<std::string>() \
+                            << "\n";
+      }
+      WareCmakeContextual.close();
+    }
+    else
+    {
+        Vars.erase("CONTEXT_VARS");
+    }
+  }
+
+  if (NoBuild)
+  {
+    for (auto& WareLine : m_WareStatus)
+    {
+      for (const auto& Step : {"config", "build", "install"})
+      {
+        WareLine.second[Step] = "skip";
+      }
+    }
+    return 0;
+  }
+  const auto WaresdevPathStr = WaresdevPath.toGeneric();
   
   if (BuildTogether)
   {
@@ -546,7 +799,7 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
       BuildPath.removeDirectory();
     }
     BuildPath.makeDirectory();
-    
+
     auto CMakeCmd = openfluid::utils::CMakeProxy::getConfigureCommand(BuildPath.toGeneric(),WaresdevPathStr,
                                                                       Vars);
 
@@ -585,7 +838,7 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
       std::string WareType = Ware["type"];
       std::string WareID = Ware["id"];
       std::string WareKey = WareType.substr(0,3)+"/"+WareID;
-      const auto WarePath = ParentPath.fromThis(openfluid::config::WARESDEV_PATH).fromThis(WareType).fromThis(WareID);
+      const auto WarePath = WaresdevPath.fromThis(WareType).fromThis(WareID);
       // TOIMPL merge with other configure steps of this file
       const auto BuildPath = openfluid::tools::Path({WarePath.toGeneric(),
                                                     openfluid::utils::CMakeProxy::getBuildDir(BuildType)});
@@ -642,16 +895,20 @@ void WareSetManager::freeze(const std::string& FolderPathStr)
 {
   // investigates every ware location and asks git version
   const openfluid::tools::Path ParentPath(FolderPathStr);
-  std::vector<std::map<std::string, std::string>> FreezeWaresInfo;
 
+  openfluid::thirdparty::json FreezeWaresInfo = openfluid::thirdparty::json::array();
   for (const auto& Ware : m_JSONWareset)
   {
     std::string WareType = Ware["type"];
     std::string WareID = Ware["id"];
     std::string WareKey = WareType.substr(0,3)+"/"+WareID;
-    std::map<std::string, std::string> FreezeWareInfo = {{"type", WareType}, {"id", WareID}};
-    const auto WarePath = ParentPath.fromThis(openfluid::config::WARESDEV_PATH).fromThis(WareType).fromThis(WareID);
-    FreezeWareInfo["git-url"] = Ware.value("git-url", "-");//TOIMPL check if functional in Hub case
+    openfluid::thirdparty::json FreezeWareInfo = openfluid::thirdparty::json::object();
+    FreezeWareInfo["type"] = WareType;
+    FreezeWareInfo["id"] = WareID;
+
+    const auto WarePath = ParentPath.fromThis(openfluid::config::WORKSPACE_PATH).fromThis(
+      openfluid::config::WARESDEV_PATH).fromThis(WareType).fromThis(WareID);
+    FreezeWareInfo["git-url"] = Ware.value("git-url", "-");
     openfluid::utils::GitProxy Git;
     try
     {
@@ -661,18 +918,24 @@ void WareSetManager::freeze(const std::string& FolderPathStr)
     {
       FreezeWareInfo["version"] = "-";
     }
+    // Add all other information for reproductibility
+    for (const auto& Key : {"configure-options", "pre-configure-commands", "cmake-content"})
+    {
+      if (Ware.contains(Key))
+      {
+        FreezeWareInfo[Key] = Ware[Key];
+      }
+    }
+
     FreezeWaresInfo.push_back(FreezeWareInfo);
   }
   // saves in freeze file
-  openfluid::thirdparty::json JSON = openfluid::thirdparty::json::array();
 
-  for (const auto& Ware : FreezeWaresInfo)
-  {
-    JSON.push_back(Ware);
-  }
-  std::ofstream OutFile(openfluid::tools::Path({FolderPathStr, "wareset-lock.json"}).toGeneric());
-  OutFile << std::setw(4) << JSON << std::endl;
+  std::string LockFilePath = openfluid::tools::Path({FolderPathStr, "wareset-lock.json"}).toGeneric();
+  std::ofstream OutFile(LockFilePath);
+  OutFile << std::setw(4) << FreezeWaresInfo << std::endl;
   OutFile.close();
+  std::cout << "Wareset lock file written at " << LockFilePath << std::endl;
 }
 
 

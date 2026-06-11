@@ -332,13 +332,16 @@ int WareTasks::processSetupWareset() const
 {
   int Problems = 0;
 
-  const auto ParentPathStr = (m_Cmd.getOptionValue("parent-path").empty() ? 
-                                openfluid::tools::Filesystem::currentPath() : m_Cmd.getOptionValue("parent-path"));
+  const auto WorkPathStr = (m_Cmd.getOptionValue("userdata-path").empty() ? 
+                                openfluid::tools::Filesystem::currentPath() : m_Cmd.getOptionValue("userdata-path"));
+  const auto WorkspaceStr = (m_Cmd.getOptionValue("workspace").empty() ? 
+                                openfluid::config::WORKSPACE_PATH : m_Cmd.getOptionValue("workspace"));
 
   std::string WaresOrigin = m_Cmd.getOptionValue("wares-origin");
   std::string SetOption = m_Cmd.getOptionValue("set");
 
   bool IsStrict = !m_Cmd.isOptionActive("tolerant");
+  bool CanOverwrite = m_Cmd.isOptionActive("overwrite");
   
   // set source is deduced from name, starting with http means a wareset distant resource
   std::string WaresetSourceType = "dataset";
@@ -372,22 +375,35 @@ int WareTasks::processSetupWareset() const
   // format: [{"id":"export.vars.files.csv","type":"observers","version":"openfluid-2.2"}, ...]
   
   // 0- Setup userdata
-  std::cout << "Setup userdata at " << ParentPathStr << std::endl;
+  std::cout << "Setup userdata at " << WorkPathStr << std::endl;
   
-  openfluid::tools::Path ParentPath(ParentPathStr);
-  if (!ParentPath.exists())
+  openfluid::tools::Path WorkPath(WorkPathStr);
+  if (!WorkPath.exists())
   {
     std::error_code ErrorCode;
-    if (!ParentPath.makeDirectory("", ErrorCode))
+    if (!WorkPath.makeDirectory("", ErrorCode))
     {
       return error("Userdata creation failed: "+ErrorCode.message());
     }
   }
-  else
+  else if (!CanOverwrite)
   {
     return error("Destination already exists");
   }
-  openfluid::base::WorkspaceManager::prepareWorkspace(ParentPathStr);
+
+  if (!WorkPath.exists(WorkspaceStr))
+  {
+    std::error_code ErrorCode;
+    if (!WorkPath.makeDirectory(WorkspaceStr, ErrorCode))
+    {
+      return error("Workspace creation failed: "+ErrorCode.message());
+    }
+  }
+  else if (!CanOverwrite)
+  {
+    return error("Workspace already exists");
+  }
+  openfluid::base::WorkspaceManager::prepareWorkspace(WorkPath.fromThis(WorkspaceStr).toGeneric());
   
   // 1- Fetching wares 
   std::string WareSourceURL = WaresOrigin;
@@ -402,8 +418,8 @@ int WareTasks::processSetupWareset() const
   bool BuildTogether = m_Cmd.isOptionActive("multi-builds");
   try
   {
-    WareSetMgr.scaffoldWareset(ParentPathStr, WareSourceURL, IsStrict, 
-                  NoBuild, JobsNbr, BuildTogether);
+    WareSetMgr.scaffoldWareset(WorkPathStr, WareSourceURL, WorkspaceStr, IsStrict, 
+                  NoBuild, JobsNbr, BuildTogether, CanOverwrite);
   }
   catch (openfluid::base::FrameworkException& E)
   {
@@ -424,12 +440,12 @@ int WareTasks::processSetupWareset() const
         // run simulation
         std::cout << "Running dataset..." << std::endl;
         openfluid::utils::Process::Environment Env;
-        Env.Vars["OPENFLUID_USERDATA_PATH"] = ParentPathStr;
+        Env.Vars["OPENFLUID_USERDATA_PATH"] = WorkPathStr;
         int ReturnCode = openfluid::utils::Process::system(
           openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
                                                   openfluid::config::INSTALL_BIN_PATH,
                                                   openfluid::config::CMD_APP}), 
-          {"run", SetOption, openfluid::tools::Filesystem::joinPath({ParentPathStr, "OUT"}), "-s"}, Env);
+          {"run", SetOption, openfluid::tools::Filesystem::joinPath({WorkPathStr, "OUT"}), "-s"}, Env);
           std::cout << "--- End of simulation output ---" << std::endl;
         if (ReturnCode == 0)
         {
@@ -449,11 +465,11 @@ int WareTasks::processSetupWareset() const
     else
     {
       std::cout << "A simulation can be launched using this setup:" << std::endl;
-      std::cout << "OPENFLUID_USERDATA_PATH="+ParentPathStr+" ";
+      std::cout << "OPENFLUID_USERDATA_PATH="+WorkPathStr+" ";
       std::cout << openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
                                                   openfluid::config::INSTALL_BIN_PATH,
                                                   openfluid::config::CMD_APP});
-      std::cout << " run "+SetOption+" "+openfluid::tools::Filesystem::joinPath({ParentPathStr, "OUT"});
+      std::cout << " run "+SetOption+" "+openfluid::tools::Filesystem::joinPath({WorkPathStr, "OUT"});
     }
   }
 

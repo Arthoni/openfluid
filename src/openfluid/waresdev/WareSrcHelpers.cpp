@@ -124,6 +124,31 @@ std::map<std::string,std::string> initializeConfigureVariables()
 // =====================================================================
 
 
+std::string buildHubWareURL(const std::string& SourceURL, const std::string& WareID, const std::string& WareType)
+{
+  std::string HubURL = SourceURL;
+  if (HubURL.length() == 0)
+  {
+    // try to deduce hub info from openfluid config (only working with fluidhub-like URLs)
+    openfluid::base::Environment::init();
+    const auto Settings = openfluid::tools::SettingsBackend(openfluid::base::Environment::getSettingsFile());
+    HubURL = Settings.getValue("/waresdev/ui/import/hub/url").get<std::string>();
+  }
+  std::string AdjustedWareType = WareType;
+  const std::string Plural = "s";
+  if (AdjustedWareType.compare(AdjustedWareType.length()-1, 1, Plural) != 0)
+  {
+    AdjustedWareType += Plural; // set plural if not already there
+  } 
+    
+  return HubURL.substr(0,HubURL.length()-5)+"/git-service/wares/"+AdjustedWareType+"/"+WareID;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 int OPENFLUID_API cloneWare(const std::string& SourceURL, const std::string& SourceType, const std::string& ParentPath, 
               const std::string& WareID, const std::string& WareType)
 {
@@ -145,7 +170,7 @@ int OPENFLUID_API cloneWare(const std::string& SourceURL, const std::string& Sou
       AdjustedWareType += Plural; // set plural if not already there
     } 
       
-    GitURL = HubURL.substr(0,HubURL.length()-5)+"/git-service/wares/"+AdjustedWareType+"/"+WareID;
+    GitURL = buildHubWareURL(HubURL, WareID, WareType);
   }
   else
   {

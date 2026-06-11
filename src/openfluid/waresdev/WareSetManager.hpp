@@ -62,6 +62,8 @@ class OPENFLUID_API WareSetManager
     openfluid::thirdparty::json m_JSONWareset;
     std::string m_ID;
     std::string m_WaresOrigin;
+    std::string m_CustomCMakeContent;
+    bool m_IsPreconfigureCommand;
     
     std::map<std::string, std::map<std::string, std::string>> m_WareStatus;
     unsigned int m_Problems;
@@ -82,12 +84,14 @@ class OPENFLUID_API WareSetManager
     void displayStatus();
 
     // runs the fetch, checkout, configure, build, install for all wares of the set and may run the simulation
-    int scaffoldWareset(const std::string& ParentPathStr, 
+    int scaffoldWareset(const std::string& UserdataPathStr, 
                         const std::string& WareSourceURL, 
-                        bool IsStrict, bool NoBuild, unsigned int JobsNbr, bool BuildTogether);
+                        const std::string& WorkspaceName="", 
+                        bool IsStrict=true, bool NoBuild=false, unsigned int JobsNbr=2, bool BuildTogether=false, 
+                        bool Overwrite=false);
 
     // generates a lock file with precise hash version of git repo for each ware
-    void freeze(const std::string& ParentPathStr);
+    void freeze(const std::string& UserdataPathStr);
 };
 
 

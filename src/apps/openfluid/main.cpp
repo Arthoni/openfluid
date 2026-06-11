@@ -234,14 +234,18 @@ int main(int argc, char **argv)
 
   auto SetupWaresetCmd = openfluid::utils::CommandLineCommand("setup-wareset","Setup ware set (fetch from remote hub, "
                                                                               "checkout, configure and compile)");
-  SetupWaresetCmd.addOptions({{"parent-path","p","parent path where to create the ware sources",true},
-                              {"wares-origin","o","either hub API URL or local waresdev folder", true},
-                              {"set", "s", "Wareset ID or local dataset path to deduce list from", true},
+  SetupWaresetCmd.addOptions({{"userdata-path","p","userdata path where to create and build the ware sources "
+                                                   "(default is current directory)",true},
+                              {"workspace","","workspace folder path in the userdata folder (optional)", true},
+                              {"wares-origin","w","either hub API URL or local waresdev folder", true},
+                              {"set", "s", "Wareset ID or local dataset path to deduce list from (required)", true},
                               {"jobs","j","Jobs number for build step", true},
                               {"multi-builds","m","Wares will be built in parallel "
-                                                  "(incompatible with targets with identical names)"},
+                                                  "(incompatible with targets with identical names in several wares)"},
                               {"tolerant", "t", "A failure during fetch/checkout/build step of a ware will not "
                                                 "interrupt the process (blocking otherwise)"},
+                              {"overwrite", "", "Allow writing over existing files. Warning: can provocate data loss or"
+                                                " project corruption"},
                               {"no-build", "n", "Stops after git checkout, skipping configuration and build"},
                               {"run", "r", "If set provided is a dataset, runs the simulation after the setup"}
                             });

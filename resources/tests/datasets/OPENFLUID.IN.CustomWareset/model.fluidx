@@ -8,7 +8,7 @@
   </generator>
   <simulator ID="water.surf-uz.runoff-infiltration.mseytoux" enabled="1">
   </simulator>
+  <simulator ID="water.surf-uz.runoff-infiltration.mseythree" enabled="1">
+  </simulator>
  </model>
-
-
 </openfluid>

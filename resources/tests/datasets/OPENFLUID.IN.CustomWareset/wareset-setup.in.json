@@ -1,0 +1,36 @@
+
+{
+  "name": "Custom wareset wares",
+  "description": "For direct git call",
+  "version": "0.1",
+  "wares-setup": [
+    {
+      "type": "simulator",
+      "git-url": "@OFBUILD_TESTS_GITHELPER_URL@",
+      "id": "water.surf-uz.runoff-infiltration.mseytoux",
+      "version": "for-test",
+      "pre-configure-commands": 
+        [
+          {
+            "program": "%%OF%%",
+            "args": ["--version"]
+          },
+          {
+            "program": "/usr/bin/echo",
+            "args": ["%%PATH2%%"]
+          },
+          {
+            "program": "/usr/bin/ls",
+            "args": ["%%OPENFLUID_TEMP_PATH%%"]
+          }
+        ],
+      "configure-options": {"foo": "bar"}
+    },
+    {
+      "type": "simulator",
+      "git-url": "@OFBUILD_TESTS_GITHELPER_URL@",
+      "id": "water.surf-uz.runoff-infiltration.mseythree",
+      "configure-options": {"foo": "cut"}
+    }
+  ]
+}
