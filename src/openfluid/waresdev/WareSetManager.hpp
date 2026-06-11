@@ -62,6 +62,7 @@ class OPENFLUID_API WareSetManager
     openfluid::thirdparty::json m_JSONWareset;
     std::string m_ID;
     std::string m_WaresOrigin;
+    std::string m_CustomCMakeContent;
     
     std::map<std::string, std::map<std::string, std::string>> m_WareStatus;
     unsigned int m_Problems;

@@ -383,7 +383,7 @@ int WareTasks::processSetupWareset() const
       return error("Userdata creation failed: "+ErrorCode.message());
     }
   }
-  else
+  else if (IsStrict)
   {
     return error("Destination already exists");
   }

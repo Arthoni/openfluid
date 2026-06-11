@@ -254,24 +254,56 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
       try
       {
         openfluid::thirdparty::json DatasetMetadataJson = openfluid::thirdparty::json::parse(FileStream);
+        
+        // First check generic ops
+        for (const auto& Ware : DatasetMetadataJson["dataset"]["ware-versions"])
+        {
+          if ( Ware["id"] == "*")
+          {
+            for (auto& WareFromFluidx : m_JSONWareset)
+            {
+              for (const auto& Key : {"version", "configure-options"})
+              {
+                if (Ware.contains(Key))
+                {
+                  WareFromFluidx[Key] = Ware[Key];
+                }
+              }
+            }
+            if (Ware.contains("cmake-content"))
+            {
+              m_CustomCMakeContent = Ware["cmake-content"];
+            }
+          }
+        }
+
 
         for (const auto& Ware : DatasetMetadataJson["dataset"]["ware-versions"])
         {
-          for (auto& WareFromFluidx : m_JSONWareset)
+          if ( Ware["id"] != "*")
           {
-            // tolerance singular/plural on ware type
-            std::string WareTypePlural = Ware["type"];
-            if (WareTypePlural[WareTypePlural.size()-1] != 's')
+            for (auto& WareFromFluidx : m_JSONWareset)
             {
-              WareTypePlural += 's';
-            }
-            if (WareFromFluidx["id"] == Ware["id"] && WareFromFluidx["type"] == WareTypePlural)
-            {
-              WareFromFluidx["version"] = Ware["version"];
-              if (Ware.contains("git-url"))
+              // tolerance singular/plural on ware type
+              std::string WareTypePlural = Ware["type"];
+              if (WareTypePlural[WareTypePlural.size()-1] != 's')
               {
-                WareFromFluidx["git-url"] = Ware["git-url"];
-                m_WareSourceType = "remote";
+                WareTypePlural += 's';
+              }
+              if (WareFromFluidx["id"] == Ware["id"] && WareFromFluidx["type"] == WareTypePlural)
+              {
+                if (Ware.contains("git-url"))
+                {
+                  WareFromFluidx["git-url"] = Ware["git-url"];
+                  m_WareSourceType = "remote";
+                }
+                for (const auto& Key : {"version", "cmake-content", "configure-options"})
+                {
+                  if (Ware.contains(Key))
+                  {
+                    WareFromFluidx[Key] = Ware[Key];
+                  }
+                }
               }
             }
           }
@@ -355,6 +387,8 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
     CallerCmake << "OPENFLUID_ADD_MULTIWARE_TARGETS()\n";
     
     CallerCmake.close();
+
+    WaresetCmake << m_CustomCMakeContent << "\n";
   }
   for (const auto& Ware : m_JSONWareset)
   {
@@ -442,12 +476,16 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
     }
     else
     {
-      std::cout << WarePath.toGeneric() << "already exists" << std::endl;
+      std::cout << WarePath.toGeneric() << " already exists" << std::endl;
       m_WareStatus[WareKey]["fetch"] = "skip"; 
     }
     if (WarePath.exists() && WaresetCMakeList)
     {
       // Build centralized wareset CMakeLists.txt
+      if (Ware.contains("cmake-content"))
+      {
+        WaresetCmake << Ware["cmake-content"] << "\n"; //TODO problem of contamination of vars for later wares
+      }
       WaresetCmake << "ADD_SUBDIRECTORY("<< WareType << "/" << WareID << ")\n";
     }
     else
@@ -529,6 +567,16 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
   {
     Vars["WARE_INTERNAL_INCLUDE_DIRS"] = std::string(WareIncludeDirs);
   }
+
+
+  for (const auto& Ware : m_JSONWareset)
+  {
+    //TOIMPL FIX CONTAMINATING OTHER WARES
+    for (const auto& Option : Ware["configure-options"].items())
+    {
+      Vars[Option.key()] = Option.value();
+    }
+  }
     
   const auto WaresdevPathStr = ParentPath.fromThis(openfluid::config::WARESDEV_PATH).toGeneric();
   
@@ -546,9 +594,9 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
       BuildPath.removeDirectory();
     }
     BuildPath.makeDirectory();
-    
+    std::vector<std::string> Options = {};
     auto CMakeCmd = openfluid::utils::CMakeProxy::getConfigureCommand(BuildPath.toGeneric(),WaresdevPathStr,
-                                                                      Vars);
+                                                                      Vars, "", Options);
 
     if (openfluid::utils::Process::system(CMakeCmd) == 0)
     {
