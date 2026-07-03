@@ -53,6 +53,7 @@
 #include <openfluid/tools/StringHelpers.hpp>
 #include <openfluid/utils/CMakeProxy.hpp>
 #include <openfluid/utils/FluidHubAPIClient.hpp>
+#include <openfluid/utils/Process.hpp>
 #include <openfluid/waresdev/WareSrcHelpers.hpp>
 
 #include "WareSetManager.hpp"
@@ -83,6 +84,10 @@ void throwOrPrint(bool IsStrict, std::string M, unsigned int& Problems)
     Problems++;
   }
 }
+
+
+// =====================================================================
+// =====================================================================
 
 
 void WareSetManager::displayStatus()
@@ -262,11 +267,22 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
           {
             for (auto& WareFromFluidx : m_JSONWareset)
             {
-              for (const auto& Key : {"version", "configure-options"})
+              for (const auto& Key : {"version", "pre-configure-commands"})//TOIMPL check if can be erased by subitem key
               {
                 if (Ware.contains(Key))
                 {
                   WareFromFluidx[Key] = Ware[Key];
+                }
+              }
+              if (Ware.contains("configure-options"))
+              {
+                if (!WareFromFluidx.contains("configure-options"))
+                {
+                  WareFromFluidx["configure-options"] = thirdparty::json::object();
+                }
+                for (const auto& Option : Ware["configure-options"].items())
+                {
+                  WareFromFluidx["configure-options"][Option.key()] = Option.value();
                 }
               }
             }
@@ -297,7 +313,18 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
                   WareFromFluidx["git-url"] = Ware["git-url"];
                   m_WareSourceType = "remote";
                 }
-                for (const auto& Key : {"version", "cmake-content", "configure-options"})
+                if (Ware.contains("configure-options"))//TOIMPL solve redundancy
+                {
+                  if (!WareFromFluidx.contains("configure-options"))
+                  {
+                    WareFromFluidx["configure-options"] = thirdparty::json::object();
+                  }
+                  for (const auto& Option : Ware["configure-options"].items())
+                  {
+                    WareFromFluidx["configure-options"][Option.key()] = Option.value();
+                  }
+                }
+                for (const auto& Key : {"version", "cmake-content", "pre-configure-command"})
                 {
                   if (Ware.contains(Key))
                   {
@@ -548,6 +575,47 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
     WaresetCmake.close();
   }
 
+  // 1.3 Custom pre-configure commands
+
+  for (const auto& Ware : m_JSONWareset)
+  {
+    if (Ware.contains("pre-configure-commands"))
+    {
+      // Convert template variables:
+      for (const auto& CommandJson : Ware["pre-configure-commands"])
+      {
+        std::string PreConfigureCommand = CommandJson["program"];
+        // %%OF%% //TODO precise that OF only replaced as command
+        PreConfigureCommand = openfluid::tools::replace(PreConfigureCommand, "%%OF%%", openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
+                                                  openfluid::config::INSTALL_BIN_PATH,
+                                                  openfluid::config::CMD_APP}));
+        // %%S%%
+        std::string WareType = Ware["type"];
+        std::string WareID = Ware["id"];
+        const auto WarePath = ParentPath.fromThis(openfluid::config::WARESDEV_PATH).fromThis(WareType).fromThis(WareID);
+        std::vector<std::string> Args;
+        for (const auto& Arg : CommandJson["args"])
+        {
+          std::string ArgProcessed = openfluid::tools::replace(Arg, "%%S%%", WarePath.toGeneric());
+          Args.push_back(ArgProcessed);
+        }
+        
+
+        openfluid::utils::Process::Environment Env;
+        std::cout << "Ware " << WareID << ": Triggering custom command " << PreConfigureCommand << " " << openfluid::tools::join(Args, " ") << std::endl;
+        int ReturnCode = openfluid::utils::Process::system(PreConfigureCommand, Args, Env);
+        if (ReturnCode == 0)
+        {
+          std::cout << "[OK]" << std::endl;//TOIMPL add to result table under "custom" column
+        }
+        else
+        {
+          std::cout << "[KO]" << std::endl;
+        }
+      }
+    }
+  }
+
   // --------------------------------------
   // 2- Configuring / building ware 
   // --------------------------------------
@@ -594,9 +662,13 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
       BuildPath.removeDirectory();
     }
     BuildPath.makeDirectory();
-    std::vector<std::string> Options = {};
+    std::cout << "VARS";
+    for (const auto& V : Vars)
+    {
+      std::cout << V.first << ":" << V.second << std::endl;
+    }
     auto CMakeCmd = openfluid::utils::CMakeProxy::getConfigureCommand(BuildPath.toGeneric(),WaresdevPathStr,
-                                                                      Vars, "", Options);
+                                                                      Vars);
 
     if (openfluid::utils::Process::system(CMakeCmd) == 0)
     {
