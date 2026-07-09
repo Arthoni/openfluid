@@ -95,6 +95,10 @@ void WareSetManager::displayStatus()
   // Print status table
   std::cout << "== Wareset status" << std::endl;
   std::vector OrderedSteps = {"fetch", "ckout", "config", "build", "install", "run"};
+  if (m_IsPreconfigureCommand)
+  {
+    OrderedSteps = {"fetch", "ckout", "custom", "config", "build", "install", "run"};
+  }
   std::cout << "                           ";
   for (const std::string Step : OrderedSteps)
   {
@@ -138,7 +142,7 @@ void WareSetManager::displayStatus()
 
 WareSetManager::WareSetManager(const std::string& WareSourceType, const std::string& WaresetSourceType, 
                                const std::string& SetOption, const std::string& WaresOrigin, std::string& ID) : 
-  m_WareSourceType(WareSourceType), m_WaresetSourceType(WaresetSourceType), m_ID(ID), m_WaresOrigin(WaresOrigin)
+  m_WareSourceType(WareSourceType), m_WaresetSourceType(WaresetSourceType), m_ID(ID), m_WaresOrigin(WaresOrigin), m_IsPreconfigureCommand(false)
 {
   if (m_WaresetSourceType == "hub")
   {    
@@ -249,19 +253,19 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
     // Use version data from potential openfluid-dataset.json
     // TODO this function should be in dataset processing class
     std::ifstream FileStream;
-    FileStream.open(openfluid::tools::Filesystem::joinPath({SetOption, "openfluid-dataset.json"}),std::ifstream::in);
+    FileStream.open(openfluid::tools::Filesystem::joinPath({SetOption, "wareset-setup.json"}),std::ifstream::in);//TOIMPL make filename var
     if (!FileStream.is_open())
     {
-      openfluid::base::log::warning("Wareset setup", "No dataset metadata");
+      openfluid::base::log::warning("Wareset setup", "No wareset metadata");
     }
     else
     {
       try
       {
-        openfluid::thirdparty::json DatasetMetadataJson = openfluid::thirdparty::json::parse(FileStream);
+        openfluid::thirdparty::json WaresetJson = openfluid::thirdparty::json::parse(FileStream);
         
         // First check generic ops
-        for (const auto& Ware : DatasetMetadataJson["dataset"]["ware-versions"])
+        for (const auto& Ware : WaresetJson["wares-setup"]) //TOIMPL externalise function for solo-ware level?
         {
           if ( Ware["id"] == "*")
           {
@@ -272,6 +276,10 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
                 if (Ware.contains(Key))
                 {
                   WareFromFluidx[Key] = Ware[Key];
+                }
+                if ((std::string)Key == "pre-configure-commands")
+                {
+                  m_IsPreconfigureCommand = true;
                 }
               }
               if (Ware.contains("configure-options"))
@@ -294,7 +302,7 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
         }
 
 
-        for (const auto& Ware : DatasetMetadataJson["dataset"]["ware-versions"])
+        for (const auto& Ware : WaresetJson["wares-setup"])
         {
           if ( Ware["id"] != "*")
           {
@@ -324,12 +332,17 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
                     WareFromFluidx["configure-options"][Option.key()] = Option.value();
                   }
                 }
-                for (const auto& Key : {"version", "cmake-content", "pre-configure-command"})
+                for (const auto& Key : {"version", "cmake-content", "pre-configure-commands"})
                 {
                   if (Ware.contains(Key))
                   {
                     WareFromFluidx[Key] = Ware[Key];
+                    if ((std::string)Key == "pre-configure-commands")
+                    {
+                      m_IsPreconfigureCommand = true;
+                    }
                   }
+
                 }
               }
             }
@@ -355,9 +368,9 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
     {
       try
       {
-        openfluid::thirdparty::json DatasetMetadataJson = openfluid::thirdparty::json::parse(FileStream);
+        openfluid::thirdparty::json WaresetJson = openfluid::thirdparty::json::parse(FileStream);
 
-        for (auto& Ware : DatasetMetadataJson)
+        for (auto& Ware : WaresetJson)
         {
           // // tolerance singular/plural on ware type
           // std::string WareTypePlural = Ware["type"];
@@ -589,14 +602,16 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
         PreConfigureCommand = openfluid::tools::replace(PreConfigureCommand, "%%OF%%", openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
                                                   openfluid::config::INSTALL_BIN_PATH,
                                                   openfluid::config::CMD_APP}));
-        // %%S%%
         std::string WareType = Ware["type"];
         std::string WareID = Ware["id"];
+        std::string WareKey = WareType.substr(0,3)+"/"+WareID;
         const auto WarePath = ParentPath.fromThis(openfluid::config::WARESDEV_PATH).fromThis(WareType).fromThis(WareID);
         std::vector<std::string> Args;
+        // %%S%%
         for (const auto& Arg : CommandJson["args"])
         {
           std::string ArgProcessed = openfluid::tools::replace(Arg, "%%S%%", WarePath.toGeneric());
+          ArgProcessed = openfluid::tools::replace(ArgProcessed, "%%W%%", WaresdevPath.toGeneric());
           Args.push_back(ArgProcessed);
         }
         
@@ -606,10 +621,12 @@ int WareSetManager::scaffoldWareset(const std::string& ParentPathStr, const std:
         int ReturnCode = openfluid::utils::Process::system(PreConfigureCommand, Args, Env);
         if (ReturnCode == 0)
         {
-          std::cout << "[OK]" << std::endl;//TOIMPL add to result table under "custom" column
+          m_WareStatus[WareKey]["custom"] = OK_STRING;
+          std::cout << "[OK]" << std::endl;
         }
         else
         {
+          m_WareStatus[WareKey]["custom"] = KO_STRING;//TODO keep worst of all commands
           std::cout << "[KO]" << std::endl;
         }
       }

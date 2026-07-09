@@ -63,6 +63,7 @@ class OPENFLUID_API WareSetManager
     std::string m_ID;
     std::string m_WaresOrigin;
     std::string m_CustomCMakeContent;
+    bool m_IsPreconfigureCommand;
     
     std::map<std::string, std::map<std::string, std::string>> m_WareStatus;
     unsigned int m_Problems;
