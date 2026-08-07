@@ -372,6 +372,12 @@ class OPENFLUID_API WarePluginsManager
           {
             Containers.emplace_back(std::move(Container));
           }
+          else
+          {
+            std::cout << "Invalid container " << Container.signature()->ID << ": " << Container.isValid() << " / " << 
+              IDPattern.empty() << " / " <<  openfluid::tools::matchWithWildcard(IDPattern,Container.signature()->ID) \
+              << std::endl;
+          }
         }
         catch (openfluid::base::FrameworkException& E)
         {          

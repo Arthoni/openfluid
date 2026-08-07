@@ -78,6 +78,14 @@ void ExtensionsRegistry::registerExtensions()
       {
         m_ParameterizationExtensions.emplace(Item.getLinkUID(),Item);
       }
+      else
+      {
+        std::cout << "Extension registration failed, role-related " << (int)Item.signature()->Role << std::endl;
+      }
+    }
+    else
+    {
+      std::cout << "Extension registration failed: " << Item.getMessage() << ". " <<  Item.isValid() << ", " << Item.hasSignature() << std::endl;
     }
   }
 

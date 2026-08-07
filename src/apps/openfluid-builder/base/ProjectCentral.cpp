@@ -1049,7 +1049,7 @@ void ProjectCentral::checkMonitoring()
         }
 
         // required attributes
-        openfluid::fluidx::CoupledModelDescriptor& Model = m_FXDesc.model();
+        // openfluid::fluidx::CoupledModelDescriptor& Model = m_FXDesc.model();
         openfluid::fluidx::SpatialDomainDescriptor& Domain = m_FXDesc.spatialDomain();
 
         for (const auto& Param : Sign->HandledData.RequiredAttributes)
