@@ -85,7 +85,8 @@ void ExtensionsRegistry::registerExtensions()
     }
     else
     {
-      std::cout << "Extension registration failed: " << Item.getMessage() << ". " <<  Item.isValid() << ", " << Item.hasSignature() << std::endl;
+      std::cout << "Extension registration failed: " << Item.getMessage() << ". " <<  Item.isValid() << ", " \
+                << Item.hasSignature() << std::endl;
     }
   }
 

@@ -47,7 +47,7 @@ The class of a simulator must define the following methods:
 
 
 The @if DocIsLaTeX **initParams** @else @link openfluid::ware::PluggableSimulator::initParams initParams @endlink @endif 
- method is used to retreive the parameters of the simulator, 
+ method is used to retrieve the parameters of the simulator, 
 read from the model.fluidx file or filled from the OpenFLUID-Builder interface (See @ref user_fluidx_sections_model). 
 Once read, the values should be stored into private attributes to be accessed by other methods.  
 <br/>

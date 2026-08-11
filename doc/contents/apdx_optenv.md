@@ -11,7 +11,6 @@ variables (if they are set in the current running environment):
 * `OPENFLUID_USERDATA_PATH`: overrides the default user data home directory (set by default to `$HOME/.openfluid` on Unix systems)
 * `OPENFLUID_TEMP_PATH`: overrides the default OpenFLUID temporary directory, used by OpenFLUID software components for temporary data.
 * `OPENFLUID_SIMS_PATH`: extra search paths for OpenFLUID simulators. 
-The path are separated by colon on UNIX systems, and by semicolon on Windows systems. 
 * `OPENFLUID_OBSS_PATH`: extra search paths for OpenFLUID observers. 
 
 The path are separated by colon on UNIX systems, and by semicolon on Windows systems. 

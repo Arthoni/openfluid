@@ -4,7 +4,7 @@
 
 An OpenFLUID project can be run using any of the OpenFLUID programs such as `openfluid` command line, OpenFLUID Builder or ROpenFLUID.  
 
-As an example example, to run a simulation based on the the project located in
+As an example, to run a simulation based on the project located in  
 `/absolute/path/to/workdir/a_dummy_project` using the `openfluid` command line program, the command to use is:
 ```sh
 openfluid run /absolute/path/to/workdir/a_dummy_project

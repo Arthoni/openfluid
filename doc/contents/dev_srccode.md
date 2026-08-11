@@ -24,7 +24,7 @@ Among these methods, the
 @else @link openfluid::ware::PluggableSimulator::runStep runStep()@endlink @endif 
 methods have a special behaviour: these two methods must return the simulation duration after which the simulator will be executed again.  
 
-This duration can returned using the following instructions :
+This duration can be returned using the following instructions :
 * @if DocIsLaTeX 
 **Duration()** 
 @else @link openfluid::ware::PluggableSimulator::Duration() Duration() @endlink @endif
@@ -132,7 +132,7 @@ for parsing spatial units of a given units class
 for parsing of all units in the spatial domain 
 
 
-To parse a specific list of of spatial units, you can use the instruction:
+To parse a specific list of spatial units, you can use the instruction:
 
 * @if DocIsLaTeX 
 **OPENFLUID_UNITSLIST_LOOP**
@@ -352,7 +352,7 @@ initParams()
 @link openfluid::ware::PluggableSimulator::initParams initParams @endlink
 @endif 
 method of the simulator.
-Values of simulators parameters can be retreived using:
+Values of simulators parameters can be retrieved using:
 
 * @if DocIsLaTeX **OPENFLUID_GetWareParameter.** 
 @else
