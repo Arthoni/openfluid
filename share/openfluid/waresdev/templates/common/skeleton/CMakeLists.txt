@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 PROJECT("%%WAREID%%")
 
 FIND_PACKAGE(OpenFLUID REQUIRED)
+INCLUDE(${OpenFLUID_DIR}/OpenFLUIDHelpers.cmake) # loading of OpenFLUID macros
 
 # Optional file dedicated for automatic cmake configuration, loaded if CONTEXT_VARS is ON
 OPTION(CONTEXT_VARS "Using contextual cmake variables" OFF)
