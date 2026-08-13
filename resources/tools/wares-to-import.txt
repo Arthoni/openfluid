@@ -1,3 +1,6 @@
+https://hub.openfluid-project.org/git-service/wares/simulators/examples.primitives.unitsA.prod#openfluid-2.2 examples/wares-dev/simulators/examples.primitives.unitsA.prod
+https://hub.openfluid-project.org/git-service/wares/simulators/examples.primitives.unitsA.up#openfluid-2.2 examples/wares-dev/simulators/examples.primitives.unitsA.up
+https://hub.openfluid-project.org/git-service/wares/simulators/examples.primitives.unitsB.prod#openfluid-2.2 examples/wares-dev/simulators/examples.primitives.unitsB.prod
 https://hub.openfluid-project.org/git-service/wares/simulators/water.surf.transfer-su.hayami#openfluid-2.2 examples/wares-dev/simulators/water.surf.transfer-su.hayami
 https://hub.openfluid-project.org/git-service/wares/simulators/water.surf.transfer-rs.hayami#openfluid-2.2 examples/wares-dev/simulators/water.surf.transfer-rs.hayami
 https://hub.openfluid-project.org/git-service/wares/simulators/water.atm-surf.rain-su.files#openfluid-2.2 examples/wares-dev/simulators/water.atm-surf.rain-su.files

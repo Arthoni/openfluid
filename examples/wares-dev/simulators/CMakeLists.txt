@@ -14,14 +14,14 @@ OFBUILD_ADD_EXAMPLE_SIMULATOR(${_SIM_NAME})
 ENDFUNCTION()
 
 
-OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.atm-surf.rain-su.files" "SubdomainAll" OFF)
-OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.surf.transfer-su.hayami" "SubdomainAll;01_OneRain" OFF)
-OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.surf.transfer-rs.hayami" "SubdomainAll;01_OneDownstream" OFF)
-OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.surf-uz.runoff-infiltration.mseytoux" "SubdomainAll" OFF)
+OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.atm-surf.rain-su.files" "SubdomainAll.Rain" OFF)
+OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.surf.transfer-su.hayami" "SubdomainAll.Transfert.SU;01_OneRain" OFF)
+OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.surf.transfer-rs.hayami" "SubdomainAll.Transfert.RS;01_OneDownstream" OFF)
+OPENFLUID_ADD_SIM_TARGET_AND_TEST("water.surf-uz.runoff-infiltration.mseytoux" "SubdomainAll.MSeytoux" OFF)
 
-OPENFLUID_ADD_SIM_TARGET_AND_TEST("examples.primitives.unitsA.prod" "Primitives" OFF)
-OPENFLUID_ADD_SIM_TARGET_AND_TEST("examples.primitives.unitsA.up" "Primitives" OFF)
-OPENFLUID_ADD_SIM_TARGET_AND_TEST("examples.primitives.unitsB.prod" "Primitives" OFF)
+OPENFLUID_ADD_SIM_TARGET_AND_TEST("examples.primitives.unitsA.prod" "Primitives.UnitsA.Prod" OFF)
+OPENFLUID_ADD_SIM_TARGET_AND_TEST("examples.primitives.unitsA.up" "Primitives.UnitsA.Up" OFF)
+OPENFLUID_ADD_SIM_TARGET_AND_TEST("examples.primitives.unitsB.prod" "Primitives.UnitsB.Prod" OFF)
 
 OPENFLUID_ADD_SIM_TARGET_AND_TEST("traffic.surf.trafficlights-state" "Manhattan" OFF)
 OPENFLUID_ADD_SIM_TARGET_AND_TEST("traffic.surf.car-transfer" "Manhattan" OFF)

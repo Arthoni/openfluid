@@ -187,7 +187,7 @@ class CSVFilesObserverBase : public openfluid::ware::PluggableObserver
           {
             throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,
               "Invalid " + ParamName + " attribute name format in parameter. "
-              "Sets and formats must contain 2 dots only since they are separators");
+              "Sets must contain 2 dots only since they are separators");
           }
         }
       }
