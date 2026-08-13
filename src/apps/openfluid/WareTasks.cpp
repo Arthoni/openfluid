@@ -330,7 +330,7 @@ int WareTasks::processImport() const
 
 int WareTasks::processSetupWareset() const
 {
-  int Problems = 0;
+  unsigned int Problems = 0;
 
   const auto WorkPathStr = (m_Cmd.getOptionValue("userdata-path").empty() ? 
                                 openfluid::tools::Filesystem::currentPath() : m_Cmd.getOptionValue("userdata-path"));
@@ -372,7 +372,6 @@ int WareTasks::processSetupWareset() const
   std::map<std::string, std::map<std::string, std::string>> WareStatus;
 
   openfluid::waresdev::WareSetManager WareSetMgr(WareSourceType, WaresetSourceType, SetOption, WaresOrigin, ID);
-  // format: [{"id":"export.vars.files.csv","type":"observers","version":"openfluid-2.2"}, ...]
   
   // 0- Setup userdata
   std::cout << "Setup userdata at " << WorkPathStr << std::endl;
@@ -464,14 +463,23 @@ int WareTasks::processSetupWareset() const
     }
     else
     {
-      std::cout << "A simulation can be launched using this setup:" << std::endl;
+      std::cout << std::endl;
+      std::cout << "A simulation can be launched using this setup by adjusting and launching following command:" << 
+                   std::endl;
       std::cout << "OPENFLUID_USERDATA_PATH="+WorkPathStr+" ";
       std::cout << openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
                                                   openfluid::config::INSTALL_BIN_PATH,
                                                   openfluid::config::CMD_APP});
-      std::cout << " run "+SetOption+" "+openfluid::tools::Filesystem::joinPath({WorkPathStr, "OUT"});
+      std::string INLocation = "</path/to/IN>";
+      if (SetOption.find("IN") != SetOption.npos)
+      {
+        INLocation = SetOption;
+      }
+      std::cout << " run "+INLocation+" "+openfluid::tools::Filesystem::joinPath({WorkPathStr, "OUT"}) << "\n" << 
+                   std::endl;
     }
   }
+  Problems += WareSetMgr.m_Problems;
 
   if (Problems > 0)
   {

@@ -66,10 +66,10 @@ class OPENFLUID_API WareSetManager
     bool m_IsPreconfigureCommand;
     
     std::map<std::string, std::map<std::string, std::string>> m_WareStatus;
-    unsigned int m_Problems;
 
 
   public:
+    unsigned int m_Problems;
 
     // constructor also deduce expected wares from set and complementary information from eventual datasetinfo.json
     WareSetManager(const std::string& WareSourceType, const std::string& WaresetSourceType, 

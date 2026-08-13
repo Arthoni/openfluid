@@ -514,7 +514,9 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset-FromGit-Strict
                    PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-git-strict/"
                    PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/"
                    POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-git-strict/workspace/wares-dev/simulators/water.surf-uz.runoff-infiltration.mseytoux/test.txt"
-                   POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-git-strict/wareset-lock.json")
+                   POST_TEST CHECK_FILE_IDENTICAL "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-git-strict/"
+                                                  "${CMAKE_BINARY_DIR}/resources/tests/datasets/OPENFLUID.IN.CustomWareset/REF/"
+                                                  "wareset-lock.json")
 
 
 ###########################################################################
@@ -529,7 +531,9 @@ OPENFLUID_ADD_TEST(NAME cmdline-openfluid-SetupWareset-FromFreeze-Strict
         PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-freeze-strict/"
         PRE_TEST CREATE_DIRECTORY "${OFBUILD_TMP_DIR}/cmdline/"
         POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-freeze-strict/workspace/wares-dev/simulators/water.surf-uz.runoff-infiltration.mseytoux/test.txt"
-        POST_TEST CHECK_FILE_EXIST "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-freeze-strict/wareset-lock.json")
+        POST_TEST CHECK_FILE_IDENTICAL "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-freeze-strict/"
+                                       "${CMAKE_BINARY_DIR}/resources/tests/datasets/OPENFLUID.IN.CustomWareset/REF/"
+                                       "wareset-lock.json")
 
 SET_PROPERTY(TEST cmdline-openfluid-SetupWareset-FromFreeze-Strict APPEND PROPERTY DEPENDS cmdline-openfluid-SetupWareset-FromGit-Strict)
 

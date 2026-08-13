@@ -1,0 +1,40 @@
+[
+    {
+        "type": "simulators",
+        "id": "water.surf-uz.runoff-infiltration.mseytoux",
+        "git-url": "https://dev.openfluid-project.org/testing/git/standard",
+        "version": "45c298c24abc0149a1c1dd2c1f159eff84dbe996",
+        "configure-options": {
+            "foo": "bar"
+        },
+        "pre-configure-commands": [
+            {
+                "program": "%%OF%%",
+                "args": [
+                    "--version"
+                ]
+            },
+            {
+                "program": "/usr/bin/echo",
+                "args": [
+                    "%%PATH2%%"
+                ]
+            },
+            {
+                "program": "/usr/bin/ls",
+                "args": [
+                    "%%OPENFLUID_TEMP_PATH%%"
+                ]
+            }
+        ]
+    },
+    {
+        "type": "simulators",
+        "id": "water.surf-uz.runoff-infiltration.mseythree",
+        "git-url": "https://dev.openfluid-project.org/testing/git/standard",
+        "version": "49322bb17d3acc9146f98c97d078513228bbf3c0",
+        "configure-options": {
+            "foo": "cut"
+        }
+    }
+]
