@@ -242,8 +242,6 @@ class OPENFLUID_API WareSrcWidgetCollection: public QObject
 
     void modifiedStatusChanged(bool CurrentEditorModified, bool FileOpen, bool CurrentWareModified);
 
-    void testStatusChanged(bool Enabled);
-
     void configureLaunched(openfluid::ware::WareType Type, const QString& ID);
 
     void configureFinished(openfluid::ware::WareType Type, const QString& ID);

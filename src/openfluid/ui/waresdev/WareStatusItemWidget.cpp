@@ -74,6 +74,7 @@ void WareStatusItemWidget::populateReportItemLabels()
   WarningReports.push_back({"srcdir_exists", tr("'src' directory does not exist")});
   WarningReports.push_back({"docdir_exists", tr("'doc' directory does not exist")});
   WarningReports.push_back({"testsdir_exists", tr("'tests' directory does not exist")});
+  WarningReports.push_back({"testsin_exists", tr("No dataset test")});
   WarningReports.push_back({"testsref_exists", tr("No reference for dataset test(s)")});
 
   ErrorReports.push_back({"file_iscorrect", tr("Metadata can not be read")});

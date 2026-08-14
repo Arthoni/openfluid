@@ -292,8 +292,6 @@ QToolButton::menu-button:pressed, QToolButton::menu-button:hover {
           this, SLOT(setCurrentPath(const QString&)));
   connect(mp_WidgetsCollection, SIGNAL(modifiedStatusChanged(bool, bool, bool)),
           this, SLOT(updateSaveButtonsStatus(bool, bool, bool)));
-  connect(mp_WidgetsCollection, SIGNAL(testStatusChanged(bool)),
-          this, SLOT(updateTestButtonStatus(bool)));
   connect(mp_WidgetsCollection, SIGNAL(editorSaved()),
           this, SLOT(updateExplorer()));
 

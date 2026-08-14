@@ -211,7 +211,7 @@ WareSrcChecker::ReportingData::ReportingList WareSrcChecker::performStructureChe
 {
   auto Data = InitializeReportingItemList({"cmakelists_exists","readme_exists",
                                            "srcdir_exists","docdir_exists",
-                                           "testsdir_exists", "testsref_exists"});
+                                           "testsdir_exists", "testsin_exists", "testsref_exists"});
 
   if (OKToRun)
   { 
@@ -246,6 +246,7 @@ WareSrcChecker::ReportingData::ReportingList WareSrcChecker::performStructureChe
     processReportingItem(Data,"testsdir_exists",
                          [&](){return IsTestDir;});
 
+    bool IsTestIn = false;
     bool IsTestRef = true;
     std::string TestInformation = "";
     if (IsTestDir)
@@ -256,6 +257,7 @@ WareSrcChecker::ReportingData::ReportingList WareSrcChecker::performStructureChe
         auto PathObj = openfluid::tools::Path::fromStdPath(E.path());
         if (PathObj.isDirectory() && PathObj.extension() == "IN")
         {
+          IsTestIn = true;
           if (!m_SrcPathObj.fromThis(openfluid::config::WARESDEV_TESTS_DIR).fromThis(
                 PathObj.basename()+".REF").isDirectory())
           {
@@ -273,6 +275,9 @@ WareSrcChecker::ReportingData::ReportingList WareSrcChecker::performStructureChe
         }
       }
     }
+    // [w] test in exists
+    processReportingItem(Data,"testsin_exists",
+                          [&](){return IsTestIn;}, ReportingData::ReportingStatus::WARNING, TestInformation);
     // [w] test ref exists
     processReportingItem(Data,"testsref_exists",
                           [&](){return IsTestRef;}, ReportingData::ReportingStatus::WARNING, TestInformation);

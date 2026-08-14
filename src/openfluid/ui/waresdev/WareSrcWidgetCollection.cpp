@@ -154,9 +154,6 @@ bool WareSrcWidgetCollection::openPath(const QString& Path)
       connect(Widget, SIGNAL(modifiedStatusChanged(bool, bool, bool)), 
               this, SIGNAL(modifiedStatusChanged(bool, bool, bool)));
 
-      connect(Widget, SIGNAL(testStatusChanged(bool)), 
-              this, SIGNAL(testStatusChanged(bool)));
-
       connect(Widget, SIGNAL(configureLaunched(openfluid::ware::WareType, const QString&)),
               this, SLOT(notifyConfigureLaunched(openfluid::ware::WareType, const QString&)));
 

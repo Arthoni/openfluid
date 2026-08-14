@@ -86,16 +86,6 @@ WareSrcWidget::WareSrcWidget(const openfluid::waresdev::WareSrcEnquirer::WarePat
 
   mp_WareSrcToolBar->setObjectName("WareToolbar");
 
-  // initial setup of test action
-  m_TestFolderPath = openfluid::tools::Path(wareSrcContainer().getAbsolutePath()).fromThis("tests").toGeneric();
-  updateTestAction();
-
-  // dynamic check of test action
-  QString DirToWatch = QString::fromStdString(wareSrcContainer().getAbsolutePath());
-  m_TestWatcher.addPath(DirToWatch);
-  connect(&m_TestWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(updateTestAction()));
-  connect(&m_TestWatcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(updateTestAction()));
-  
   if (m_IsStandalone)
   {
     connect(mp_ActionsCollection->action("OpenTerminal"), SIGNAL(triggered()), this, SIGNAL(openTerminalRequested()));
@@ -345,22 +335,6 @@ void WareSrcWidget::onOpenExternalToolRequested()
 void WareSrcWidget::onOperationRequested(const QString& OperationCode)
 {
   emit operationRequestedOnWare(OperationCode, QString::fromStdString(m_Container.getAbsolutePath()));
-}
-
-
-// =====================================================================
-// =====================================================================
-
-
-void WareSrcWidget::updateTestAction()
-{
-  bool Enabled = openfluid::tools::Filesystem::findFiles(m_TestFolderPath).size() + \
-                 openfluid::tools::Filesystem::findDirectories(m_TestFolderPath).size() > 1;
-  if (mp_WareSrcToolBar)
-  {
-    mp_WareSrcToolBar->enableTestAction(Enabled);
-  }
-  emit testStatusChanged(Enabled);
 }
 
 
@@ -1117,7 +1091,6 @@ void WareSrcWidget::checkModifiedStatus()
 
   emit modifiedStatusChanged(IsCurrentEditorModified, IsFileOpen, IsWareModified);
 
-  updateTestAction();
 }
 
 

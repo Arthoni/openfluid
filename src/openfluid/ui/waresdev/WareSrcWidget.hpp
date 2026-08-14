@@ -168,8 +168,6 @@ class OPENFLUID_API WareSrcWidget: public QWidget
 
     void modifiedStatusChanged(bool CurrentEditorModified, bool FileOpen, bool WareModified);
 
-    void testStatusChanged(bool Enabled);
-
     void openAPIDocRequested();
 
     void configureLaunched(openfluid::ware::WareType Type, const QString& ID);
@@ -181,11 +179,6 @@ class OPENFLUID_API WareSrcWidget: public QWidget
     void buildFinished(openfluid::ware::WareType Type, const QString& ID);
     
     void operationRequestedOnWare(const QString& OperationCode, const QString& WarePath);
-
-
-  private slots:
-
-    void updateTestAction();
 
 
   public slots:
