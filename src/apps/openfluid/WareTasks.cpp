@@ -443,7 +443,7 @@ int WareTasks::processSetupWareset() const
         int ReturnCode = openfluid::utils::Process::system(
           openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
                                                   openfluid::config::INSTALL_BIN_PATH,
-                                                  openfluid::config::CMD_APP}), 
+                                                  openfluid::base::Environment::getBinName()}), 
           {"run", SetOption, openfluid::tools::Filesystem::joinPath({WorkPathStr, "OUT"}), "-s"}, Env);
           std::cout << "--- End of simulation output ---" << std::endl;
         if (ReturnCode == 0)
@@ -469,7 +469,7 @@ int WareTasks::processSetupWareset() const
       std::cout << "OPENFLUID_USERDATA_PATH="+WorkPathStr+" ";
       std::cout << openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
                                                   openfluid::config::INSTALL_BIN_PATH,
-                                                  openfluid::config::CMD_APP});
+                                                  openfluid::base::Environment::getBinName()});
       std::string INLocation = "</path/to/IN>";
       if (SetOption.find("IN") != SetOption.npos)
       {

@@ -63,6 +63,7 @@ bool Environment::m_Initialized = false;
 std::string Environment::m_SystemArch;
 std::string Environment::m_HostName;
 std::string Environment::m_UserName;
+std::string Environment::m_BinName;
 std::string Environment::m_Version;
 std::string Environment::m_VersionFull;
 std::string Environment::m_VersionMajorMinor;
@@ -139,6 +140,13 @@ void Environment::init()
 
 
   // ====== OpenFLUID version ======
+
+  m_BinName = openfluid::config::CMD_APP;
+
+  if (openfluid::config::BIN_SUFFIX.length() > 0)
+  {
+    m_BinName += "."+openfluid::config::BIN_SUFFIX;
+  }
 
   m_Version = openfluid::config::VERSION_MAJOR+"." +
               openfluid::config::VERSION_MINOR+"." +

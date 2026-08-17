@@ -14,14 +14,6 @@
           {
             "program": "%%OF%%",
             "args": ["--version"]
-          },
-          {
-            "program": "/usr/bin/echo",
-            "args": ["%%PATH2%%"]
-          },
-          {
-            "program": "/usr/bin/ls",
-            "args": ["%%OPENFLUID_TEMP_PATH%%"]
           }
         ],
       "configure-options": {"foo": "bar"}

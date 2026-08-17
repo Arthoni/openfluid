@@ -604,9 +604,9 @@ int WareSetManager::scaffoldWareset(const std::string& UserdataPathStr,
         std::string PreConfigureCommand = CommandJson["program"];
         // %%OF%% //OF only replaced as command
         PreConfigureCommand = openfluid::tools::replace(PreConfigureCommand, "%%OF%%", 
-          openfluid::tools::Filesystem::joinPath({openfluid::base::Environment::getInstallPrefix(),
+          openfluid::tools::Path({openfluid::base::Environment::getInstallPrefix(),
                                                   openfluid::config::INSTALL_BIN_PATH,
-                                                  openfluid::config::CMD_APP}));
+                                                  openfluid::base::Environment::getBinName()}).toNative());
         std::string WareType = Ware["type"];
         std::string WareID = Ware["id"];
         std::string WareKey = WareType.substr(0,3)+"/"+WareID;

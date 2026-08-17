@@ -83,6 +83,8 @@ const std::string DEVSTUDIO_APP = "@OPENFLUID_DEVSTUDIO_APP@";
 const std::string LOGEXPLORER_APP = "@OPENFLUID_LOGEXPLORER_APP@";
 const std::string GITASKPASS_APP = "@OPENFLUID_GITASKPASS_APP@";
 
+// OS suffix
+const std::string BIN_SUFFIX = "@OS_BIN_SUFFIX@";
 
 // Install prefix
 const std::string INSTALL_PREFIX = "@CMAKE_INSTALL_PREFIX@";

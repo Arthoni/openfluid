@@ -68,6 +68,8 @@ class OPENFLUID_API Environment
 
     static std::string m_UserName;
 
+    static std::string m_BinName;
+
     static std::string m_Version;
 
     static std::string m_VersionFull;
@@ -171,6 +173,15 @@ class OPENFLUID_API Environment
     static std::string getUserName()
     {
       return m_UserName;
+    }
+
+    /**
+      Returns the openfluid binary name with extension if needed
+      @return the binary name
+    */
+    static std::string getBinName()
+    {
+      return m_BinName;
     }
 
     /**

@@ -219,8 +219,10 @@ SET(OFBUILD_GITASKUSER_ENVVAR_PREFIX "OFLD_GITASKUSER_")
 
 
 SET(OS_LIB_SUFFIX "so")
+SET(OS_BIN_SUFFIX "")
 IF(WIN32)
   SET(OS_LIB_SUFFIX "dll")
+  SET(OS_BIN_SUFFIX "exe")
 ENDIF()
 
 ################### logfiles ###################
