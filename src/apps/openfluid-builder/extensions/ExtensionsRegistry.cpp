@@ -39,6 +39,7 @@
 
 #include <openfluid/ui/builderext/PluggableModelessExtension.hpp>
 #include <openfluid/base/RunContextManager.hpp>
+#include <openfluid/base/InternalLogger.hpp>
 
 #include "ExtensionsRegistry.hpp"
 
@@ -80,13 +81,15 @@ void ExtensionsRegistry::registerExtensions()
       }
       else
       {
-        std::cout << "Extension registration failed, role-related " << (int)Item.signature()->Role << std::endl;
+        openfluid::base::log::error("Extension registry", "Extension registration failed, role-related "+
+                              std::to_string((int)Item.signature()->Role));
       }
     }
     else
     {
-      std::cout << "Extension registration failed: " << Item.getMessage() << ". " <<  Item.isValid() << ", " \
-                << Item.hasSignature() << std::endl;
+      openfluid::base::log::error("Extension registry", "Extension registration failed: "+Item.getMessage()+". ");
+      openfluid::base::log::debug("Extension registry", "Extension validity: "+std::to_string(Item.isValid())+\
+                                  ", signature: " + std::to_string(Item.hasSignature()));
     }
   }
 
