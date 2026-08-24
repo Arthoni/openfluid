@@ -135,20 +135,23 @@ OPENFLUID_ADD_TEST(NAME observers-DotFiles
 
 ###########################################################################
 
-                        
+
 OPENFLUID_ADD_TEST(NAME observers-KmlFiles 
-                   COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}" 
+                  COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}" 
                         "run"
                         "${OFBUILD_TESTS_INPUT_DATASETS_DIR}/OPENFLUID.IN.KmlObservers"
                         "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers" 
                         "-p" "${OFBUILD_TESTS_BINARY_DIR}"
                         "-n" "${OFBUILD_TESTS_BINARY_DIR}"
-                   PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers"
-                   POST_TEST CHECK_FILE_EXIST "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/kmlplot.kmz"
-                             CHECK_FILE_EXIST "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/SU.kmz"
-                             CHECK_FILE_EXIST "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/RS.kmz"
-                             CHECK_FILE_EXIST_IN_ARCHIVE "doc.kml" "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/kmlplot.kmz"
+                  PRE_TEST REMOVE_DIRECTORY "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers"
+                  POST_TEST CHECK_FILE_EXIST "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/kmlplot.kmz"
+                            CHECK_FILE_EXIST "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/SU.kmz"
+                            CHECK_FILE_EXIST "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/RS.kmz"
+                            CHECK_FILE_EXIST_IN_ARCHIVE "doc.kml" "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.KmlObservers/kmlplot.kmz"
                   )
+IF(NOT OFBUILD_ENABLE_GNUPLOT)
+  SET_PROPERTY(TEST observers-KmlFiles APPEND PROPERTY DISABLED True)
+ENDIF()
 
 
 ###########################################################################

@@ -19,8 +19,9 @@ OPENFLUID_ADD_TEST(NAME examples-Primitives
                                                   "basic_output_check"
                    )
 
+
 OPENFLUID_ADD_TEST(NAME examples-Manhattan 
-                   COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}" 
+                  COMMAND "${OFBUILD_DIST_BIN_DIR}/${OPENFLUID_CMD_APP}" 
                               "run"
                               "${CMAKE_CURRENT_SOURCE_DIR}/projects/Manhattan/IN"
                               "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.Examples.Manhattan" 
@@ -30,7 +31,10 @@ OPENFLUID_ADD_TEST(NAME examples-Manhattan
                               COMPARE_DIRECTORIES "${OFBUILD_TESTS_OUTPUT_DATA_DIR}/OPENFLUID.OUT.Examples.Manhattan" 
                                                   "${CMAKE_CURRENT_SOURCE_DIR}/projects/Manhattan/REF"
                                                   "basic_output_check"
-                   )
+                  )
+IF(NOT OFBUILD_ENABLE_GNUPLOT)  # requires gnuplot program
+  SET_PROPERTY(TEST examples-Manhattan APPEND PROPERTY DISABLED True)
+ENDIF()
 
 OPENFLUID_ADD_TEST(NAME examples-Firespread 
                    HEAVY

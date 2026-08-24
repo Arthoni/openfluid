@@ -10,4 +10,4 @@ export OPENFLUID_INSTALL_PREFIX=`pwd`/dist
 export OFBUILD_SUPPORT_DIR=/mingw64/
 export PATH=$OPENFLUID_INSTALL_PREFIX/bin:$OPENFLUID_INSTALL_PREFIX/lib:$PATH
 
-ctest -j 30 > $BUILD_DIR/test_out.log
+ctest -j 4 --output-on-failure > $BUILD_DIR/test_out.log

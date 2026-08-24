@@ -482,6 +482,10 @@ ADD_TEST(NAME integration-CMakeModuleMultiWare
                    WORKING_DIRECTORY  "${OFBUILD_TMP_DIR}/cmdline/create-wareset/from-dataset/workspace/wares-dev/_build-release-${OPENFLUID_VERSION_MAJOR}.${OPENFLUID_VERSION_MINOR}")
 
 SET_PROPERTY(TEST integration-CMakeModuleMultiWare APPEND PROPERTY DEPENDS cmdline-openfluid-SetupWareset-FromLocal)
+IF(NOT OFBUILD_ENABLE_DOCALYZER)
+  SET_PROPERTY(TEST integration-CMakeModuleMultiWare APPEND PROPERTY DISABLED True)
+ENDIF()
+
 
 ###########################################################################
 

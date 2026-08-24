@@ -29,6 +29,7 @@ OPTION(OFBUILD_ENABLE_APP_DEVSTUDIO "enable build of openfluid-devstudio applica
 OPTION(OFBUILD_ENABLE_APP_LOGEXPLORER "enable build of openfluid-logexplorer application" ON)
 OPTION(OFBUILD_ENABLE_WARESDEV_BUILDER_INTEGRATION "enable integration of wares development in builder application" ON)
 OPTION(OFBUILD_ENABLE_DOCALYZER "enable usage of docalyzer in wares builds and tests" ON)
+OPTION(OFBUILD_ENABLE_GNUPLOT "enable usage of gnuplot in wares builds and tests" ON)
 
 OPTION(OFBUILD_ENABLE_SANITIZER "" OFF)
 
@@ -92,7 +93,7 @@ IF(NOT OFBUILD_ENABLE_GUI)
 ENDIF()
 
 
-# Check of tools availability for docalyzer tests
+# Check of tools availability for tests
 IF(OFBUILD_ENABLE_DOCALYZER)
   IF(OFBUILD_ENABLE_GPL_COMPONENTS)
     FIND_PROGRAM(_DOCALYZER_PANDOC NAMES pandoc pandoc.exe)
@@ -103,6 +104,11 @@ IF(OFBUILD_ENABLE_DOCALYZER)
     SET(OFBUILD_ENABLE_DOCALYZER OFF)
   ENDIF()
 ENDIF()
+
+FIND_PROGRAM(_GNUPLOT NAMES gnuplot gnuplot.exe)
+  IF(NOT (_GNUPLOT))
+    SET(OFBUILD_ENABLE_GNUPLOT OFF)
+  ENDIF()
 
 
 # Force basic testing in debug mode
