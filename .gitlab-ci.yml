@@ -60,18 +60,18 @@ pkg-of-full-deb:
     paths:
       - _build_release/*.deb
 
-pkg-of-full-deb-for-docker:
+pkg-of-lts:
   stage: package
   when: manual
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
   script:
-    - mkdir ./_build_release
-    - cd ./_build_release && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+    - mkdir ./_build_lts
+    - cd ./_build_lts && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
     - make -j `nproc`
     - cpack -j `nproc`
   artifacts:
     paths:
-      - _build_release/*.deb
+      - _build_lts/*.deb
 
 pkg-of-full-rpm:
   stage: package
@@ -167,12 +167,14 @@ pkg-bindings-py:
 build-of-container:
   parallel:
     matrix:
-      - BUILD_SUFFIX: ["release", "noui"]
+      - BUILD_SUFFIX: ["lts", "noui"]
   stage: container
   image: docker:24.0.5-cli
   when: manual
+  needs:
+    - pkg-of-$BUILD_SUFFIX
   dependencies:
-    - pkg-of-full-deb
+    - pkg-of-$BUILD_SUFFIX
   services:
     - docker:24.0.5-dind
   variables:
