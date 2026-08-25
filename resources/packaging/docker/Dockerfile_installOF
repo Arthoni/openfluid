@@ -1,0 +1,48 @@
+# Requires an openfluid.deb for Ubuntu 26.04 in the current folder (used in Gitlab CI)
+
+FROM ubuntu:26.04
+
+
+ENV DEBIAN_FRONTEND noninteractive
+ARG OF_VERSION=2.2.2
+ARG OF_DISTRO=raccoon
+ARG ROF_DATE=20251121
+
+
+# Install.
+RUN apt-get update
+
+# Install OpenFLUID and ROpenFLUID
+#  requires uniformized .deb and .tar.gz files in work folder
+ADD openfluid.deb /tmp/openfluid.deb
+RUN apt install -y /tmp/openfluid.deb
+RUN rm -f /tmp/openfluid.deb
+
+# ADD ROpenFLUID.tar.gz /tmp/ROpenFLUID.tar.gz
+# RUN Rscript --vanilla -e 'install.packages("/tmp/ROpenFLUID.tar.gz",repo=NULL)'
+
+
+# Qt setup
+# RUN apt-get install qtchooser
+# RUN qtchooser -install qt6 $(which qmake6)
+# ENV QT_SELECT=qt6
+
+
+# Set default root password
+RUN echo 'root:root' | chpasswd
+
+
+# Create user openfluid
+RUN useradd -b /home -m -s /bin/bash openfluid
+RUN echo 'openfluid:openfluid' | chpasswd
+RUN adduser openfluid sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Finalize environment
+ENV HOME /home/openfluid
+WORKDIR /home/openfluid
+USER openfluid
+
+
+# Define default command.
+CMD ["/bin/bash"]

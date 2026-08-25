@@ -2,9 +2,11 @@ stages:
   - test
   - package
   - downstream
+  - container
 
 test-of:
   stage: test
+  when: manual
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
   script:
     - mkdir ./_build
@@ -31,7 +33,8 @@ test-of-unix-full:
 
 pkg-of-no-ui:
   stage: package
-  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
+  when: manual
+  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
   script:
     - mkdir ./_build_noui
     - cd ./_build_noui && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DOFBUILD_ENABLE_GUI=OFF
@@ -47,8 +50,7 @@ pkg-of-full-deb:
   parallel:
     matrix:
       - TAG: ["debian-13-qt6",
-              "ubuntu-24.10-qt6",
-              "ubuntu-26.04-qt6"]
+              "ubuntu-24.10-qt6"]
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/$TAG"
   script:
     - mkdir ./_build_release
@@ -59,6 +61,17 @@ pkg-of-full-deb:
     paths:
       - _build_release/*.deb
 
+pkg-of-lts:
+  stage: package
+  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
+  script:
+    - mkdir ./_build_lts
+    - cd ./_build_lts && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+    - make -j `nproc`
+    - cpack -j `nproc`
+  artifacts:
+    paths:
+      - _build_lts/*.deb
 
 pkg-of-full-rpm:
   stage: package
@@ -79,7 +92,9 @@ pkg-of-full-rpm:
 
 pkg-bindings-r:
   stage: downstream
-  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
+  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
+  needs:
+    - pkg-of-no-ui
   before_script:
     - sudo apt-get update && sudo apt-get install -y ./_build_noui/*.deb
   script:
@@ -95,6 +110,9 @@ pkg-bindings-r:
 
 pkg-bindings-py:
   stage: downstream
+  when: manual
+  needs:
+    - pkg-of-no-ui
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
   before_script:
     - sudo apt-get update && sudo apt-get install -y ./_build_noui/*.deb
@@ -111,24 +129,47 @@ pkg-bindings-py:
       - downstream/pyopenfluid/dist/*.tar.gz
 
 
-# build-of-container-ubuntu-22-04:
-#   stage: container
-#   image: docker:24.0.5-cli
-#   services:
-#     - docker:24.0.5-dind
-#   variables:
-#     DOCKER_TLS_CERTDIR: ""
-#     DOCKER_HOST: tcp://docker:2375
-#   script:
-#     - |
-#         cat > Dockerfile <<EOF
-#         FROM ubuntu:22.04
-#         COPY openfluid_2.2.1~beta2_jammy_amd64.deb /tmp/
-#         RUN apt-get update && apt-get install -y /tmp/openfluid_2.2.1~beta2_jammy_amd64.deb && rm /tmp/openfluid_2.2.1~beta2_jammy_amd64.deb
-#         EOF
-#     - docker build -t registry.forge.inrae.fr/openfluid/incubateur/openfluid/openfluid:2.2.1b1-ubuntu-22.04-qt5 . 
-#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-#     - docker push registry.forge.inrae.fr/openfluid/incubateur/openfluid/openfluid:2.2.1b1-ubuntu-22.04-qt5
+build-of-container:
+  stage: container
+  image: docker:24.0.5-cli
+  when: manual
+  needs:
+    - pkg-of-lts
+  dependencies:
+    - pkg-of-lts
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - cp _build_lts/*.deb openfluid.deb
+    - cp resources/packaging/docker/Dockerfile_installOF Dockerfile
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE-from_ci:latest" .
+    - docker push "$CI_REGISTRY_IMAGE-from_ci:latest"
+
+build-of-container-noui:
+  stage: container
+  image: docker:24.0.5-cli
+  when: manual
+  needs:
+    - pkg-of-no-ui
+  dependencies:
+    - pkg-of-no-ui
+  services:
+    - docker:24.0.5-dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - cp _build_noui/*.deb openfluid.deb
+    - cp resources/packaging/docker/Dockerfile_installOF Dockerfile
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE-from_ci-noui:latest" .
+    - docker push "$CI_REGISTRY_IMAGE-from_ci-noui:latest"
 
 # Warning: relies on machine-dependant structure, especially custom buildOFwin_ci.ps1 and testOFwin_ci.ps1 scripts
 # TODO set automatic when build kill functional
