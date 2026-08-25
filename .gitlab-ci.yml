@@ -140,9 +140,9 @@ build-of-container:
     DOCKER_HOST: tcp://docker:2375
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - cp ./_build_lts/*.deb ./.gitlab/openfluid.deb
+    - cp _build_lts/*.deb ./.gitlab/openfluid.deb
   script:
-    - docker build -t "$CI_REGISTRY_IMAGE:latest" -f ./.gitlab/Dockerfile_installOF .
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" -f .gitlab/Dockerfile_installOF .
     - docker push "$CI_REGISTRY_IMAGE:latest"
 
 build-of-container-noui:
@@ -160,9 +160,11 @@ build-of-container-noui:
     DOCKER_HOST: tcp://docker:2375
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - cp ./_build_noui/*.deb ./.gitlab/openfluid.deb
+    - cp _build_noui/*.deb openfluid.deb
   script:
-    - docker build -t "$CI_REGISTRY_IMAGE-noui:latest" -f ./.gitlab/Dockerfile_installOF .
+    - ls .gitlab
+    - ls
+    - docker build -t "$CI_REGISTRY_IMAGE-noui:latest" -f .gitlab/Dockerfile_installOF .
     - docker push "$CI_REGISTRY_IMAGE-noui:latest"
 
 # Warning: relies on machine-dependant structure, especially custom buildOFwin_ci.ps1 and testOFwin_ci.ps1 scripts
