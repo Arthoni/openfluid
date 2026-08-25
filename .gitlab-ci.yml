@@ -33,6 +33,7 @@ test-of-unix-full:
 
 pkg-of-no-ui:
   stage: package
+  when: manual
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
   script:
     - mkdir ./_build_noui
@@ -62,7 +63,6 @@ pkg-of-full-deb:
 
 pkg-of-lts:
   stage: package
-  when: manual
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
   script:
     - mkdir ./_build_lts
@@ -125,45 +125,6 @@ pkg-bindings-py:
       - downstream/pyopenfluid/dist/*.tar.gz
 
 
-# build-of-container-ubuntu-22-04:
-#   stage: container
-#   image: docker:24.0.5-cli
-#   services:
-#     - docker:24.0.5-dind
-#   variables:
-#     DOCKER_TLS_CERTDIR: ""
-#     DOCKER_HOST: tcp://docker:2375
-#   script:
-#     - |
-#         cat > Dockerfile <<EOF
-#         FROM ubuntu:22.04
-#         COPY openfluid_2.2.1~beta2_jammy_amd64.deb /tmp/
-#         RUN apt-get update && apt-get install -y /tmp/openfluid_2.2.1~beta2_jammy_amd64.deb && rm /tmp/openfluid_2.2.1~beta2_jammy_amd64.deb
-#         EOF
-#     - docker build -t registry.forge.inrae.fr/openfluid/incubateur/openfluid/openfluid:2.2.1b1-ubuntu-22.04-qt5 . 
-#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-#     - docker push registry.forge.inrae.fr/openfluid/incubateur/openfluid/openfluid:2.2.1b1-ubuntu-22.04-qt5
-
-
-# build-of-container-noui:
-#   stage: container
-#   image: docker:24.0.5-cli
-#   when: manual
-#   dependencies:
-#     - pkg-of-no-ui
-#   services:
-#     - docker:24.0.5-dind
-#   variables:
-#     DOCKER_TLS_CERTDIR: ""
-#     DOCKER_HOST: tcp://docker:2375
-#   before_script:
-#     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-#     - cp ./_build_noui/*.deb ./.gitlab/openfluid.deb
-#   script:
-#     - docker build -t "$CI_REGISTRY_IMAGE:latest" ./.gitlab/
-#     - docker push "$CI_REGISTRY_IMAGE:latest"
-
-
 build-of-container:
   stage: container
   image: docker:24.0.5-cli
@@ -181,8 +142,7 @@ build-of-container:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - cp ./_build_lts/*.deb ./.gitlab/openfluid.deb
   script:
-    - cd ./.gitlab
-    - docker build -t "$CI_REGISTRY_IMAGE:latest" -f Dockerfile_installOF .
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" -f ./.gitlab/Dockerfile_installOF .
     - docker push "$CI_REGISTRY_IMAGE:latest"
 
 build-of-container-noui:
@@ -202,8 +162,7 @@ build-of-container-noui:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - cp ./_build_noui/*.deb ./.gitlab/openfluid.deb
   script:
-    - cd ./.gitlab
-    - docker build -t "$CI_REGISTRY_IMAGE-noui:latest" -f Dockerfile_installOF .
+    - docker build -t "$CI_REGISTRY_IMAGE-noui:latest" -f ./.gitlab/Dockerfile_installOF .
     - docker push "$CI_REGISTRY_IMAGE-noui:latest"
 
 # Warning: relies on machine-dependant structure, especially custom buildOFwin_ci.ps1 and testOFwin_ci.ps1 scripts
