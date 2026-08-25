@@ -93,6 +93,8 @@ pkg-of-full-rpm:
 pkg-bindings-r:
   stage: downstream
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
+  needs:
+    - pkg-of-no-ui
   before_script:
     - sudo apt-get update && sudo apt-get install -y ./_build_noui/*.deb
   script:
@@ -109,6 +111,8 @@ pkg-bindings-r:
 pkg-bindings-py:
   stage: downstream
   when: manual
+  needs:
+    - pkg-of-no-ui
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
   before_script:
     - sudo apt-get update && sudo apt-get install -y ./_build_noui/*.deb
@@ -140,9 +144,10 @@ build-of-container:
     DOCKER_HOST: tcp://docker:2375
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - cp _build_lts/*.deb ./.gitlab/openfluid.deb
+    - cp _build_lts/*.deb openfluid.deb
+    - cp .gitlab/Dockerfile_installOF Dockerfile
   script:
-    - docker build -t "$CI_REGISTRY_IMAGE:latest" -f .gitlab/Dockerfile_installOF .
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" .
     - docker push "$CI_REGISTRY_IMAGE:latest"
 
 build-of-container-noui:
@@ -161,10 +166,9 @@ build-of-container-noui:
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - cp _build_noui/*.deb openfluid.deb
+    - cp .gitlab/Dockerfile_installOF Dockerfile
   script:
-    - ls .gitlab
-    - ls
-    - docker build -t "$CI_REGISTRY_IMAGE-noui:latest" -f .gitlab/Dockerfile_installOF .
+    - docker build -t "$CI_REGISTRY_IMAGE-noui:latest" .
     - docker push "$CI_REGISTRY_IMAGE-noui:latest"
 
 # Warning: relies on machine-dependant structure, especially custom buildOFwin_ci.ps1 and testOFwin_ci.ps1 scripts
