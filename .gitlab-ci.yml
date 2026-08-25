@@ -144,7 +144,7 @@ pkg-bindings-py:
 
 
 build-of-container-noui:
-  stage:container
+  stage: container
   image: docker:24.0.5-cli
   when: manual
   dependencies:
@@ -154,7 +154,7 @@ build-of-container-noui:
   variables:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_HOST: tcp://docker:2375
-  before-script:
+  before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - cp ./_build_noui/*.deb ./.gitlab/openfluid.deb
   script:
@@ -163,7 +163,7 @@ build-of-container-noui:
 
 
 build-of-container:
-  stage:container
+  stage: container
   image: docker:24.0.5-cli
   when: manual
   dependencies:
@@ -173,7 +173,7 @@ build-of-container:
   variables:
     DOCKER_TLS_CERTDIR: ""
     DOCKER_HOST: tcp://docker:2375
-  before-script:
+  before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - cp ./_build_release/*.deb ./.gitlab/openfluid.deb
   script:
