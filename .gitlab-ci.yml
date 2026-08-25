@@ -33,7 +33,7 @@ test-of-unix-full:
 
 pkg-of-no-ui:
   stage: package
-  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
+  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
   script:
     - mkdir ./_build_noui
     - cd ./_build_noui && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DOFBUILD_ENABLE_GUI=OFF
@@ -92,7 +92,7 @@ pkg-of-full-rpm:
 
 pkg-bindings-r:
   stage: downstream
-  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
+  image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/ubuntu-26.04-qt6"
   before_script:
     - sudo apt-get update && sudo apt-get install -y ./_build_noui/*.deb
   script:
@@ -108,6 +108,7 @@ pkg-bindings-r:
 
 pkg-bindings-py:
   stage: downstream
+  when: manual
   image: "registry.forge.inrae.fr/openfluid/interne/openfluid-devtools/ofbuild/debian-13-qt6"
   before_script:
     - sudo apt-get update && sudo apt-get install -y ./_build_noui/*.deb
