@@ -145,26 +145,29 @@ pkg-bindings-py:
 #     - docker push registry.forge.inrae.fr/openfluid/incubateur/openfluid/openfluid:2.2.1b1-ubuntu-22.04-qt5
 
 
-build-of-container-noui:
-  stage: container
-  image: docker:24.0.5-cli
-  when: manual
-  dependencies:
-    - pkg-of-no-ui
-  services:
-    - docker:24.0.5-dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_HOST: tcp://docker:2375
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - cp ./_build_noui/*.deb ./.gitlab/openfluid.deb
-  script:
-    - docker build -t "$CI_REGISTRY_IMAGE:latest" ./.gitlab/
-    - docker push "$CI_REGISTRY_IMAGE:latest"
+# build-of-container-noui:
+#   stage: container
+#   image: docker:24.0.5-cli
+#   when: manual
+#   dependencies:
+#     - pkg-of-no-ui
+#   services:
+#     - docker:24.0.5-dind
+#   variables:
+#     DOCKER_TLS_CERTDIR: ""
+#     DOCKER_HOST: tcp://docker:2375
+#   before_script:
+#     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+#     - cp ./_build_noui/*.deb ./.gitlab/openfluid.deb
+#   script:
+#     - docker build -t "$CI_REGISTRY_IMAGE:latest" ./.gitlab/
+#     - docker push "$CI_REGISTRY_IMAGE:latest"
 
 
 build-of-container:
+  parallel:
+    matrix:
+      - BUILD_SUFFIX: ["release", "noui"]
   stage: container
   image: docker:24.0.5-cli
   when: manual
@@ -177,10 +180,11 @@ build-of-container:
     DOCKER_HOST: tcp://docker:2375
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - cp ./_build_release/*.deb ./.gitlab/openfluid.deb
+    - cp ./_build_$BUILD_SUFFIX/*.deb ./.gitlab/openfluid.deb
   script:
-    - docker build -t "$CI_REGISTRY_IMAGE:latest" ./.gitlab/
-    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - cd ./.gitlab
+    - docker build -t "$CI_REGISTRY_IMAGE-$BUILD_SUFFIX:latest" -f Dockerfile_installOF .
+    - docker push "$CI_REGISTRY_IMAGE-$BUILD_SUFFIX:latest"
 
 
 # Warning: relies on machine-dependant structure, especially custom buildOFwin_ci.ps1 and testOFwin_ci.ps1 scripts
