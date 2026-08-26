@@ -64,7 +64,7 @@ class OPENFLUID_API FragmentsImportWorker: public GitImportWorker
 
   protected slots:
 
-    bool importElement(const QString& GitUrl, const QString& ContextPath);
+    bool importElement(const GitElementToImport& Element);
 
 
   public:

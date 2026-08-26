@@ -83,20 +83,20 @@ void FragmentsImportWorker::setSubmoduleParameter(bool FragmentsAsSubmodule)
 // =====================================================================
 
 
-bool FragmentsImportWorker::importElement(const QString& GitUrl, const QString& RootPath)
+bool FragmentsImportWorker::importElement(const GitElementToImport& Element)
 {
-  if (RootPath.isEmpty())
+  if (Element.LocalPath.isEmpty())
   {
     emit error(tr("Missing mandatory information."));
     return false;
   }
-  if (GitUrl.isEmpty())
+  if (Element.URL.isEmpty())
   {
     emit error(tr("Fragment URL is empty"));
     return false;
   }
   // Checking if git URL is valid
-  QString ProcessedGitUrl = GitUrl;
+  QString ProcessedGitUrl = Element.URL;
 #if (QT_VERSION_MAJOR < 6)
   if (ProcessedGitUrl[ProcessedGitUrl.length()-1] == "/")
   {
@@ -116,13 +116,13 @@ bool FragmentsImportWorker::importElement(const QString& GitUrl, const QString& 
 
   if (RepoName.isEmpty())
   {
-    emit error(tr("Unable to detect the ware name from the given URL: ")+GitUrl);
+    emit error(tr("Unable to detect the ware name from the given URL: ")+Element.URL);
     return false;
   }
 
   openfluid::tools::FilesystemPath SrcFragmentsSubPath({openfluid::config::WARESDEV_SRC_DIR, 
                                                         openfluid::config::WARESDEV_FRAGMENTS_DIR});
-  openfluid::tools::FilesystemPath FragmentsPath({RootPath.toStdString(), SrcFragmentsSubPath.toNative()});
+  openfluid::tools::FilesystemPath FragmentsPath({Element.LocalPath.toStdString(), SrcFragmentsSubPath.toNative()});
 
   bool FragmentDirCreated = false;
   if (!FragmentsPath.isDirectory())
@@ -139,27 +139,27 @@ bool FragmentsImportWorker::importElement(const QString& GitUrl, const QString& 
 
   bool Success;
   openfluid::tools::FilesystemPath FragmentFullPath = openfluid::tools::FilesystemPath(
-        {RootPath.toStdString(), DestSubPath.toGeneric()});
+        {Element.LocalPath.toStdString(), DestSubPath.toGeneric()});
 
   
   if (m_AsSubmodule)
   {
-    Success = Git.addSubmodule(GitUrl, QString::fromStdString(DestSubPath.toNative()), 
-                                                              RootPath, 
+    Success = Git.addSubmodule(Element.URL, QString::fromStdString(DestSubPath.toNative()), 
+                                                              Element.LocalPath, 
                                                               m_Username, 
                                                               m_Password, 
                                                               m_SslNoVerify);
     if (!Success)
     {
       // Git cleanup of failed submodule add through GitProxy removal operation
-      auto GitRmCodeOutput = Git.removeSubmodule(RootPath, QString::fromStdString(DestSubPath.toNative())).second;
+      auto GitRmCodeOutput = Git.removeSubmodule(Element.LocalPath, QString::fromStdString(DestSubPath.toNative())).second;
       emit info(GitRmCodeOutput);
 
       // Manual removal if git operations were unable to do it
       openfluid::tools::FilesystemPath DeleteTargetDirectory = FragmentFullPath;
       if (FragmentDirCreated)
       {
-        DeleteTargetDirectory = openfluid::tools::FilesystemPath({RootPath.toStdString(), 
+        DeleteTargetDirectory = openfluid::tools::FilesystemPath({Element.LocalPath.toStdString(), 
                                                                   SrcFragmentsSubPath.toGeneric()});
       }
       if (DeleteTargetDirectory.exists() && DeleteTargetDirectory.removeDirectory())
@@ -170,11 +170,11 @@ bool FragmentsImportWorker::importElement(const QString& GitUrl, const QString& 
   }
   else
   {
-    Success = Git.clone(GitUrl, QString::fromStdString(DestSubPath.toNative()), 
+    Success = Git.clone(Element.URL, QString::fromStdString(DestSubPath.toNative()), 
                                                                m_Username, 
                                                                m_Password, 
                                                                m_SslNoVerify, 
-                                                               RootPath, 
+                                                               Element.LocalPath, 
                                                                true);
   }
 
@@ -182,11 +182,11 @@ bool FragmentsImportWorker::importElement(const QString& GitUrl, const QString& 
   {
     if (m_AutoCheckout)
     {
-      checkoutCurrentOpenFLUIDBranch(QString::fromStdString(FragmentFullPath.toGeneric()));
+      checkoutBranch(QString::fromStdString(FragmentFullPath.toGeneric()), Element.Branch);
     }
 
     openfluid::tools::FilesystemPath FragmentGitPath = 
-        openfluid::tools::FilesystemPath({RootPath.toStdString(), DestSubPath.toGeneric(), ".git"});
+        openfluid::tools::FilesystemPath({Element.LocalPath.toStdString(), DestSubPath.toGeneric(), ".git"});
     if (!m_AsSubmodule && FragmentGitPath.exists())
     {
       // removing .git/ folder to avoid potential git conflict with parent folder

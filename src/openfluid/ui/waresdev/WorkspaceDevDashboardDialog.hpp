@@ -55,6 +55,8 @@ namespace Ui {
 
 class QPushButton;
 
+typedef std::map<openfluid::ware::WareType, QStringList> WaresByType_t;
+
 
 namespace openfluid { namespace ui { namespace waresdev {
 
@@ -97,10 +99,15 @@ class OPENFLUID_API WorkspaceDevDashboardDialog: public QDialog
     
     WorkspaceDevDashboardTypes::WaresSelectionByType getSelectionByType() const;
 
+    WaresByType_t m_InitialSelectedWaresByType;
+
 
   public:
 
-    WorkspaceDevDashboardDialog(QWidget* Parent, openfluid::waresdev::WareBuildOptions& BuildOptions);
+    WorkspaceDevDashboardDialog(QWidget* Parent, openfluid::waresdev::WareBuildOptions& BuildOptions,
+      const WaresByType_t& WaresToSelectByType=WaresByType_t());
+
+    void setSelectedWares(const WaresByType_t& WaresByType);
 
     virtual ~WorkspaceDevDashboardDialog();
     

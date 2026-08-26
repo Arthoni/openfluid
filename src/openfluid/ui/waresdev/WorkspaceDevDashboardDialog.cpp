@@ -57,8 +57,10 @@ namespace openfluid { namespace ui { namespace waresdev {
 
 
 WorkspaceDevDashboardDialog::WorkspaceDevDashboardDialog(QWidget* Parent, 
-                                                         openfluid::waresdev::WareBuildOptions& BuildOptions) :
-    QDialog(Parent), m_WareBuildOptions(BuildOptions), ui(new Ui::WorkspaceDevDashboardDialog)
+                                                         openfluid::waresdev::WareBuildOptions& BuildOptions, 
+                                                         const WaresByType_t& WaresToSelectByType) :
+    QDialog(Parent), m_WareBuildOptions(BuildOptions), ui(new Ui::WorkspaceDevDashboardDialog), 
+    m_InitialSelectedWaresByType(WaresToSelectByType)
 {
   ui->setupUi(this);
 
@@ -139,6 +141,28 @@ WorkspaceDevDashboardDialog::WorkspaceDevDashboardDialog(QWidget* Parent,
 
   WThread->start();
 
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
+void WorkspaceDevDashboardDialog::setSelectedWares(const std::map<openfluid::ware::WareType, QStringList>& WaresByType)
+{
+  // TOIMPL warning, use full list and not only the checkable ones
+  if (WaresByType.find(openfluid::ware::WareType::SIMULATOR) != WaresByType.end())
+  {
+    ui->SimulatorsWidget->selectWares(WaresByType.at(openfluid::ware::WareType::SIMULATOR));
+  }
+  if (WaresByType.find(openfluid::ware::WareType::OBSERVER) != WaresByType.end())
+  {
+    ui->ObserversWidget->selectWares(WaresByType.at(openfluid::ware::WareType::OBSERVER));
+  }
+  if (WaresByType.find(openfluid::ware::WareType::BUILDEREXT) != WaresByType.end())
+  {
+    ui->BuilderextsWidget->selectWares(WaresByType.at(openfluid::ware::WareType::BUILDEREXT));
+  }
 }
 
 
@@ -249,6 +273,8 @@ void WorkspaceDevDashboardDialog::activateDialog()
   connect(ui->SimulatorsWidget,SIGNAL(selectionChanged()),this,SLOT(handleSelectionChanged()));
   connect(ui->ObserversWidget,SIGNAL(selectionChanged()),this,SLOT(handleSelectionChanged()));
   connect(ui->BuilderextsWidget,SIGNAL(selectionChanged()),this,SLOT(handleSelectionChanged()));
+
+  setSelectedWares(m_InitialSelectedWaresByType);
 
   unsetCursor();
 }

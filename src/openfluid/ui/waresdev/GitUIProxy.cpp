@@ -415,13 +415,21 @@ bool GitUIProxy::checkout(const QString& Path, const QString& BranchName, bool N
   }
   if (canGetBranch())
   {
-    std::string CurrentBranch = GitUIProxy::getCurrentPosition(Path.toStdString());
-    if (QString::fromStdString(CurrentBranch) != BranchName)
+    try
     {
-      openfluid::base::log::debug("Git", ExitData.second.toStdString());
+      std::string CurrentBranch = GitUIProxy::getCurrentPosition(Path.toStdString());
+      if (QString::fromStdString(CurrentBranch) != BranchName)
+      {
+        openfluid::base::log::debug("Git", ExitData.second.toStdString());
+        return 0;
+      }
+      return 1;
+    }
+    catch (openfluid::utils::GitOperationException)
+    {
+      openfluid::base::log::debug("Git", "Exception during checkout");
       return 0;
     }
-    return 1;
   }
   else
   {

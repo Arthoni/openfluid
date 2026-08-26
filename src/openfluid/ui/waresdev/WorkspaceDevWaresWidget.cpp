@@ -180,6 +180,28 @@ void WorkspaceDevWaresWidget::selectFiltered()
 // =====================================================================
 
 
+void WorkspaceDevWaresWidget::selectWares(const QStringList& WareIDs) const
+{
+  for (const auto& WareID : WareIDs)
+  {
+    std::cout << WareID.toStdString() << std::endl;
+    for (unsigned int i =0; i < m_WaresCount; i++)
+    {
+      QTableWidgetItem* Item = ui->WaresTableWidget->item(i,0);
+
+      if (Item->text() ==WareID)
+      {
+        Item->setCheckState(Qt::Checked);
+      }
+    }
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 void WorkspaceDevWaresWidget::invertSelection()
 {
   for (unsigned int i =0; i < m_WaresCount; i++)

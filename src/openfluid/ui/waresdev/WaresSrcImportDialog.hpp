@@ -82,6 +82,8 @@ class OPENFLUID_API WaresSrcImportDialog: public AbstractSrcImportDialog
 
     void onWaresListRefreshAsked();
 
+    void onSelectFromFileClicked();
+
     void updateWareSelectionCount();
 
 
@@ -109,6 +111,10 @@ class OPENFLUID_API WaresSrcImportDialog: public AbstractSrcImportDialog
 
     QMap<openfluid::ware::WareType, QStringList> m_AlreadySelectedHubWares;
 
+    BranchMap_t m_BranchByURL;
+
+    std::map<openfluid::ware::WareType, openfluid::thirdparty::json> m_WaresNotFoundByType;
+
     void updatePackageInfo();
 
     void updatePackageWaresList();
@@ -119,7 +125,10 @@ class OPENFLUID_API WaresSrcImportDialog: public AbstractSrcImportDialog
 
     QStringList getSelectedWares();
 
-    std::map<openfluid::ware::WareType, QStringList> getSelectedWaresByType();
+    openfluid::utils::FluidHubAPIClient::WaresDetailsByID_t getAllAvailableWaresWithDetails(
+      openfluid::ware::WareType Type);
+
+    std::map<openfluid::ware::WareType, QStringList> getSelectedWaresByType(bool AsID=false);
 
     bool wareItemDisplay(const openfluid::ware::WareType Type, const QString WareId, QListWidgetItem* Item);
 

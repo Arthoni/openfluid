@@ -246,11 +246,18 @@ void AbstractSrcImportDialog::onHubLoginButtonClicked()
 
 
 void AbstractSrcImportDialog::genericItemDisplay(bool AlreadyDisplayed, 
-                                                bool NotAuthorized, 
+                                                bool NotAuthorized,
                                                 QListWidgetItem* Item, 
-                                                const QString& ElementId)
+                                                const QString& ElementId, 
+                                                bool Custom)
 {
-  if (!AlreadyDisplayed)
+  if (Custom)
+  {
+    Item->setForeground(QColor("blue"));
+    Item->setToolTip(tr("Selection from file"));
+    Item->setFlags(Item->flags() | Qt::ItemIsEnabled);
+  }
+  else if (!AlreadyDisplayed)
   {
     if (m_HubManager.isLoggedIn())
     {

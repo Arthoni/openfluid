@@ -92,6 +92,11 @@ class OPENFLUID_API WareSetManager
 
     // generates a lock file with precise hash version of git repo for each ware
     void freeze(const std::string& UserdataPathStr);
+
+    openfluid::thirdparty::json getWaresetData()
+    {
+      return m_JSONWareset;
+    }
 };
 
 

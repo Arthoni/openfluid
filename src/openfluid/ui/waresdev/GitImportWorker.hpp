@@ -53,6 +53,23 @@
 namespace openfluid { namespace ui { namespace waresdev {
 
 
+typedef std::map<std::string, std::string> BranchMap_t;
+
+struct OPENFLUID_API GitElementToImport
+{
+  QString URL;
+  QString LocalPath;
+  QString Branch;
+
+  GitElementToImport(QString U, QString P, QString B="") : URL(U), LocalPath(P), Branch(B)
+  {}
+};
+
+
+// =====================================================================
+// =====================================================================
+
+
 class OPENFLUID_API GitImportWorker: public QObject
 {
   Q_OBJECT
@@ -70,13 +87,14 @@ class OPENFLUID_API GitImportWorker: public QObject
     bool m_AutoCheckout;
 
     std::vector<std::pair<QString, QString>> m_ElementsToImport; // first: Git URL, second: local path
+    BranchMap_t m_BranchByURL; // optional information about custom branch choice per Git URL
 
-    void checkoutCurrentOpenFLUIDBranch(const QString& Path);
+    void checkoutBranch(const QString& Path, QString Branch="");
 
 
   protected slots:
 
-    virtual bool importElement(const QString& GitUrl, const QString& ContextPath) = 0;
+    virtual bool importElement(const GitElementToImport& Element) = 0;
 
 
   signals:
@@ -94,7 +112,8 @@ class OPENFLUID_API GitImportWorker: public QObject
 
   public slots:
 
-    void setSelectedElements(const std::vector<std::pair<QString, QString>>& SelectedElements);
+    void setSelectedElements(const std::vector<std::pair<QString, QString>>& SelectedElements,
+      const BranchMap_t BranchByURL=BranchMap_t());
 
     bool runImports();
 

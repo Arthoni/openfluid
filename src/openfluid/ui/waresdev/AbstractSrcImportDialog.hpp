@@ -118,7 +118,8 @@ class OPENFLUID_API AbstractSrcImportDialog: public openfluid::ui::common::Messa
 
     QStringList getSelectedElementsFromListWidget(const QListWidget* ListWidget);
 
-    void genericItemDisplay(bool AlreadyDisplayed, bool NotAuthorized, QListWidgetItem* Item, const QString& ElementId);
+    void genericItemDisplay(bool AlreadyDisplayed, bool NotAuthorized, QListWidgetItem* Item, const QString& ElementId, 
+                            bool Custom=false);
     
     void setupImportManagerThread(openfluid::ui::waresdev::SrcImportSequenceManager* SrcImportSequenceManager, 
                                   QThread* Thread, 

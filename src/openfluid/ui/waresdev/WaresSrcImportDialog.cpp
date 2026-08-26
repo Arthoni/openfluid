@@ -51,10 +51,13 @@
 #include <openfluid/ui/waresdev/WaresImportWorker.hpp>
 #include <openfluid/ui/waresdev/WaresSrcImportDialog.hpp>
 #include <openfluid/ui/waresdev/WaresSrcIOProgressDialog.hpp>
+#include <openfluid/ui/waresdev/WorkspaceDevDashboardDialog.hpp>
 #include <openfluid/ui/config.hpp>
 #include <openfluid/ui/waresdev/AbstractSrcImportDialog.hpp>
+#include <openfluid/waresdev/WareBuildOptions.hpp>
 #include <openfluid/waresdev/WareSrcEnquirer.hpp>
 #include <openfluid/waresdev/WareSrcHelpers.hpp>
+#include <openfluid/waresdev/WareSetManager.hpp>
 
 #include "ui_WaresSrcImportDialog.h"
 
@@ -85,13 +88,15 @@ WaresSrcImportDialog::WaresSrcImportDialog(QWidget* Parent) :
 
   m_HubLoginWidgets << ui->UsernameLineEdit << ui->PasswordLineEdit
                                   << ui->UsernameLabel << ui->PasswordLabel;
-  m_HubLoginWidgetsAndButton << m_HubLoginWidgets << ui->HubLoginButton;
+  m_HubLoginWidgetsAndButton << m_HubLoginWidgets << ui->HubLoginButton << ui->SelectFromFileButton;
   m_HubConnectionInfoWidgets << ui->HubUrlLineEdit << m_HubLoginWidgets;
 
   ui->HubConnectButton->setText(m_HubButtonConnectLabel);
   
   ui->HubUrlLineEdit->setText(
       QString::fromStdString(openfluid::base::PreferencesManager::instance()->getWaresdevImportHubUrl()));
+
+  connect(ui->SelectFromFileButton, SIGNAL(clicked()), this, SLOT(onSelectFromFileClicked()));
 
   connect(&m_SourceBtGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onSourceChanged(QAbstractButton*)));
 
@@ -208,6 +213,19 @@ void WaresSrcImportDialog::clearListWidgets()
 // =====================================================================
 
 
+openfluid::utils::FluidHubAPIClient::WaresDetailsByID_t WaresSrcImportDialog::getAllAvailableWaresWithDetails(
+  openfluid::ware::WareType Type)
+{
+  openfluid::utils::FluidHubAPIClient::WaresDetailsByID_t WaresWithDetails = m_HubManager.getAvailableWaresWithDetails(
+    Type);
+  return WaresWithDetails;
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 void WaresSrcImportDialog::updateHubElementsList()
 {
   // Store selected wares
@@ -225,17 +243,27 @@ void WaresSrcImportDialog::updateHubElementsList()
   for (const auto& Pair : m_ListWidgetsByWareType)
   {
     openfluid::ware::WareType Type = Pair.first;
-    for (const auto& WarePair : m_HubManager.getAvailableWaresWithDetails(Type))
+    for (const auto& WarePair : getAllAvailableWaresWithDetails(Type))
     {
       QString WareId = QString::fromStdString(WarePair.first);
       std::string WarePath = Mgr->getWarePath(Type,WareId.toStdString());
       bool WareInWorkspace = openfluid::waresdev::isWareInCurrentWorkspace(WarePath);
       bool WareNotAuthorized = true;
-      WareNotAuthorized = !openfluid::waresdev::hasUserAccess(UserName.toStdString(), 
-                                                              m_HubManager.isLoggedIn(),
-                                                              WarePair.second.ROUsers, 
-                                                              WarePair.second.RWUsers); 
-
+      bool Custom = false;
+      for (const auto& WareJson : m_WaresNotFoundByType[Type])
+      {
+        if (WareJson["id"] == WarePair.first)
+        {
+          Custom = true;
+        }
+      }
+      if (!Custom)
+      {
+        WareNotAuthorized = !openfluid::waresdev::hasUserAccess(UserName.toStdString(), 
+                                                                m_HubManager.isLoggedIn(),
+                                                                WarePair.second.ROUsers, 
+                                                                WarePair.second.RWUsers); 
+      }
       QListWidgetItem* Item = m_MapWidgetHub[Type][WareId.toStdString()];
       QString WareUrl = QString::fromStdString(WarePair.second.GitUrl);
       if (isWareDisplayed(Type, WareId, WareInWorkspace, WareNotAuthorized))
@@ -248,15 +276,44 @@ void WaresSrcImportDialog::updateHubElementsList()
           m_ListWidgetsByWareType[Type]->addItem(Item);
         }
 
-        bool AlreadyDisplayed = wareItemDisplay(Type, WareId, Item);
-        genericItemDisplay(AlreadyDisplayed, WareNotAuthorized, Item, WareId);
+        bool AlreadyDisplayed = Custom ? false : wareItemDisplay(Type, WareId, Item);
+        genericItemDisplay(AlreadyDisplayed, WareNotAuthorized, Item, WareId, Custom);
         Item->setHidden(false);
+      }
+    }
+
+    // enable wares from list that were not available
+    for (const auto& NotFoundWares : m_WaresNotFoundByType)
+    {
+      openfluid::ware::WareType Type = NotFoundWares.first;
+      for (const auto& NotFoundWare : NotFoundWares.second)
+      {
+        std::string Id = NotFoundWare["id"];
+        QString WareId = QString::fromStdString(Id);
+        
+
+        QListWidgetItem* Item = m_MapWidgetHub[Type][WareId.toStdString()];
+        QString WareUrl = QString::fromStdString(NotFoundWare["git-url"]);
+        if (isWareDisplayed(Type, WareId, false, false))
+        {
+          if(!Item)
+          {
+            Item = new QListWidgetItem(WareId);
+            Item->setData(Qt::UserRole, WareUrl);
+            m_MapWidgetHub[Type][WareId.toStdString()] = Item;
+            m_ListWidgetsByWareType[Type]->addItem(Item);
+          }
+
+          bool AlreadyDisplayed = false;
+          genericItemDisplay(AlreadyDisplayed, false, Item, WareId, true);
+          Item->setHidden(false);
+        }
       }
     }
   }
 
   setItemChangedConnection(true);
-  if (m_HubManager.isLoggedIn())
+  if (m_HubManager.isConnected())
   {
     toggleCheckSelectedWares(SelectedWareIDs, true);
   }
@@ -528,6 +585,114 @@ void WaresSrcImportDialog::onHubConnectButtonClicked()
 // =====================================================================
 
 
+void WaresSrcImportDialog::onSelectFromFileClicked()
+{
+  QString WaresetFilePath = QFileDialog::getOpenFileName(this, tr("Select ware set file"),
+                                                         QDir::homePath(),
+                                                         tr("Ware set files (*.txt)")); 
+  // TODO allow lock file format
+
+  if (WaresetFilePath.isEmpty())
+  {
+    std::cout << "Wareset file empty: " << WaresetFilePath.toStdString() << std::endl;
+    return;
+  }
+  // TODO handle case package + file
+  // case hub + file
+  std::string ID = "devstudio-wareset";
+  openfluid::waresdev::WareSetManager WSManager("hub", "listfile", WaresetFilePath.toStdString(), 
+                                                        ui->HubUrlLineEdit->text().toStdString(), ID);
+  std::map<openfluid::ware::WareType, openfluid::thirdparty::json> WaresNotCheckedByType;
+  
+  unsigned int NotChecked = 0;
+  unsigned int NotFound = 0;
+  std::vector<std::string> WareNames;
+
+  for (const openfluid::ware::WareType& Type : {openfluid::ware::WareType::SIMULATOR, 
+                                                openfluid::ware::WareType::OBSERVER, 
+                                                openfluid::ware::WareType::BUILDEREXT})
+  {
+    WaresNotCheckedByType[Type] = openfluid::thirdparty::json::array();
+    m_WaresNotFoundByType[Type] = openfluid::thirdparty::json::array();
+    bool FoundInList = false;
+    for (const auto& Ware: WSManager.getWaresetData())
+    {
+      // use data structure to update checkboxes of widget
+      if (Ware["type"] == openfluid::ware::stringifyWareType(Type) || 
+          Ware["type"] == openfluid::ware::stringifyWareType(Type)+"s")
+      {
+        m_BranchByURL[Ware["git-url"]] = Ware["version"];
+        for (const auto& WarePair : getAllAvailableWaresWithDetails(Type))
+        {
+          std::string IDInList = WarePair.first;
+          if (IDInList == Ware["id"])
+          {
+            FoundInList = true;
+            QListWidgetItem* Item = m_MapWidgetHub[Type][Ware["id"]];
+            if (Item->flags() & Qt::ItemIsEnabled)
+            {
+              Item->setCheckState(Qt::Checked); 
+            }
+            else
+            {
+              NotChecked++;
+            }
+            m_WaresNotFoundByType[Type].push_back(Ware);
+            WareNames.push_back(Ware["id"]);
+          }
+        }
+        if (!FoundInList)
+        {
+          // not necessarily that the item does not exist, just that it is not indexed publicly
+          m_WaresNotFoundByType[Type].push_back(Ware);
+          NotFound++;
+          WareNames.push_back(Ware["id"]);
+        }
+      }
+    }
+  }
+  // asks if we want to add wares not checked at user own risks
+  std::vector<std::string> FirstWareNames = WareNames;
+  if (WareNames.size() >= 10) {
+    FirstWareNames = {WareNames.begin(), WareNames.begin()+9};
+    FirstWareNames.push_back("...");
+  }
+  std::string WareListStd = openfluid::tools::join(FirstWareNames, ",\n");
+  QString WareList = QString::fromStdString(WareListStd);
+
+  if (QMessageBox::question(this,
+                              tr("Adding unchecked items"),
+                              tr("Selection from file contains %1 wares that were either already present in workspace"
+                                 " or possibly not reachable: \n\n%2\n").arg(NotChecked+NotFound).arg(WareList)+"\n"+
+                              tr("Would you still want to check them in the list for import and checkout?")+"\n"+
+                              tr("Resulting ware state can not be guaranteed, check logs to identify any issue."),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+  {
+    updateHubElementsList();
+    for (const auto& UncheckedWares :m_WaresNotFoundByType)
+    {
+      for (const auto& UncheckedWare : UncheckedWares.second)
+      {
+        for (const auto& WareItem : m_MapWidgetHub[UncheckedWares.first])
+        {
+          std::string IDInList = WareItem.first;
+          std::string IDRef = UncheckedWare["id"];
+          if (IDInList == IDRef)
+          {
+            QListWidgetItem* Item = WareItem.second;
+            Item->setCheckState(Qt::Checked);
+          }
+        }
+      }
+    }
+  }                           
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 void WaresSrcImportDialog::toggleCheckSelectedWares(const QStringList& SelectedWares, bool Check)
 {
   setItemChangedConnection(false);
@@ -692,7 +857,7 @@ void WaresSrcImportDialog::updatePackageWaresList()
 // =====================================================================
 
 
-std::map<openfluid::ware::WareType, QStringList> WaresSrcImportDialog::getSelectedWaresByType()
+std::map<openfluid::ware::WareType, QStringList> WaresSrcImportDialog::getSelectedWaresByType(bool AsID)
 {
   std::map<openfluid::ware::WareType, QStringList> Wares;
 
@@ -702,7 +867,14 @@ std::map<openfluid::ware::WareType, QStringList> WaresSrcImportDialog::getSelect
     {
       if (Item->checkState() == Qt::Checked)
       {
-        Wares[Pair.first] << Item->data(Qt::UserRole).toString();
+        if (AsID)
+        {
+          Wares[Pair.first] << Item->text();
+        }
+        else
+        {
+          Wares[Pair.first] << Item->data(Qt::UserRole).toString();
+        }
       }
     }
   }
@@ -760,10 +932,20 @@ void WaresSrcImportDialog::onImportAsked()
       ui->CheckoutCurrentVersionCheckBox->isChecked());
     QString Username = QString::fromStdString(m_HubManager.getUsername());
     QString Password = QString::fromStdString(m_HubManager.getPassword());
-    LocalSrcImportSequenceManager->setSelectedWaresUrl(getSelectedWaresByType());
+    LocalSrcImportSequenceManager->setSelectedWaresUrl(getSelectedWaresByType(), m_BranchByURL);
     LocalSrcImportSequenceManager->setupUser(Username, Password);
     setupImportManagerThread(LocalSrcImportSequenceManager, Thread, &ProgressDialog);
     runThread(Thread, ProgressDialog);
+    
+    if (ui->TryBuildCheckbox->isChecked())
+    {
+      // open dashboard with preselected items
+      QWidget* Parent = nullptr;
+      openfluid::waresdev::WareBuildOptions BuildOptions;
+      openfluid::ui::waresdev::WorkspaceDevDashboardDialog Dialog(Parent, BuildOptions, getSelectedWaresByType(true));
+      Dialog.setWindowTitle(tr("Development dashboard - from source import dialog"));
+      Dialog.exec();
+    }
   }
   
 }

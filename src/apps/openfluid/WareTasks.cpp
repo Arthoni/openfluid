@@ -359,6 +359,11 @@ int WareTasks::processSetupWareset() const
   {
     WaresetSourceType = "lockfile";
   }
+  else if (SetOption.substr(SetOption.length()-4, 4) == ".txt")
+  {
+    WaresetSourceType = "listfile";
+  }
+
   if (!WaresOrigin.empty() && WaresOrigin.substr(0,4) == "http")
   {
     WareSourceType = "remote";
