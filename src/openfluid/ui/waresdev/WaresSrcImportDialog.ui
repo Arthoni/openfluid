@@ -256,7 +256,7 @@
        <item>
         <widget class="QPushButton" name="SelectFromFileButton">
          <property name="text">
-          <string>Select from file...</string>
+          <string>Select using a file...</string>
          </property>
         </widget>
        </item>

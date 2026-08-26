@@ -13,7 +13,7 @@ test-of:
     - cd ./_build && cmake .. -DOFBUILD_ENABLE_DOCS=OFF -DOFBUILD_ENABLE_GUI=OFF
     - make stylecheck
     - make -j `nproc`
-    - ctest -j 4 --output-on-failure
+    - ctest -j 3 --output-on-failure
 
 test-of-unix-full:
   stage: test
@@ -29,7 +29,7 @@ test-of-unix-full:
     - mkdir ./_build
     - cd ./_build && cmake .. -DOFBUILD_TESTS_ENABLE_HEAVY=ON
     - make -j `nproc`
-    - ctest -j 4 --output-on-failure
+    - ctest -j 3 --output-on-failure
 
 pkg-of-no-ui:
   stage: package
@@ -171,7 +171,7 @@ build-of-container-noui:
     - docker build -t "$CI_REGISTRY_IMAGE-from_ci-noui:latest" .
     - docker push "$CI_REGISTRY_IMAGE-from_ci-noui:latest"
 
-# Warning: relies on machine-dependant structure, especially custom buildOFwin_ci.ps1 and testOFwin_ci.ps1 scripts
+# Warning: relies on machine-dependant structure
 # TODO set automatic when build kill functional
 test-of-windows:
   stage: test

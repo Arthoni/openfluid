@@ -138,6 +138,11 @@ void WareSetManager::displayStatus()
   }
 }
 
+
+// =====================================================================
+// =====================================================================
+
+
 WareSetManager::WareSetManager(const std::string& WareSourceType, const std::string& WaresetSourceType, 
                                const std::string& SetOption, const std::string& WaresOrigin, std::string& ID) : 
   m_WareSourceType(WareSourceType), m_WaresetSourceType(WaresetSourceType), m_ID(ID), m_WaresOrigin(WaresOrigin), 
@@ -406,6 +411,59 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
       {
         throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION, 
                                                   "dataset metadata json format parsing failed");
+      }
+    }
+  }
+  else if (m_WaresetSourceType == "listfile")
+  {
+    std::ifstream FileStream;
+    FileStream.open(SetOption,std::ifstream::in);
+    if (!FileStream.is_open())
+    {
+      openfluid::base::log::warning("Wareset setup", "No wareset file");
+    }
+    else
+    {
+      // TOIMPL split by line (reuse system from internal import python function)
+      std::string Line;
+      // DIRTYCODE WaresetListJson;
+      while(getline(FileStream, Line))
+      {
+        //std::cout << Line << std::endl;
+        std::string LocalPath = "";
+        std::vector<std::string> LS = openfluid::tools::split(Line, " ");
+        std::string FullRepoURL = LS[0];
+        if (LS.size() > 1)
+        {
+          LocalPath = LS[1]; // TODO refinement possible here: 
+          // local path not used for now since we follow userdata file structure
+        }
+        std::string GitVersion = "";
+        std::vector<std::string> GitData = openfluid::tools::split(FullRepoURL, "#");
+        std::string GitURL = GitData[0];
+        if (GitData.size() > 1)
+        {
+          GitVersion = GitData[1];
+        }
+
+        openfluid::thirdparty::json WareJson = openfluid::thirdparty::json::object();
+        WareJson["type"] = "";
+        for (const std::string Type : {"simulators", "observers", "builderexts"})
+        {
+          if (GitURL.find("/wares/"+Type) != std::string::npos)
+          {
+            WareJson["type"] = Type;
+            break;
+          }
+        }
+        WareJson["id"] = openfluid::tools::split(GitURL, "/").back();
+        WareJson["version"] = GitVersion;
+        WareJson["git-url"] = GitURL;
+        std::string WareKey = std::string(WareJson["type"])+"/"+std::string(WareJson["id"]);
+    
+        std::cout << "adding " << WareJson << std::endl;
+        m_JSONWareset.push_back(WareJson);
+    
       }
     }
   }

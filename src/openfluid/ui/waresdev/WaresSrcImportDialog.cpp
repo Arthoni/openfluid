@@ -55,6 +55,7 @@
 #include <openfluid/ui/waresdev/AbstractSrcImportDialog.hpp>
 #include <openfluid/waresdev/WareSrcEnquirer.hpp>
 #include <openfluid/waresdev/WareSrcHelpers.hpp>
+#include <openfluid/waresdev/WareSetManager.hpp>
 
 #include "ui_WaresSrcImportDialog.h"
 
@@ -92,6 +93,8 @@ WaresSrcImportDialog::WaresSrcImportDialog(QWidget* Parent) :
   
   ui->HubUrlLineEdit->setText(
       QString::fromStdString(openfluid::base::PreferencesManager::instance()->getWaresdevImportHubUrl()));
+
+  connect(ui->SelectFromFileButton, SIGNAL(clicked()), this, SLOT(onSelectFromFileClicked()));
 
   connect(&m_SourceBtGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(onSourceChanged(QAbstractButton*)));
 
@@ -256,7 +259,7 @@ void WaresSrcImportDialog::updateHubElementsList()
   }
 
   setItemChangedConnection(true);
-  if (m_HubManager.isLoggedIn())
+  if (m_HubManager.isConnected())
   {
     toggleCheckSelectedWares(SelectedWareIDs, true);
   }
@@ -528,6 +531,66 @@ void WaresSrcImportDialog::onHubConnectButtonClicked()
 // =====================================================================
 
 
+void WaresSrcImportDialog::onSelectFromFileClicked()
+{
+  QString WaresetFilePath = QFileDialog::getOpenFileName(this, tr("Select ware set file"),
+                                                         QDir::homePath(),
+                                                         tr("Ware set files (*.txt)")); 
+  // TODO allow lock file format
+
+  if (WaresetFilePath.isEmpty())
+  {
+    std::cout << "Wareset file empty: " << WaresetFilePath.toStdString() << std::endl;
+    return;
+  }
+  // TODO handle case package + file
+  // case hub + file
+  std::string ID = "devstudio-wareset";
+  openfluid::waresdev::WareSetManager WSManager("hub", "listfile", WaresetFilePath.toStdString(), 
+                                                        ui->HubUrlLineEdit->text().toStdString(), ID);
+  for (const openfluid::ware::WareType& Type : {openfluid::ware::WareType::SIMULATOR, 
+                                                openfluid::ware::WareType::OBSERVER, 
+                                                openfluid::ware::WareType::BUILDEREXT})
+  {
+    bool FoundInList = false;
+    for (const auto& Ware: WSManager.getWaresetData())
+    {
+      // use data structure to update checkboxes of widget
+      if (Ware["type"] == openfluid::ware::stringifyWareType(Type) || 
+          Ware["type"] == openfluid::ware::stringifyWareType(Type)+"s")
+      {
+        for (const auto& WarePair : m_HubManager.getAvailableWaresWithDetails(Type))
+        {
+          std::string IDInList = WarePair.first;
+          if (IDInList == Ware["id"])
+          {
+            FoundInList = true;
+            QListWidgetItem* Item = m_MapWidgetHub[Type][Ware["id"]];
+            if (Item->flags() & Qt::ItemIsEnabled)
+            {
+              Item->setCheckState(Qt::Checked); 
+            }
+            else
+            {
+              std::cout << Ware["id"] << "can not be selected" << std::endl;
+            }
+          }
+        }
+        if (!FoundInList)
+        {
+          std::cout << Ware["id"] << " not found" << std::endl;
+          //TOIMPL handle this case: not necessarily that the item does not exist, just that it is not indexed publicly
+        }
+      }
+    }
+  }
+}
+
+
+// =====================================================================
+// =====================================================================
+
+
 void WaresSrcImportDialog::toggleCheckSelectedWares(const QStringList& SelectedWares, bool Check)
 {
   setItemChangedConnection(false);
@@ -763,6 +826,7 @@ void WaresSrcImportDialog::onImportAsked()
     LocalSrcImportSequenceManager->setSelectedWaresUrl(getSelectedWaresByType());
     LocalSrcImportSequenceManager->setupUser(Username, Password);
     setupImportManagerThread(LocalSrcImportSequenceManager, Thread, &ProgressDialog);
+    //TOIMPL change thread run to handle build case (based on ui->TryBuildCheckbox)
     runThread(Thread, ProgressDialog);
   }
   
