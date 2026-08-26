@@ -245,9 +245,27 @@
       <number>12</number>
      </property>
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,0">
+       <item>
+        <widget class="QLabel" name="AvailableWaresLabel">
+         <property name="text">
+          <string>Available wares (in package) | (on wareshub site)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="SelectFromFileButton">
+         <property name="text">
+          <string>Select from file...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <widget class="QGroupBox" name="WaresGroupBox">
        <property name="title">
-        <string notr="true">Available wares (in package) | (on wareshub site)</string>
+        <string notr="true"/>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <property name="leftMargin">
@@ -316,6 +334,13 @@
           </property>
           <property name="text">
            <string>Try to checkout branch for current OpenFLUID version</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="TryBuildCheckbox">
+          <property name="text">
+           <string>Try to build wares (using current build settings of the workspace)</string>
           </property>
          </widget>
         </item>
