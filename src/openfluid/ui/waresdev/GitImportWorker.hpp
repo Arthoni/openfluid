@@ -71,7 +71,7 @@ class OPENFLUID_API GitImportWorker: public QObject
 
     std::vector<std::pair<QString, QString>> m_ElementsToImport; // first: Git URL, second: local path
 
-    void checkoutCurrentOpenFLUIDBranch(const QString& Path);
+    void checkoutBranch(const QString& Path, const QString& Branch="");
 
 
   protected slots:

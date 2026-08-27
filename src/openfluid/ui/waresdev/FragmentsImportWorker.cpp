@@ -182,7 +182,7 @@ bool FragmentsImportWorker::importElement(const QString& GitUrl, const QString& 
   {
     if (m_AutoCheckout)
     {
-      checkoutCurrentOpenFLUIDBranch(QString::fromStdString(FragmentFullPath.toGeneric()));
+      checkoutBranch(QString::fromStdString(FragmentFullPath.toGeneric()));
     }
 
     openfluid::tools::FilesystemPath FragmentGitPath = 

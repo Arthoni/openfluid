@@ -127,10 +127,14 @@ bool GitImportWorker::runImports()
 // =====================================================================
 
 
-void GitImportWorker::checkoutCurrentOpenFLUIDBranch(const QString& Path)
+void GitImportWorker::checkoutBranch(const QString& Path, QString Branch)
 {
   GitUIProxy Git;
-  if (Git.checkout(Path, GitUIProxy::getCurrentOpenFLUIDBranchName()))
+  if (Branch == "")
+  {
+    Branch = GitUIProxy::getCurrentOpenFLUIDBranchName();
+  }
+  if (Git.checkout(Path, Branch))
   {
     emit info(tr("Successful checkout of the current OpenFLUID version branch"));
   }
