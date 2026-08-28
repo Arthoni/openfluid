@@ -111,6 +111,8 @@ class OPENFLUID_API WaresSrcImportDialog: public AbstractSrcImportDialog
 
     QMap<openfluid::ware::WareType, QStringList> m_AlreadySelectedHubWares;
 
+    BranchMap_t m_BranchByURL;
+
     void updatePackageInfo();
 
     void updatePackageWaresList();

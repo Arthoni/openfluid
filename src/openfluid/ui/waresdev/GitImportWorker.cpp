@@ -41,6 +41,7 @@
 #include <QFileInfo>
 
 #include <openfluid/base/PreferencesManager.hpp>
+#include <openfluid/base/InternalLogger.hpp>
 #include <openfluid/base/WorkspaceManager.hpp>
 #include <openfluid/ui/waresdev/GitImportWorker.hpp>
 #include <openfluid/ui/waresdev/GitUIProxy.hpp>
@@ -81,10 +82,16 @@ void GitImportWorker::setupUser(const QString& Username, const QString& Password
 // =====================================================================
 
 
-void GitImportWorker::setSelectedElements(const std::vector<std::pair<QString, QString>>& SelectedElements)
+void GitImportWorker::setSelectedElements(const std::vector<std::pair<QString, QString>>& SelectedElements, 
+                                          const BranchMap_t BranchByURL)
 {
   m_ElementsToImport = SelectedElements;
-} 
+  m_BranchByURL = BranchByURL;
+  for (const auto& E: m_BranchByURL)
+  {
+    std::cout << E.first << ": " << E.second << std::endl;
+  }
+}
 
 
 // =====================================================================
@@ -96,7 +103,13 @@ bool GitImportWorker::runImports()
   bool OK = true;
   for (const auto& Pair : m_ElementsToImport) 
   {
-    if (!importElement(Pair.first, Pair.second))
+    // Populate element with branch if available
+    GitElementToImport Element(Pair.first, Pair.second);
+    if (m_BranchByURL.find(Pair.first.toStdString()) != m_BranchByURL.end())
+    {
+      Element.Branch = QString::fromStdString(m_BranchByURL[Pair.first.toStdString()]);
+    }
+    if (!importElement(Element))
     {
       OK = false;
       break; // FIXME advanced handling of failing imports
@@ -130,17 +143,22 @@ bool GitImportWorker::runImports()
 void GitImportWorker::checkoutBranch(const QString& Path, QString Branch)
 {
   GitUIProxy Git;
+  QString SuccessMsg = tr("Successful checkout of the version branch %1").arg(Branch);
+  QString FailureMsg = tr("Unable to checkout branch corresponding to version branch %1.").arg(Branch);
   if (Branch == "")
   {
     Branch = GitUIProxy::getCurrentOpenFLUIDBranchName();
+    SuccessMsg = tr("Successful checkout of the current OpenFLUID version branch");
+    FailureMsg = tr("Unable to checkout branch corresponding to current OpenFLUID version branch.");
   }
   if (Git.checkout(Path, Branch))
   {
-    emit info(tr("Successful checkout of the current OpenFLUID version branch"));
+    emit info(SuccessMsg);
   }
   else
   {
-    emit warning(tr("Unable to checkout branch corresponding to current OpenFLUID version branch."));
+    emit warning(FailureMsg);
+    openfluid::base::log::warning("Git", FailureMsg.toStdString()+" (path: "+Path.toStdString()+")");
   }
 }
 

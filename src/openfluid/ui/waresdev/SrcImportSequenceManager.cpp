@@ -67,9 +67,10 @@ SrcImportSequenceManager::~SrcImportSequenceManager()
 
 
 void SrcImportSequenceManager::setSelectedWaresUrl(
-  const std::map<openfluid::ware::WareType, QStringList>& SelectedWaresUrlByType)
+  const std::map<openfluid::ware::WareType, QStringList>& SelectedWaresUrlByType, const BranchMap_t& BranchByURL)
 {
   m_SelectedWaresUrlByType = SelectedWaresUrlByType;
+  m_BranchByURL = BranchByURL;
 }
 
 
@@ -101,7 +102,7 @@ void SrcImportSequenceManager::setupFragmentStrategy(const QString& RootPath, bo
 bool SrcImportSequenceManager::runWorker(GitImportWorker* Worker, std::vector<std::pair<QString, QString>> Elements)
 {
   Worker->setupUser(m_Username, m_Password);
-  Worker->setSelectedElements(Elements);
+  Worker->setSelectedElements(Elements, m_BranchByURL);
 
   connect(Worker, SIGNAL(finished(bool, const QString&)), this,
           SIGNAL(finished(bool, const QString&)));
@@ -152,18 +153,18 @@ bool SrcImportSequenceManager::onCloneRequest()
     WaresImportWorker* mp_WaresImportWorker = new WaresImportWorker(SslNoVerify, m_AutoCheckout);
     mp_WaresImportWorker->setProgressValues(Progress, ProgressRatio);
 
-    std::vector<std::pair<QString, QString>> m_WaresAndPath;
+    std::vector<std::pair<QString, QString>> WaresAndPath;
     for (const auto& Pair : m_SelectedWaresUrlByType) 
     {
       auto WksMgr = openfluid::base::WorkspaceManager::instance();
       QString WareTypePath = QString::fromStdString(WksMgr->getWaresPath(Pair.first));
       for (const auto& GitUrl : Pair.second)
       {
-        m_WaresAndPath.push_back(std::make_pair(GitUrl, WareTypePath));
+        WaresAndPath.push_back(std::make_pair(GitUrl, WareTypePath));
       }
     }
     
-    OK = runWorker(mp_WaresImportWorker, m_WaresAndPath);
+    OK = runWorker(mp_WaresImportWorker, WaresAndPath);
   }
 
   if (FragmentsFound)
@@ -173,13 +174,13 @@ bool SrcImportSequenceManager::onCloneRequest()
     mp_FragmentsImportWorker->setProgressValues(Progress, ProgressRatio);
     mp_FragmentsImportWorker->setSubmoduleParameter(m_FragmentsAsSubmodule);
 
-    std::vector<std::pair<QString, QString>> m_FragmentsAndPath;
+    std::vector<std::pair<QString, QString>> FragmentsAndPath;
     for (const auto& GitUrl : m_SelectedFragmentsUrl)
     {
-      m_FragmentsAndPath.push_back(std::make_pair(GitUrl, m_RootPath)); 
+      FragmentsAndPath.push_back(std::make_pair(GitUrl, m_RootPath)); 
     }
 
-    OK = runWorker(mp_FragmentsImportWorker, m_FragmentsAndPath);
+    OK = runWorker(mp_FragmentsImportWorker, FragmentsAndPath);
   }
 
   if (qApp && qApp->thread() != thread())

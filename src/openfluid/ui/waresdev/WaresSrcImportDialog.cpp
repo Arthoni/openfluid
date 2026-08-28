@@ -86,7 +86,7 @@ WaresSrcImportDialog::WaresSrcImportDialog(QWidget* Parent) :
 
   m_HubLoginWidgets << ui->UsernameLineEdit << ui->PasswordLineEdit
                                   << ui->UsernameLabel << ui->PasswordLabel;
-  m_HubLoginWidgetsAndButton << m_HubLoginWidgets << ui->HubLoginButton;
+  m_HubLoginWidgetsAndButton << m_HubLoginWidgets << ui->HubLoginButton << ui->SelectFromFileButton;
   m_HubConnectionInfoWidgets << ui->HubUrlLineEdit << m_HubLoginWidgets;
 
   ui->HubConnectButton->setText(m_HubButtonConnectLabel);
@@ -559,6 +559,7 @@ void WaresSrcImportDialog::onSelectFromFileClicked()
       if (Ware["type"] == openfluid::ware::stringifyWareType(Type) || 
           Ware["type"] == openfluid::ware::stringifyWareType(Type)+"s")
       {
+        m_BranchByURL[Ware["git-url"]] = Ware["version"];
         for (const auto& WarePair : m_HubManager.getAvailableWaresWithDetails(Type))
         {
           std::string IDInList = WarePair.first;
@@ -823,7 +824,7 @@ void WaresSrcImportDialog::onImportAsked()
       ui->CheckoutCurrentVersionCheckBox->isChecked());
     QString Username = QString::fromStdString(m_HubManager.getUsername());
     QString Password = QString::fromStdString(m_HubManager.getPassword());
-    LocalSrcImportSequenceManager->setSelectedWaresUrl(getSelectedWaresByType());
+    LocalSrcImportSequenceManager->setSelectedWaresUrl(getSelectedWaresByType(), m_BranchByURL);
     LocalSrcImportSequenceManager->setupUser(Username, Password);
     setupImportManagerThread(LocalSrcImportSequenceManager, Thread, &ProgressDialog);
     //TOIMPL change thread run to handle build case (based on ui->TryBuildCheckbox)

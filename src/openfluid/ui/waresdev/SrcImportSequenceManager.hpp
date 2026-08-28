@@ -63,6 +63,7 @@ class OPENFLUID_API SrcImportSequenceManager: public QObject
 
     std::map<openfluid::ware::WareType, QStringList> m_SelectedWaresUrlByType;
     QStringList m_SelectedFragmentsUrl;
+    BranchMap_t m_BranchByURL;
 
     bool m_AutoCheckout = false;
     bool m_FragmentsAsSubmodule = true;
@@ -94,7 +95,8 @@ class OPENFLUID_API SrcImportSequenceManager: public QObject
 
     ~SrcImportSequenceManager();
 
-    void setSelectedWaresUrl(const std::map<openfluid::ware::WareType, QStringList>& SelectedWaresUrlByType);
+    void setSelectedWaresUrl(const std::map<openfluid::ware::WareType, QStringList>& SelectedWaresUrlByType,
+                             const BranchMap_t& BranchByURL=BranchMap_t());
 
     void setSelectedFragmentsUrl(const QStringList& SelectedFragmentsUrl);
 

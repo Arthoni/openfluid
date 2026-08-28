@@ -67,17 +67,17 @@ WaresImportWorker::~WaresImportWorker()
 // =====================================================================
 
 
-bool WaresImportWorker::importElement(const QString& GitUrl, const QString& WareTypePath)
+bool WaresImportWorker::importElement(const GitElementToImport& Element)
 {
-  QString DestPath = QString("%1/%2").arg(WareTypePath).arg(QFileInfo(GitUrl).fileName());
+  QString DestPath = QString("%1/%2").arg(Element.LocalPath).arg(QFileInfo(Element.URL).fileName());
   
   GitUIProxy Git;
   QObject::connect(&Git, SIGNAL(info(const QString&)), this, SIGNAL(info(const QString&)));
   QObject::connect(&Git, SIGNAL(error(const QString&)), this, SIGNAL(error(const QString&)));
-  bool Success = Git.clone(GitUrl, DestPath, m_Username, m_Password, m_SslNoVerify);
+  bool Success = Git.clone(Element.URL, DestPath, m_Username, m_Password, m_SslNoVerify);
   if (Success && m_AutoCheckout)
   {
-    checkoutCurrentOpenFLUIDBranch(DestPath);
+    checkoutBranch(DestPath, Element.Branch);
   }
   return Success;
 }

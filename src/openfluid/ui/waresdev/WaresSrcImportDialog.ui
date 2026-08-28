@@ -333,7 +333,7 @@
            <enum>Qt::LeftToRight</enum>
           </property>
           <property name="text">
-           <string>Try to checkout branch for current OpenFLUID version</string>
+           <string>Try to checkout branch for current OpenFLUID version (overwritten by branch value if provided in file)</string>
           </property>
          </widget>
         </item>
