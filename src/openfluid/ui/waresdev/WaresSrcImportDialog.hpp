@@ -113,6 +113,8 @@ class OPENFLUID_API WaresSrcImportDialog: public AbstractSrcImportDialog
 
     BranchMap_t m_BranchByURL;
 
+    std::map<openfluid::ware::WareType, openfluid::thirdparty::json> m_WaresNotFoundByType;
+
     void updatePackageInfo();
 
     void updatePackageWaresList();

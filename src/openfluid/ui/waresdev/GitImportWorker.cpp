@@ -112,7 +112,7 @@ bool GitImportWorker::runImports()
     if (!importElement(Element))
     {
       OK = false;
-      break; // FIXME advanced handling of failing imports
+      //break; // FIXME advanced handling of failing imports
     }
 
     m_Progress += m_ProgressRatio;
@@ -124,7 +124,7 @@ bool GitImportWorker::runImports()
   }
   else
   {
-    emit finished(false, tr("Import failed"));
+    emit finished(false, tr("Error(s) during import"));
   }
   
   if (qApp && qApp->thread() != thread())

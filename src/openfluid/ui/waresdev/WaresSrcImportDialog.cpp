@@ -258,6 +258,36 @@ void WaresSrcImportDialog::updateHubElementsList()
         Item->setHidden(false);
       }
     }
+
+    // TOIMPL enable wares from list that were not available?
+
+    for (const auto& NotFoundWares : m_WaresNotFoundByType)
+    {
+      openfluid::ware::WareType Type = NotFoundWares.first;
+      for (const auto& NotFoundWare : NotFoundWares.second)
+      {
+        std::string Id = NotFoundWare["id"];
+        QString WareId = QString::fromStdString(Id);
+        
+
+        QListWidgetItem* Item = m_MapWidgetHub[Type][WareId.toStdString()];
+        QString WareUrl = QString::fromStdString(NotFoundWare["git-url"]);
+        if (isWareDisplayed(Type, WareId, false, false))
+        {
+          if(!Item)
+          {
+            Item = new QListWidgetItem(WareId);
+            Item->setData(Qt::UserRole, WareUrl);
+            m_MapWidgetHub[Type][WareId.toStdString()] = Item;
+            m_ListWidgetsByWareType[Type]->addItem(Item);
+          }
+
+          bool AlreadyDisplayed = wareItemDisplay(Type, WareId, Item);
+          genericItemDisplay(AlreadyDisplayed, false, Item, WareId);
+          Item->setHidden(false);
+        }
+      }
+    }
   }
 
   setItemChangedConnection(true);
@@ -550,10 +580,17 @@ void WaresSrcImportDialog::onSelectFromFileClicked()
   std::string ID = "devstudio-wareset";
   openfluid::waresdev::WareSetManager WSManager("hub", "listfile", WaresetFilePath.toStdString(), 
                                                         ui->HubUrlLineEdit->text().toStdString(), ID);
+  std::map<openfluid::ware::WareType, openfluid::thirdparty::json> WaresNotCheckedByType;
+  
+  unsigned int NotChecked = 0;
+  unsigned int NotFound = 0;
+
   for (const openfluid::ware::WareType& Type : {openfluid::ware::WareType::SIMULATOR, 
                                                 openfluid::ware::WareType::OBSERVER, 
                                                 openfluid::ware::WareType::BUILDEREXT})
   {
+    WaresNotCheckedByType[Type] = openfluid::thirdparty::json::array();
+    m_WaresNotFoundByType[Type] = openfluid::thirdparty::json::array();
     bool FoundInList = false;
     for (const auto& Ware: WSManager.getWaresetData())
     {
@@ -576,17 +613,69 @@ void WaresSrcImportDialog::onSelectFromFileClicked()
             else
             {
               std::cout << Ware["id"] << "can not be selected" << std::endl;
+              WaresNotCheckedByType[Type].push_back(Ware);
+              NotChecked++;
             }
           }
         }
         if (!FoundInList)
         {
           std::cout << Ware["id"] << " not found" << std::endl;
-          //TOIMPL handle this case: not necessarily that the item does not exist, just that it is not indexed publicly
+          // not necessarily that the item does not exist, just that it is not indexed publicly
+          m_WaresNotFoundByType[Type].push_back(Ware);
+          NotFound++;
+          // TOIMPL add here these wares to list of matching type
         }
       }
     }
   }
+  // asks if we want to add wares not checked at user own risks
+  //TOIMPL provide list of wares?
+  if (QMessageBox::question(this,
+                              tr("Adding unchecked items"),
+                              tr("Selection from file contains %1 wares that were either already present in workspace"
+                                 " or possibly not reachable.").arg(NotChecked+NotFound)+"\n"+
+                              tr("Would you still to check them for import and checkout?")+"\n"+
+                              tr("Resulting ware state can not be guaranteed, check logs to identify any issue."),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+  {
+    updateHubElementsList();
+    for (const auto& UncheckedWares :WaresNotCheckedByType)
+    {
+      for (const auto& UncheckedWare : UncheckedWares.second)
+      {
+        for (const auto& WarePair : m_HubManager.getAvailableWaresWithDetails(UncheckedWares.first))
+        {
+          std::string IDInList = WarePair.first;
+          std::string IDRef = UncheckedWare["id"];
+          if (IDInList == IDRef)
+          {
+            QListWidgetItem* Item = m_MapWidgetHub[UncheckedWares.first][IDRef];
+            Item->setCheckState(Qt::Checked);
+          }
+        }
+      }
+    }
+    //TOIMPL not working
+    //TOIMPL factorize with for loop above
+    //TOIMPL enable injected ware checkboxes when present but disabled
+    for (const auto& UncheckedWares :m_WaresNotFoundByType)
+    {
+      for (const auto& UncheckedWare : UncheckedWares.second)
+      {
+        for (const auto& WarePair : m_HubManager.getAvailableWaresWithDetails(UncheckedWares.first))
+        {
+          std::string IDInList = WarePair.first;
+          std::string IDRef = UncheckedWare["id"];
+          if (IDInList == IDRef)
+          {
+            QListWidgetItem* Item = m_MapWidgetHub[UncheckedWares.first][IDRef];
+            Item->setCheckState(Qt::Checked);
+          }
+        }
+      }
+    }
+  }                           
 }
 
 

@@ -75,7 +75,7 @@ bool WaresImportWorker::importElement(const GitElementToImport& Element)
   QObject::connect(&Git, SIGNAL(info(const QString&)), this, SIGNAL(info(const QString&)));
   QObject::connect(&Git, SIGNAL(error(const QString&)), this, SIGNAL(error(const QString&)));
   bool Success = Git.clone(Element.URL, DestPath, m_Username, m_Password, m_SslNoVerify);
-  if (Success && m_AutoCheckout)
+  if (m_AutoCheckout)//Success && 
   {
     checkoutBranch(DestPath, Element.Branch);
   }
