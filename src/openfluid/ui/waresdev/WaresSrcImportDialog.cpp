@@ -51,8 +51,10 @@
 #include <openfluid/ui/waresdev/WaresImportWorker.hpp>
 #include <openfluid/ui/waresdev/WaresSrcImportDialog.hpp>
 #include <openfluid/ui/waresdev/WaresSrcIOProgressDialog.hpp>
+#include <openfluid/ui/waresdev/WorkspaceDevDashboardDialog.hpp>
 #include <openfluid/ui/config.hpp>
 #include <openfluid/ui/waresdev/AbstractSrcImportDialog.hpp>
+#include <openfluid/waresdev/WareBuildOptions.hpp>
 #include <openfluid/waresdev/WareSrcEnquirer.hpp>
 #include <openfluid/waresdev/WareSrcHelpers.hpp>
 #include <openfluid/waresdev/WareSetManager.hpp>
@@ -756,7 +758,7 @@ void WaresSrcImportDialog::updatePackageWaresList()
 // =====================================================================
 
 
-std::map<openfluid::ware::WareType, QStringList> WaresSrcImportDialog::getSelectedWaresByType()
+std::map<openfluid::ware::WareType, QStringList> WaresSrcImportDialog::getSelectedWaresByType(bool AsID)
 {
   std::map<openfluid::ware::WareType, QStringList> Wares;
 
@@ -766,7 +768,14 @@ std::map<openfluid::ware::WareType, QStringList> WaresSrcImportDialog::getSelect
     {
       if (Item->checkState() == Qt::Checked)
       {
-        Wares[Pair.first] << Item->data(Qt::UserRole).toString();
+        if (AsID)
+        {
+          Wares[Pair.first] << Item->text();
+        }
+        else
+        {
+          Wares[Pair.first] << Item->data(Qt::UserRole).toString();
+        }
       }
     }
   }
@@ -827,8 +836,19 @@ void WaresSrcImportDialog::onImportAsked()
     LocalSrcImportSequenceManager->setSelectedWaresUrl(getSelectedWaresByType(), m_BranchByURL);
     LocalSrcImportSequenceManager->setupUser(Username, Password);
     setupImportManagerThread(LocalSrcImportSequenceManager, Thread, &ProgressDialog);
-    //TOIMPL change thread run to handle build case (based on ui->TryBuildCheckbox)
     runThread(Thread, ProgressDialog);
+    
+    if (ui->TryBuildCheckbox->isChecked())
+    {
+      // open dashboard with preselected items
+      QWidget* Parent = nullptr;
+      openfluid::waresdev::WareBuildOptions BuildOptions;
+      openfluid::ui::waresdev::WorkspaceDevDashboardDialog Dialog(Parent, BuildOptions, getSelectedWaresByType(true));
+      Dialog.setWindowTitle(tr("Development dashboard - from source import dialog"));
+      // TOIMPL add step to select wanted wares based on available data
+      // TOIMPL change label of checkbox to say we will open dashboard
+      Dialog.exec();
+    }
   }
   
 }

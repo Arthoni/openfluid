@@ -340,7 +340,7 @@
         <item>
          <widget class="QCheckBox" name="TryBuildCheckbox">
           <property name="text">
-           <string>Try to build wares (using current build settings of the workspace)</string>
+           <string>Open dashboard to operate on selected wares</string>
           </property>
          </widget>
         </item>

@@ -82,15 +82,15 @@ class OPENFLUID_API WorkspaceDevWaresWidget: public QWidget
     unsigned int m_WaresCount = 0;
 
     std::map<QString,WorkspaceDevActionsWidget*> m_ActionsWidgetsMap;
-
-
-  signals:
-
+    
+    
+    signals:
+    
     void selectionChanged();
-
-
-  public:
-
+    
+    
+    public:
+    
     static const WorkspaceDevDashboardTypes::ActionsByRows Actions;
 
     explicit WorkspaceDevWaresWidget(QWidget* Parent = nullptr);
@@ -101,6 +101,8 @@ class OPENFLUID_API WorkspaceDevWaresWidget: public QWidget
 
     unsigned int getWaresCount() const
     { return m_WaresCount; }
+
+    void selectWares(const QStringList& WareIDs) const;
 
     WorkspaceDevDashboardTypes::WaresSelection getSelection();
 

@@ -123,7 +123,7 @@ class OPENFLUID_API WaresSrcImportDialog: public AbstractSrcImportDialog
 
     QStringList getSelectedWares();
 
-    std::map<openfluid::ware::WareType, QStringList> getSelectedWaresByType();
+    std::map<openfluid::ware::WareType, QStringList> getSelectedWaresByType(bool AsID=false);
 
     bool wareItemDisplay(const openfluid::ware::WareType Type, const QString WareId, QListWidgetItem* Item);
 
