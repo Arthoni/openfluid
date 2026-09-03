@@ -424,12 +424,9 @@ WareSetManager::WareSetManager(const std::string& WareSourceType, const std::str
     }
     else
     {
-      // TOIMPL split by line (reuse system from internal import python function)
       std::string Line;
-      // DIRTYCODE WaresetListJson;
       while(getline(FileStream, Line))
       {
-        //std::cout << Line << std::endl;
         std::string LocalPath = "";
         std::vector<std::string> LS = openfluid::tools::split(Line, " ");
         std::string FullRepoURL = LS[0];
@@ -978,7 +975,8 @@ void WareSetManager::freeze(const std::string& FolderPathStr)
     openfluid::utils::GitProxy Git;
     try
     {
-      FreezeWareInfo["version"] = Git.getCurrentPosition(WarePath.toGeneric(), false);
+      FreezeWareInfo["version"] = Git.getCurrentPosition(WarePath.toGeneric(), 
+                                    openfluid::utils::GitProxy::GIT_POSITION::COMMIT);
     }
     catch (openfluid::utils::GitOperationException& E)
     {
