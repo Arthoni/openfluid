@@ -48,6 +48,23 @@ namespace openfluid { namespace thirdparty {
 
 /**
   Alias to embed the nlohmann::json third party library as openfluid::thirdparty::json
+
+  Basic examples:
+
+  openfluid::thirdparty::json ListOfItems(openfluid::thirdparty::json::value_t::array); // create a json list
+
+  for (unsigned int Data : {1,2,5})
+  {
+    openfluid::thirdparty::json Item(openfluid::thirdparty::json::value_t::object); // create a json map
+    Item["name"] = "My item "+std::to_string(Data); // map value can be a string
+    Item["data"] = Data;                            // map value can also be an int (or any built-in type)
+    ListOfItems.push_back(Item);  // adding json object to json list
+  }
+
+  // ListOfItems is now 
+  //   [{"name": "My item 1", "data": 1}, {"name": "My item 2", "data": 2}, {"name": "My item 5", "data": 5}]
+
+  See https://json.nlohmann.me/api/ordered_json/ for full documentation
 */
 using json = nlohmann::ordered_json;
 

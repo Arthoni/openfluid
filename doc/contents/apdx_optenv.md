@@ -65,7 +65,7 @@ Available options:
 * `--clean-output-dir, -c` : clean output directory before simulation
 * `--max-threads=<arg>, -t <arg>` : set maximum number of threads for threaded spatial loops (default is 4)
 * `--observers-paths=<arg>, -n <arg>` : add extra observers search paths (colon separated)
-* `--profiling, -k` : enable simulation profiling
+* `--profiling, -k` : enable simulation profiling (cf @ref apdx_profiling)
 * `--quiet, -q` : quiet display during simulation
 * `--simulators-paths=<arg>, -p <arg>` : add extra simulators search paths (colon separated)
 * `--verbose, -v` : verbose display during simulation
