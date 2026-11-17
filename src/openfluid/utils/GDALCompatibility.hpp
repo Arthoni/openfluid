@@ -44,6 +44,7 @@
 #define __OPENFLUID_UTILS_GDALCOMPATIBILITY_HPP__
 
 
+#ifndef OPENFLUID_FOR_WASM
 #include <gdal.h>
 
 
@@ -158,5 +159,21 @@
 #define GDALOFTInteger64_COMPAT OFTInteger64
 #define GDALOFTIntegerList64_COMPAT OFTIntegerList64
 
+#else
+
+namespace openfluid { namespace core {
+class GDALDataset
+{
+  GDALDataset(int v=0) {}
+};
+
+class GDALDataset_COMPAT : public GDALDataset
+{
+  
+};
+
+}}
+
+#endif
 
 #endif /* __OPENFLUID_UTILS_GDALCOMPATIBILITY_HPP__ */

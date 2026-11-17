@@ -39,8 +39,11 @@
 
 #include <boost/algorithm/string/join.hpp>
 
-#include <ogrsf_frmts.h>
-#include <gdal.h>
+
+#ifndef OPENFLUID_FOR_WASM
+  #include <ogrsf_frmts.h>
+  #include <gdal.h>
+#endif
 
 #include <openfluid/utils/GDALHelpers.hpp>
 
@@ -48,6 +51,7 @@
 namespace openfluid { namespace utils {
 
 
+#ifndef OPENFLUID_FOR_WASM
 const GDALDriversFilesExts_t getOGRFilesDriversForOpenFLUID()
 {
   GDALDriversFilesExts_t Drivers;
@@ -191,6 +195,6 @@ std::string getOGRGDALFormatsForQFileDialogs(const GDALDriversFilesExts_t& Drive
 
   return boost::algorithm::join(DetailedFormats,";;");
 }
-
+#endif
 
 } } // namespaces

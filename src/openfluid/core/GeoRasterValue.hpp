@@ -41,13 +41,16 @@
 #ifndef __OPENFLUID_CORE_GEORASTERVALUE_HPP__
 #define __OPENFLUID_CORE_GEORASTERVALUE_HPP__
 
-
-#include <gdal_priv.h>
-#include <cpl_conv.h> // for CPLMalloc()
+#ifndef OPENFLUID_FOR_WASM
+  #include <gdal_priv.h>
+  #include <cpl_conv.h> // for CPLMalloc()
+#endif
 
 #include <openfluid/core/GeoValue.hpp>
 #include <openfluid/dllexport.hpp>
-
+#ifdef OPENFLUID_FOR_WASM
+  #include <openfluid/utils/GDALCompatibility.hpp>
+#endif
 
 namespace openfluid { namespace core {
 

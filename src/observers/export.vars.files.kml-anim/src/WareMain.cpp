@@ -146,6 +146,7 @@ class KmlFilesAnimObserver : public KmlObserverBase
 
       std::string TmpStyleID = "anim_"+ m_AnimLayerInfo.UnitsClass+"_style";
 
+#ifndef OPENFLUID_FOR_WASM
       for (unsigned int i=0; i<m_AnimLayerInfo.ColorScale.size();i++)
       {
         if ((*(m_AnimLayerInfo.UnitsInfos.begin())).second.GeometryType == wkbPolygon)
@@ -165,7 +166,9 @@ class KmlFilesAnimObserver : public KmlObserverBase
           OPENFLUID_LogWarning("Unsupported geometry format in source geometry file");
         }
       }
-
+#else
+      OPENFLUID_LogWarning("Geos disabled");
+#endif
 
       for (std::map<openfluid::core::UnitID_t,KmlUnitInfo>::iterator it2=m_AnimLayerInfo.UnitsInfos.begin();
           it2!=m_AnimLayerInfo.UnitsInfos.end();
@@ -236,7 +239,7 @@ class KmlFilesAnimObserver : public KmlObserverBase
                          << m_AnimLayerInfo.getColorScaleIndexForValue(Val) << "</styleUrl>\n";
         }
 
-
+#ifndef OPENFLUID_FOR_WASM
         if ((*it2).second.GeometryType == wkbPolygon)
         {
             CurrentKmlFile << "<Polygon><tessellate>1</tessellate><outerBoundaryIs><LinearRing><coordinates>"
@@ -251,7 +254,9 @@ class KmlFilesAnimObserver : public KmlObserverBase
         {
           OPENFLUID_LogWarning("Unsupported geometry format in source geometry file");
         }
-
+#else
+        OPENFLUID_LogWarning("Geos disabled");
+#endif
 
         CurrentKmlFile << "    </Placemark>\n";
       }
@@ -314,7 +319,9 @@ class KmlFilesAnimObserver : public KmlObserverBase
         OPENFLUID_LogWarning(E.getMessage());
       }
 
+#ifndef OPENFLUID_FOR_WASM
       OGRRegisterAll();
+#endif
 
       OPENFLUID_GetRunEnvironment("dir.input",m_InputDir);
       OPENFLUID_GetRunEnvironment("dir.output",m_OutputDir);
@@ -556,6 +563,7 @@ class KmlFilesAnimObserver : public KmlObserverBase
           m_KmlFile << "      <styleUrl>#" << TmpStyleID << "</styleUrl>\n";
 
 
+#ifndef OPENFLUID_FOR_WASM
           if ((*it2).second.GeometryType == wkbPolygon)
           {
             m_KmlFile << "<Polygon><tessellate>1</tessellate><outerBoundaryIs><LinearRing><coordinates>"
@@ -567,7 +575,7 @@ class KmlFilesAnimObserver : public KmlObserverBase
             m_KmlFile << "<LineString><tessellate>1</tessellate><coordinates>" << (*it2).second.CoordsStr
                       << "</coordinates></LineString>\n";
           }
-
+#endif
 
           m_KmlFile << "    </Placemark>\n";
         }

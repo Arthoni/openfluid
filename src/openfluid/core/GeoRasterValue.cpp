@@ -48,7 +48,9 @@ namespace openfluid { namespace core {
 GeoRasterValue::GeoRasterValue(const std::string& FilePath, const std::string& FileName) :
     GeoValue(FilePath, FileName), mp_Data(0)
 {
+#ifndef OPENFLUID_FOR_WASM
   GDALAllRegister();
+#endif
 }
 
 
@@ -60,7 +62,9 @@ GeoRasterValue::~GeoRasterValue()
 {
   if (mp_Data)
   {
+#ifndef OPENFLUID_FOR_WASM
     GDALClose(mp_Data);
+#endif
   }
 }
 
@@ -97,6 +101,8 @@ GDALDataset* GeoRasterValue::data()
 void GeoRasterValue::tryToOpenSource()
 {
   // GDALOpenShared to allow copy then close of this raster in virtual format (see http://www.gdal.org/gdal_vrttut.html)
+
+#ifndef OPENFLUID_FOR_WASM
   mp_Data = static_cast<GDALDataset*>(GDALOpenShared(m_AbsolutePath.c_str(),
                                                GA_ReadOnly));
 
@@ -106,6 +112,7 @@ void GeoRasterValue::tryToOpenSource()
                                               "Error while trying to open file " + m_AbsolutePath +
                                               " (" + CPLGetLastErrorMsg() + ")");
   }
+#endif
 
 }
 

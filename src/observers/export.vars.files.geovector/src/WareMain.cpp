@@ -70,9 +70,11 @@ class GeoVectorSerie
 
     openfluid::core::TimeIndex_t LatestContinuousIndex;
 
+#ifndef OPENFLUID_FOR_WASM
     GDALDataset_COMPAT* GeoSource;
 
     OGRLayer* GeoLayer;
+#endif
 
     std::string OutfilePattern;
 
@@ -91,7 +93,9 @@ class GeoVectorSerie
       UnitsClass(UClass),
       VariablesSet(VarsSet),
       WhenMode(Mode), WhenContinuousDelay(ContModeDelay), LatestContinuousIndex(0),
+#ifndef OPENFLUID_FOR_WASM
       GeoSource(nullptr), GeoLayer(nullptr),
+#endif
       OutfilePattern(SName+"_%s."+OutfileExt),
       OFLDIDFieldIndex(-1)
     {
@@ -105,7 +109,9 @@ class GeoVectorSerie
 
     ~GeoVectorSerie()
     {
+#ifndef OPENFLUID_FOR_WASM
       GDALClose_COMPAT(GeoSource);
+#endif
     }
 
 };
@@ -279,6 +285,7 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
     void prepareSerie(GeoVectorSerie& Serie)
     {
       // opening and checking of source files
+#ifndef OPENFLUID_FOR_WASM
       Serie.GeoSource = GDALOpenRO_COMPAT(Serie.GeoSourceFilePath.c_str());
 
 
@@ -293,6 +300,7 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
 
         }
       }
+#endif
     }
 
 
@@ -347,6 +355,7 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
         std::string FullFilePath =
             m_OutputPath + "/" + openfluid::tools::format(Serie.OutfilePattern,IndexStr.c_str());
 
+#ifndef OPENFLUID_FOR_WASM
 
         GDALDriver_COMPAT* Driver = GDALGetDriverByName_COMPAT(m_GDALFormat.c_str());
 
@@ -471,6 +480,8 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
           }
         }
         GDALClose_COMPAT(CreatedFile);
+#endif
+
       }
     }
 
@@ -481,11 +492,13 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
 
     void closeSerie(GeoVectorSerie& Serie)
     {
+#ifndef OPENFLUID_FOR_WASM
       if (Serie.GeoSource)
       {
         GDALClose_COMPAT(Serie.GeoSource);
         Serie.GeoSource = nullptr;
       }
+#endif
     }
 
 
@@ -497,7 +510,9 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
 
     GeoVectorFilesObserver() : PluggableObserver()
     {
+#ifndef OPENFLUID_FOR_WASM
       GDALAllRegister_COMPAT();
+#endif
     }
 
 
@@ -550,6 +565,7 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
       // process of format parameter
       m_GDALFormat = ParamsTree.root().getChildValue("format","");
 
+#ifndef OPENFLUID_FOR_WASM
       openfluid::utils::GDALDriversFilesExts_t ValidVectorDrivers =
           openfluid::utils::getOGRFilesDriversForOpenFLUID();
 
@@ -627,6 +643,7 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
           }
         }
       }
+#endif
     }
 
 
@@ -658,6 +675,7 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
       // removal of wrong formatted source geovector file
       for (it=m_Series.begin();it!=m_Series.end(); )
       {
+#ifndef OPENFLUID_FOR_WASM
         if ((*it).GeoSource == nullptr)
         {
           OPENFLUID_LogWarning("Cannot open geographic source for serie "+(*it).SerieName);
@@ -687,6 +705,9 @@ class GeoVectorFilesObserver : public openfluid::ware::PluggableObserver
         {
           ++it;
         }
+#else
+        ++i;
+#endif
       }
 
 

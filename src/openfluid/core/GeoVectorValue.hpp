@@ -41,9 +41,10 @@
 #ifndef __OPENFLUID_CORE_GEOVECTORVALUE_HPP__
 #define __OPENFLUID_CORE_GEOVECTORVALUE_HPP__
 
-
-#include <gdal_priv.h>
-#include <ogrsf_frmts.h>
+#ifndef OPENFLUID_FOR_WASM
+  #include <gdal_priv.h>
+  #include <ogrsf_frmts.h>
+#endif
 
 #include <openfluid/dllexport.hpp>
 #include <openfluid/core/GeoValue.hpp>
@@ -107,6 +108,7 @@ class OPENFLUID_API GeoVectorValue: public openfluid::core::GeoValue
     */
     GDALDataset_COMPAT* data();
 
+#ifndef OPENFLUID_FOR_WASM
     /**
       Gets a layer of the shape.
       @param[in] LayerIndex The index of the asked layer, default 0.
@@ -200,6 +202,7 @@ class OPENFLUID_API GeoVectorValue: public openfluid::core::GeoValue
        @throw openfluid::base::FrameworkException if OGR doesn't succeed to open the datasource.
      */
      bool isMultiLineType(unsigned int LayerIndex = 0);
+#endif
 
      /**
        Returns true if the GeoVectorValue is MultiPoint type, false otherwise.

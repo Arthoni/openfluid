@@ -40,7 +40,9 @@
 #include <fstream>
 #include <algorithm>
 
-#include <curl/curl.h>
+#ifndef OPENFLUID_FOR_WASM
+  #include <curl/curl.h>
+#endif
 
 #include <openfluid/base/FrameworkException.hpp>
 #include <openfluid/utils/HTTPClient.hpp>
@@ -173,6 +175,7 @@ HTTPClient::Response HTTPClient::performRequest(const std::string& ReqMethod, co
   }
 
 
+#ifndef OPENFLUID_FOR_WASM
   // Curl initialization
   curl_global_init(CURL_GLOBAL_DEFAULT);
   auto Curl = curl_easy_init();
@@ -275,7 +278,7 @@ HTTPClient::Response HTTPClient::performRequest(const std::string& ReqMethod, co
   }
 
   curl_global_cleanup();
-
+#endif
   return Rep;
 }
 

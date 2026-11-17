@@ -48,7 +48,9 @@ namespace openfluid { namespace core {
 GeoVectorValue::GeoVectorValue(const std::string& FilePath, const std::string& FileName) :
   GeoValue(FilePath, FileName), mp_Data(nullptr)
 {
+#ifndef OPENFLUID_FOR_WASM
   GDALAllRegister_COMPAT();
+#endif
 }
 
 
@@ -70,7 +72,9 @@ void GeoVectorValue::destroyDataSource()
 {
   if (mp_Data)
   {
+#ifndef OPENFLUID_FOR_WASM
     GDALClose_COMPAT(mp_Data);
+#endif
     mp_Data = nullptr;
   }
 }
@@ -107,6 +111,7 @@ GDALDataset_COMPAT* GeoVectorValue::data()
 
 void GeoVectorValue::tryToOpenSource()
 {
+#ifndef OPENFLUID_FOR_WASM
   mp_Data = GDALOpenRO_COMPAT(m_AbsolutePath.c_str());
 
   if (!mp_Data)
@@ -114,13 +119,14 @@ void GeoVectorValue::tryToOpenSource()
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,
                                               "Error while trying to open file " + m_AbsolutePath);
   }
+#endif
 }
 
 
 // =====================================================================
 // =====================================================================
 
-
+#ifndef OPENFLUID_FOR_WASM
 OGRLayer* GeoVectorValue::layer(unsigned int LayerIndex)
 {
   return data()->GetLayer(LayerIndex);
@@ -243,6 +249,6 @@ bool GeoVectorValue::isMultiPointType(unsigned int LayerIndex)
 {
   return layerDef(LayerIndex)->GetGeomType() == wkbMultiPoint;
 }
-
+#endif
 
 } }  // namespaces

@@ -54,7 +54,7 @@
 #include <boost/process/v2/environment.hpp>
 #include <boost/process/v2/stdio.hpp>
 #include <boost/process/v2/start_dir.hpp>
-#else
+#else ifndef OPENFLUID_FOR_WASM
 #include <boost/process.hpp>
 #endif
 
@@ -250,7 +250,8 @@ bool Process::run()
     }
 
     m_ExitCode = Proc.exit_code();
-#else
+#else 
+#ifndef OPENFLUID_FOR_WASM
     boost::process::environment ProcessEnv;
     boost::process::ipstream StdOutStr;
     boost::process::ipstream StdErrStr;
@@ -344,6 +345,7 @@ bool Process::run()
 
     BPC.wait();
     m_ExitCode = BPC.exit_code();
+#endif
 #endif
   }
   catch(const std::exception& E)
@@ -455,6 +457,7 @@ int Process::system(const Command& Cmd, const Environment& Env)
                                               "Process error: " + std::string(E.what()));
   }
 #else
+#ifndef OPENFLUID_FOR_WASM
   boost::process::environment ProcessEnv;
 
   // prepare environment
@@ -500,6 +503,9 @@ int Process::system(const Command& Cmd, const Environment& Env)
     throw openfluid::base::FrameworkException(OPENFLUID_CODE_LOCATION,
                                               "Process error: " + std::string(E.what()));
   }
+#else
+  return -1;
+#endif
 #endif
 }
 

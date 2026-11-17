@@ -35,9 +35,10 @@
   @author Jean-Christophe Fabre <jean-christophe.fabre@inra.fr>
 */
 
-
-#include <ogr_geometry.h>
-#include <cpl_conv.h>
+#ifndef OPENFLUID_FOR_WASM
+  #include <ogr_geometry.h>
+  #include <cpl_conv.h>
+#endif
 
 #include <openfluid/core/SpatialUnit.hpp>
 
@@ -282,6 +283,7 @@ void SpatialUnit::streamContents(std::ostream& OStream)
 
 bool SpatialUnit::importGeometryFromWkt(const std::string& WKT)
 {
+#ifndef OPENFLUID_FOR_WASM
   if (m_Geometry)
   {
     deleteGeometry();
@@ -300,6 +302,9 @@ bool SpatialUnit::importGeometryFromWkt(const std::string& WKT)
   }
 
   return true;
+#else
+  return false;
+#endif
 }
 
 
@@ -309,6 +314,7 @@ bool SpatialUnit::importGeometryFromWkt(const std::string& WKT)
 
 std::string SpatialUnit::exportGeometryToWkt() const
 {
+#ifndef OPENFLUID_FOR_WASM
   if (!m_Geometry)
   {
     return "";
@@ -322,6 +328,9 @@ std::string SpatialUnit::exportGeometryToWkt() const
   CPLFree(WktBuffer);
 
   return WKT;
+#else
+  return "";//TODO check to throw error instead
+#endif
 }
 
 
@@ -331,11 +340,13 @@ std::string SpatialUnit::exportGeometryToWkt() const
 
 void SpatialUnit::deleteGeometry()
 {
+#ifndef OPENFLUID_FOR_WASM
   if (m_Geometry)
   {
     OGRGeometryFactory::destroyGeometry(m_Geometry);
     m_Geometry = nullptr;
   }
+#endif
 }
 
 

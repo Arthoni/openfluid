@@ -70,11 +70,14 @@
   #define OPENFLUID_PROCESSOR_ARM
   #define OPENFLUID_PROCESSOR_ARM_64
   #define OPENFLUID_PROCESSOR_IS_SUPPORTED
+#elif defined(__EMSCRIPTEN__)
+  #define OPENFLUID_PROCESSOR_WASM
+  #define OPENFLUID_PROCESSOR_IS_SUPPORTED
 #endif
 
 
 #if !defined(OPENFLUID_PROCESSOR_IS_SUPPORTED)
-  #error "OpenFLUID requires a supported processor"
+  //#error "OpenFLUID requires a supported processor"
 #endif
 
 
@@ -87,6 +90,9 @@
 #elif defined(OPENFLUID_PROCESSOR_ARM_64)
   #define OPENFLUID_PROCESSOR_STRLABEL "arm64"
   #define OPENFLUID_PROCESSOR_STRDESC "ARM 64bits"
+#elif defined(OPENFLUID_PROCESSOR_WASM)
+  #define OPENFLUID_PROCESSOR_STRLABEL "wasm"
+  #define OPENFLUID_PROCESSOR_STRDESC "WASM"
 #else
   #define OPENFLUID_PROCESSOR_STRLABEL ""
   #define OPENFLUID_PROCESSOR_STRDESC "unknown"

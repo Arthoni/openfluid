@@ -44,7 +44,9 @@
 #include <map>
 #include <set>
 
-#include <ogr_api.h>
+#ifndef OPENFLUID_FOR_WASM
+  #include <ogr_api.h>
+#endif
 
 #include <openfluid/dllexport.hpp>
 #include <openfluid/utils/GDALCompatibility.hpp>
@@ -52,6 +54,8 @@
 
 namespace openfluid { namespace utils {
 
+
+#ifndef OPENFLUID_FOR_WASM
 /**
   Structure associating a driver label with a list of corresponding files extensions
 */
@@ -157,7 +161,7 @@ inline bool OPENFLUID_API isOGRSurfacicType(OGRwkbGeometryType Type)
 
   return (OGR_GT_IsSubClassOf(FlatType,wkbSurface) || OGR_GT_IsSubClassOf(FlatType,wkbMultiSurface));
 }
-
+#endif
 
 } } // namespaces
 

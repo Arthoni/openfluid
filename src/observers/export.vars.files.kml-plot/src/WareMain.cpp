@@ -204,6 +204,7 @@ class KmlFilesPlotObserver : public KmlObserverBase
 
         std::string TmpStyleID = (*it).UnitsClass +"_style";
 
+#ifndef OPENFLUID_FOR_WASM
         if ((*((*it).UnitsInfos.begin())).second.GeometryType == wkbPolygon)
         {
           KmlFile << "    <Style id=\"" << TmpStyleID << "\"><PolyStyle><color>"<< (*it).DefaultColor
@@ -284,6 +285,12 @@ class KmlFilesPlotObserver : public KmlObserverBase
 
           KmlFile << "    </Placemark>\n";
         }
+#else
+        OPENFLUID_LogWarning("Geos disabled");
+        m_OKToGo = false;
+        return;
+#endif
+
 
         KmlFile << "    </Folder>\n";
       }
@@ -353,7 +360,9 @@ class KmlFilesPlotObserver : public KmlObserverBase
       }
 
 
+#ifndef OPENFLUID_FOR_WASM
       OGRRegisterAll();
+#endif
 
       OPENFLUID_GetRunEnvironment("dir.input",m_InputDir);
       OPENFLUID_GetRunEnvironment("dir.output",m_OutputDir);
@@ -412,10 +421,12 @@ class KmlFilesPlotObserver : public KmlObserverBase
             KSI.SourceFilename = m_InputDir + "/" + KSI.SourceFilename;
           }
 
+#ifndef OPENFLUID_FOR_WASM
           if (transformVectorLayerToKmlGeometry(KSI))
           {
             m_KmlSeriesInfos.push_back(KSI);
           }
+#endif
 
         }
       }
