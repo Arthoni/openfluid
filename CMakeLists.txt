@@ -15,6 +15,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
 PROJECT(OpenFLUID CXX)
 
+ADD_DEFINITIONS("-DOPENFLUID_FOR_WASM") #not tested
 
 ################## build options ##################
 

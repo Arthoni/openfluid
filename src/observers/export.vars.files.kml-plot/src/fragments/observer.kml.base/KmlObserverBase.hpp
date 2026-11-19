@@ -41,7 +41,9 @@
 #define __KMLOBSERVERBASE_HPP__
 
 
-#include <ogrsf_frmts.h>
+#ifndef OPENFLUID_FOR_WASM
+  #include <ogrsf_frmts.h>
+#endif
 
 #include <openfluid/tools/Filesystem.hpp>
 #include <openfluid/tools/FilesystemPath.hpp>
@@ -62,12 +64,19 @@ class KmlUnitInfo
 
     std::string CoordsStr;
 
+#ifndef OPENFLUID_FOR_WASM
     OGRwkbGeometryType GeometryType;
+#endif
 
     openfluid::core::UnitID_t UnitID;
 
+#ifndef OPENFLUID_FOR_WASM
     KmlUnitInfo() : CoordsStr(""), GeometryType(wkbUnknown)
                     {};
+#else
+    KmlUnitInfo() : CoordsStr("")
+                    {};
+#endif
 };
 
 
@@ -125,6 +134,7 @@ class KmlObserverBase : public openfluid::ware::PluggableObserver
     bool transformVectorLayerToKmlGeometry(KmlLayerInfo<T>& LayerInfo)
     {
 
+#ifndef OPENFLUID_FOR_WASM
       // TODO manage when data are coming from datastore
 
       GDALDataset_COMPAT* DataSource;
@@ -258,9 +268,10 @@ class KmlObserverBase : public openfluid::ware::PluggableObserver
 
 
       GDALClose_COMPAT(DataSource);
-
+#else
 
       return true;
+#endif
     }
 
 

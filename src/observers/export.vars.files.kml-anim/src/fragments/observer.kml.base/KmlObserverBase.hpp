@@ -271,6 +271,7 @@ class KmlObserverBase : public openfluid::ware::PluggableObserver
 #else
 
       return true;
+#endif
     }
 
 
