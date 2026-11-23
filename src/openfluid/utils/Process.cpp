@@ -41,7 +41,6 @@
 #include <fstream>
 #include <sstream>
 #include <iterator>
-
 #if (Boost_VERSION_MINOR > 85) && defined(OPENFLUID_OS_WINDOWS)
 #include <winsock2.h> // FIXME check if useful or necessary, theorically useful to respect include order
 #endif
@@ -54,8 +53,10 @@
 #include <boost/process/v2/environment.hpp>
 #include <boost/process/v2/stdio.hpp>
 #include <boost/process/v2/start_dir.hpp>
-#else ifndef OPENFLUID_FOR_WASM
+#else 
+#ifndef OPENFLUID_FOR_WASM
 #include <boost/process.hpp>
+#endif
 #endif
 
 #include <openfluid/tools/FilesystemPath.hpp>

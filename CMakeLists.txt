@@ -15,7 +15,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
 PROJECT(OpenFLUID CXX)
 
-ADD_DEFINITIONS("-DOPENFLUID_FOR_WASM") #not tested
+OPTION(OFBUILD_ENABLE_WASM "enable build for WebAssembly" OFF)
+IF(OFBUILD_ENABLE_WASM)
+  ADD_DEFINITIONS("-DOPENFLUID_FOR_WASM") #ongoing testing
+ENDIF()
 
 ################## build options ##################
 
