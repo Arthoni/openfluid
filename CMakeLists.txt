@@ -15,10 +15,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
 
 PROJECT(OpenFLUID CXX)
 
-OPTION(OFBUILD_ENABLE_WASM "enable build for WebAssembly" OFF)
-IF(OFBUILD_ENABLE_WASM)
-  ADD_DEFINITIONS("-DOPENFLUID_FOR_WASM") #ongoing testing
-ENDIF()
 
 ################## build options ##################
 
@@ -44,6 +40,7 @@ OPTION(OFBUILD_TESTS_ALLOW_NETWORK_REQUESTS "allow network requests in tests" ON
 
 OPTION(OFPACK_FULL_DEPENDENCIES "enable installation of all dependencies for cpack" OFF)
 
+OPTION(OFBUILD_ENABLE_WASM "enable build for WebAssembly" OFF)
 
 ################## project configuration ##################
 
